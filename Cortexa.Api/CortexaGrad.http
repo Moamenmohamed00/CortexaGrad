@@ -1,0 +1,6 @@
+@CortexaGrad_HostAddress = http://localhost:5265
+
+GET {{CortexaGrad_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
