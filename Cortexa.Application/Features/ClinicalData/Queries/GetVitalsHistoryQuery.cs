@@ -1,0 +1,6 @@
+namespace Cortexa.Application.Features.ClinicalData.Queries
+{
+    public class GetVitalsHistoryQuery
+    {
+    }
+}
