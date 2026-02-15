@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using Cortexa.Domain.ValueObjects;
+using Cortexa.Domain.Enums;
+
+namespace Cortexa.Domain.Common
+{
+    public abstract class AppUser : BaseEntity
+    {
+        public string Name { get; set; } = string.Empty;
+        public List<string> PhoneNumbers { get; set; } = new List<string>();
+        public string Email { get; set; } = string.Empty;
+        public Address Address { get; set; } = null!; // EF Core will set this
+        public DateTime DateOfBirth { get; set; }
+        public Gender Gender { get; set; }
+
+        public int GetAge()
+        {
+            var today = DateTime.Today;
+            var age = today.Year - DateOfBirth.Year;
+            if (DateOfBirth.Date > today.AddYears(-age)) age--;
+            return age;
+        }
+
+        protected AppUser()
+        {
+        }
+    }
+}

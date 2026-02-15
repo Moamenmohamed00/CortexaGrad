@@ -2,6 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Cortexa API",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/Cortexa.Api/Cortexa.Api.csproj"
+        },
+        {
             "name": ".NET Core Launch (web)",
             "type": "coreclr",
             "request": "launch",
@@ -17,9 +23,6 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
             }
         },
         {

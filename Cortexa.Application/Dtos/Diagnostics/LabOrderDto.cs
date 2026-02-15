@@ -1,6 +1,14 @@
-namespace Cortexa.Application.DTOs.Diagnostics
+using System;
+using System.Collections.Generic;
+
+namespace Cortexa.Application.Dtos.Diagnostics
 {
-    public class LabOrderDto
-    {
-    }
+    public record LabOrderDto(
+        string Id,
+        string TestName,
+        DateTime OrderDate,
+        string AdmissionId,
+        string DoctorId,
+        List<LabResultDto> Results
+    );
 }

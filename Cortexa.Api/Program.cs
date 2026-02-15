@@ -1,15 +1,39 @@
+using Cortexa.Application;
+using Cortexa.Infrastructure;
+using Cortexa.Infrastructure.Persistence.Seeding;
+using Cortexa.Api.Extensions;
+using Cortexa.Api.Hubs;
+using Cortexa.Api.Middlewares;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ── Service Registration ───────────────────────────────────────────
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApiServices();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// ── CORS ───────────────────────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ── Database Seeding (Development) ─────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    await DatabaseSeeder.SeedAsync(app.Services);
+}
+
+// ── HTTP Request Pipeline ──────────────────────────────────────────
+app.UseMiddleware<ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +41,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors();
+app.UseAuthentication();
+app.UseMiddleware<ApiKeyMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// ── SignalR Hubs ───────────────────────────────────────────────────
+app.MapHub<AlertHub>("/hubs/alerts");
+app.MapHub<MonitoringHub>("/hubs/monitoring");
 
 app.Run();
