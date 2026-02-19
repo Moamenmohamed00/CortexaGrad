@@ -6,7 +6,7 @@ using Cortexa.Domain.Enums;
 namespace Cortexa.Domain.Entities.AI
 {
     public class RAGQuery : BaseEntity
-    {
+    {/*check from moamen*/
         public string QueryText { get; set; } = string.Empty;
         public float ScoreTrust { get; set; }
         public RelevanceLevel RelevanceLevel { get; set; }

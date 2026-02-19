@@ -24,6 +24,9 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
             builder.Property(p => p.Email)
                 .IsRequired()
                 .HasMaxLength(200);
+            builder.Property(p=>p.NationalId)
+                .IsRequired()
+                .HasMaxLength(20);
 
             // PhoneNumbers stored as JSON column
             builder.Property(p => p.PhoneNumbers)

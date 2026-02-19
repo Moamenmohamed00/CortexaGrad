@@ -10,6 +10,7 @@ namespace Cortexa.Application.Interfaces.Repositories
         Task<T?> GetByIdAsync(string id);
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<T> AddAsync(T entity);
+        //CancellationToken to stop query not be used to save recourcies
         Task<T> AddAsync(T entity, CancellationToken cancellationToken); // Added overload
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);

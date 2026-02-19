@@ -12,6 +12,7 @@ namespace Cortexa.Domain.Entities.Actors
         public string? DiagnosisSummary { get; set; }
         public BloodType BloodType { get; set; }
 
+
         // ER Diagram: Age (computed from DateOfBirth in AppUser)
         public int Age => GetAge();
 

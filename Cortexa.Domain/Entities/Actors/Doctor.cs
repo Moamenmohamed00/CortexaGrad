@@ -10,7 +10,7 @@ namespace Cortexa.Domain.Entities.Actors
 {
     public class Doctor : AppUser
     {
-            public string Specialty { get; set; } = string.Empty;
+         public string Specialty { get; set; } = string.Empty;
         public ShiftType Shift { get; set; }
         public DoctorRole Role { get; set; }
         public string Department { get; set; } = string.Empty;

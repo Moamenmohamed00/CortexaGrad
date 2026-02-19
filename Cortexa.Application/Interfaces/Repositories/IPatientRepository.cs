@@ -8,5 +8,7 @@ namespace Cortexa.Application.Interfaces.Repositories
     {
         Task<Patient?> GetByNationalIdAsync(string nationalId);
         Task<IReadOnlyList<Patient>> GetActivePatientsAsync();
+        // add nationid properaty in configration file to all classes
+        //we need indexer to search by name
     }
 }

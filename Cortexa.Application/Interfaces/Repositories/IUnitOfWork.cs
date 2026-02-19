@@ -14,5 +14,6 @@ namespace Cortexa.Application.Interfaces.Repositories
         IAIRepository AI { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        // managment all transaction on this tables to be synchronized
     }
 }

@@ -18,10 +18,13 @@ namespace Cortexa.Application.Interfaces.Repositories
         Task<IReadOnlyList<Medications>> GetMedicationsByAdmissionIdAsync(string admissionId);
         Task<IReadOnlyList<NursingNotes>> GetNursingNotesByAdmissionIdAsync(string admissionId);
         Task<IReadOnlyList<FluidBalance>> GetFluidBalanceByAdmissionIdAsync(string admissionId);
-
+        //Task<IReadOnlyList<CaseHistory>> GetCaseHistoryeByAdmissionIdAsync(string admissionId);
+        //Task<IReadOnlyList<InterventionProcedure>> GetInterventionProcedureByAdmissionIdAsync(string admissionId);
         Task AddVitalSignsAsync(VitalSigns vitalSigns, CancellationToken cancellationToken);
         Task AddMedicationAsync(Medications medication, CancellationToken cancellationToken);
         Task AddNursingNoteAsync(NursingNotes nursingNote, CancellationToken cancellationToken);
         Task AddFluidBalanceAsync(FluidBalance fluidBalance, CancellationToken cancellationToken);
+        //
+        //
     }
 }

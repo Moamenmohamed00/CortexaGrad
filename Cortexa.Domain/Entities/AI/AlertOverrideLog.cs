@@ -7,6 +7,7 @@ namespace Cortexa.Domain.Entities.AI
 {
     public class AlertOverrideLog : BaseEntity
     {
+        /*change Status Severity*/
         public string Reason { get; set; } = string.Empty;
         public DateTime OverrideTime { get; set; }
 

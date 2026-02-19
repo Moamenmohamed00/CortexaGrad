@@ -13,6 +13,7 @@ namespace Cortexa.Domain.Common
         public Address Address { get; set; } = null!; // EF Core will set this
         public DateTime DateOfBirth { get; set; }
         public Gender Gender { get; set; }
+        public string NationalId { get; set; }//validation: unique, required, max length 20
 
         public int GetAge()
         {

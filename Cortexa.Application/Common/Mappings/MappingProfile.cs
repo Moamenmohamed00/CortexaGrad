@@ -10,7 +10,7 @@ using Cortexa.Domain.Entities.Core;
 using Cortexa.Domain.Entities.Clinical;
 using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
-
+using Cortexa.Domain.ValueObjects;
 namespace Cortexa.Application.Common.Mappings
 {
     public class MappingProfile : Profile
@@ -25,7 +25,7 @@ namespace Cortexa.Application.Common.Mappings
 
             // Core
             CreateMap<Admission, AdmissionDto>();
-            CreateMap<Cortexa.Domain.ValueObjects.Address, AddressDto>();
+            CreateMap<Address, AddressDto>();
 
             // Clinical
             CreateMap<VitalSigns, VitalSignsDto>();

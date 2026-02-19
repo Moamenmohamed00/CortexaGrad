@@ -2,6 +2,7 @@ namespace Cortexa.Domain.ValueObjects
 {
     public class BloodPressure
     {
+        //120/80
         public int Systolic { get; init; }
         public int Diastolic { get; init; }
         private BloodPressure(int systolic, int diastolic)

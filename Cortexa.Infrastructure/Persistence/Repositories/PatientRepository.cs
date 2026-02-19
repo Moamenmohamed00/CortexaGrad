@@ -12,7 +12,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public async Task<Patient?> GetByNationalIdAsync(string nationalId)
         {
             return await _context.Patients
-                .FirstOrDefaultAsync(p => p.FileNumber == nationalId);
+                .FirstOrDefaultAsync(p => p.NationalId == nationalId);
         }
 
         public async Task<IReadOnlyList<Patient>> GetActivePatientsAsync()

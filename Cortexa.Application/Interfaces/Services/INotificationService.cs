@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cortexa.Application.Interfaces.Services
@@ -13,6 +13,7 @@ namespace Cortexa.Application.Interfaces.Services
 
         // Traditional notifications
         Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default);
-        Task SendSmsAsync(string to, string message, CancellationToken cancellationToken = default);
+        //Task SendSmsAsync(string to, string message, CancellationToken cancellationToken = default);
+        /*ابعت كورس السيجنال ار يا عبد الغني*/
     }
 }

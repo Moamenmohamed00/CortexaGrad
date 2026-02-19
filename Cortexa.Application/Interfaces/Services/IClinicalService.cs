@@ -9,5 +9,7 @@ namespace Cortexa.Application.Interfaces.Services
         Task<MedicationDto> PrescribeMedicationAsync(string admissionId, MedicationDto medication);
         Task<NursingNotesDto> AddNursingNoteAsync(string admissionId, NursingNotesDto note);
         Task<FluidBalanceDto> RecordFluidBalanceAsync(string admissionId, FluidBalanceDto fluid);
+        /*Task<CaseHistoryDto> AddCaseHistoryAsync(string admissionId, CaseHistoryDto caseHistory);
+         task<InterventionProcedureDto> AddInterventionProcedureAsync(string admissionId, InterventionProcedureDto procedure);*/
     }
 }

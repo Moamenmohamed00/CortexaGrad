@@ -8,12 +8,13 @@ namespace Cortexa.Domain.Entities.AI
 {
     public class Alert : BaseEntity
     {
+        /*send message if vital not regular*/
         public string AlertMessage { get; set; } = string.Empty; // e.g. "Sepsis Warning", "Drug Interaction"
         public AlertSeverity Severity { get; set; }
         public DateTime GeneratedAt { get; set; }
         public AlertStatus Status { get; set; }
 
-        public string AdmissionId { get; set; } = string.Empty;
+        public string AdmissionId { get; set; }
         public Admission Admission { get; set; } = null!; // EF Core will set this
 
         // Navigation Properties
