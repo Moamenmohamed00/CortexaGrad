@@ -1,4 +1,4 @@
-using AutoMapper;
+Ôªøusing AutoMapper;
 using Cortexa.Application.Dtos.Patient;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.Actors;
@@ -40,13 +40,13 @@ namespace Cortexa.Application.Features.Patients.Commands
 
             var patient = new Patient
             {
-                // filenumber ‰⁄„·Â »⁄œÌ‰ Ì“Ìœ ·ÊÕœÂ
+                // filenumber √§√ö√£√°√• √à√ö√è√≠√§ √≠√í√≠√è √°√¶√ç√è√•
                 Name = request.Name,
                 FileNumber = request.NationalId,
                 DateOfBirth = request.DateOfBirth,
                 Gender = request.Gender,
                 Email = request.Email ?? string.Empty,
-                PhoneNumber = string.IsNullOrEmpty(request.Phone) ? null :  request.Phone ,
+                PhoneNumber = request.Phone ?? string.Empty,
                 Address = address,
                 BloodType = request.BloodType,
                 DiagnosisSummary = request.DiagnosisSummary,
@@ -76,3 +76,4 @@ namespace Cortexa.Application.Features.Patients.Commands
         }
     }
 }
+
