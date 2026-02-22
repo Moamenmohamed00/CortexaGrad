@@ -1,4 +1,5 @@
 using Cortexa.Application.Dtos.Auth;
+using Cortexa.Application.Dtos.Core;
 
 namespace Cortexa.Application.Common.Interfaces
 {
@@ -8,6 +9,6 @@ namespace Cortexa.Application.Common.Interfaces
     /// </summary>
     public interface IIdentityService
     {
-        Task<AuthResponseDto> LoginAsync(string email, string password);
+        Task<ResultDto<AuthResponseDto>> LoginAsync(string email, string password);
     }
 }

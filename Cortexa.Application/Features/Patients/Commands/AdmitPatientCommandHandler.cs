@@ -40,15 +40,17 @@ namespace Cortexa.Application.Features.Patients.Commands
 
             var patient = new Patient
             {
+                // filenumber ‰⁄„·Â »⁄œÌ‰ Ì“Ìœ ·ÊÕœÂ
                 Name = request.Name,
                 FileNumber = request.NationalId,
                 DateOfBirth = request.DateOfBirth,
                 Gender = request.Gender,
                 Email = request.Email ?? string.Empty,
-                PhoneNumbers = string.IsNullOrEmpty(request.Phone) ? new List<string>() : new List<string> { request.Phone },
+                PhoneNumber = string.IsNullOrEmpty(request.Phone) ? null :  request.Phone ,
                 Address = address,
                 BloodType = request.BloodType,
-                DiagnosisSummary = request.DiagnosisSummary
+                DiagnosisSummary = request.DiagnosisSummary,
+                NationalId= request.NationalId,
             };
 
             await _patientRepository.AddAsync(patient, cancellationToken);

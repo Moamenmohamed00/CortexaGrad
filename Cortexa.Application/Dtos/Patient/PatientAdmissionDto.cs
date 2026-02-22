@@ -2,6 +2,7 @@ namespace Cortexa.Application.Dtos.Patient
 {
     public class PatientAdmissionDto
     {
+        public string NationalId { get; set; } = string.Empty;
         public string PatientId { get; set; } = string.Empty;
         public string FileNumber { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

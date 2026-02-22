@@ -24,12 +24,9 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(n => n.PhoneNumbers)
+            builder.Property(n => n.PhoneNumber)
                 .HasColumnType("nvarchar(max)")
-                .HasConversion(
-                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                    v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
-                );
+            ;
 
             builder.OwnsOne(n => n.Address, address =>
             {
@@ -38,6 +35,9 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
                 address.Property(a => a.State).HasMaxLength(100).HasColumnName("Address_State");
                 address.Property(a => a.ZipCode).HasMaxLength(20).HasColumnName("Address_ZipCode");
             });
+            builder.Property(p => p.NationalId)
+    .IsRequired()
+    .HasMaxLength(20);
 
             // ── Nurse-Specific Fields ──────────────────────────────────
             builder.Property(n => n.Department)

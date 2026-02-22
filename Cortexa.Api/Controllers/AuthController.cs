@@ -14,8 +14,8 @@ namespace Cortexa.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
-            var userId = await Sender.Send(new RegisterCommand(request));
-            return Ok(new { userId });
+            var result = await Sender.Send(new RegisterCommand(request));
+            return Ok(result);
         }
 
         /// <summary>
@@ -34,20 +34,19 @@ namespace Cortexa.Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
         {
-            await Sender.Send(new ForgotPasswordCommand(request.Email));
-            return Ok(new { message = "If the email exists, a reset OTP has been sent." });
+            var result = await Sender.Send(new ForgotPasswordCommand(request.Email));
+            return Ok(result);
         }
-
         /// <summary>
         /// Resets the password using the provided OTP.
         /// </summary>
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
         {
-            var success = await Sender.Send(new ResetPasswordCommand(request.Email, request.Otp, request.NewPassword));
-            return success
-                ? Ok(new { message = "Password has been reset successfully." })
-                : BadRequest(new { message = "Invalid or expired OTP." });
+            var result = await Sender.Send(
+                new ResetPasswordCommand(request.Email, request.Otp, request.NewPassword));
+
+            return Ok(result);
         }
     }
 }

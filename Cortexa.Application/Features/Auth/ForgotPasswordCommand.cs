@@ -1,13 +1,15 @@
+using Cortexa.Application.Dtos.Auth;
+using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Interfaces.Services;
 using MediatR;
 
 namespace Cortexa.Application.Features.Auth
 {
     // ── Command ────────────────────────────────────────────────────────
-    public record ForgotPasswordCommand(string Email) : IRequest<bool>;
+    public record ForgotPasswordCommand(string Email) : IRequest<ResultDto<bool>>;
 
     // ── Handler ────────────────────────────────────────────────────────
-    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, bool>
+    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, ResultDto<bool>>
     {
         private readonly IIdentityService _identityService;
 
@@ -16,7 +18,7 @@ namespace Cortexa.Application.Features.Auth
             _identityService = identityService;
         }
 
-        public async Task<bool> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<ResultDto<bool>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             return await _identityService.SendPasswordResetOtpAsync(request.Email);
         }

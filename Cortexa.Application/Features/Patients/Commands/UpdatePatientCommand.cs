@@ -20,6 +20,8 @@ namespace Cortexa.Application.Features.Patients.Commands
         public string ZipCode { get; set; } = string.Empty;
         public string? DiagnosisSummary { get; set; }
         public BloodType? BloodType { get; set; }
+
+        public string NationalId { get; set; } = string.Empty;
     }
 
     public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand, bool>
@@ -40,7 +42,7 @@ namespace Cortexa.Application.Features.Patients.Commands
 
             if (!string.IsNullOrEmpty(request.PhoneNumber))
             {
-                patient.PhoneNumbers = new List<string> { request.PhoneNumber };
+                patient.PhoneNumber=   request.PhoneNumber ;
             }
 
             if (!string.IsNullOrEmpty(request.Street))
@@ -52,6 +54,13 @@ namespace Cortexa.Application.Features.Patients.Commands
             {
                 patient.DiagnosisSummary = request.DiagnosisSummary;
             }
+
+
+            if (!string.IsNullOrEmpty(request.NationalId))
+            {
+                patient.NationalId = request.NationalId;
+            }
+
 
             if (request.BloodType.HasValue)
             {

@@ -21,7 +21,7 @@ namespace Cortexa.Infrastructure.Persistence.Seeding
 
                 // Recreate database to pick up schema changes (Identity tables, etc.)
                 // WARNING: This deletes all data — suitable for development only.
-               // await context.Database.EnsureDeletedAsync();
+                //await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
 
                 // 1. Master data first (Rooms & Beds)

@@ -29,12 +29,9 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
                 .HasMaxLength(20);
 
             // PhoneNumbers stored as JSON column
-            builder.Property(p => p.PhoneNumbers)
+            builder.Property(p => p.PhoneNumber)
                 .HasColumnType("nvarchar(max)")
-                .HasConversion(
-                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                    v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!
-                );
+                ;
 
             // Address as owned entity (maps to columns in same table)
             builder.OwnsOne(p => p.Address, address =>

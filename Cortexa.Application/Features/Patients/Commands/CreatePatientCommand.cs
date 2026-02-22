@@ -24,6 +24,8 @@ namespace Cortexa.Application.Features.Patients.Commands
         public string ZipCode { get; set; } = string.Empty;
         public string FileNumber { get; set; } = string.Empty;
         public BloodType BloodType { get; set; }
+
+        public string NationalId {  get; set; } = string.Empty;
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, string>
@@ -47,7 +49,8 @@ namespace Cortexa.Application.Features.Patients.Commands
                 Gender = request.Gender,
                 Address = new Address(request.Street, request.City, request.State, request.Country, request.ZipCode),
                 FileNumber = request.FileNumber,
-                BloodType = request.BloodType
+                BloodType = request.BloodType,
+                NationalId = request.NationalId,
             };
 
             // Name is in AppUser? AppUser usually has FirstName/LastName or FullName. 
@@ -72,7 +75,7 @@ namespace Cortexa.Application.Features.Patients.Commands
 
             // But wait, I can just write the file and fix if needed.
             // I'll add PhoneNumbers.
-            patient.PhoneNumbers = new List<string> { request.PhoneNumber };
+            patient.PhoneNumber = request.PhoneNumber ;
 
             await _patientRepository.AddAsync(patient, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

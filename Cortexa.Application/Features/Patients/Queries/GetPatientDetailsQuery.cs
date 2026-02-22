@@ -14,11 +14,14 @@ namespace Cortexa.Application.Features.Patients.Queries
         public string Name { get; set; } = string.Empty;
         public string FileNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public List<string> PhoneNumbers { get; set; } = new();
+        public string PhoneNumber { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; } = string.Empty;
         public string? DiagnosisSummary { get; set; }
         public string BloodType { get; set; } = string.Empty;
+
+        public string NationalId { get; set; } = string.Empty;
+
         public List<AdmissionDto> Admissions { get; set; } = new();
     }
 
@@ -52,12 +55,13 @@ namespace Cortexa.Application.Features.Patients.Queries
                 Name = patient.Name,
                 FileNumber = patient.FileNumber,
                 Email = patient.Email,
-                PhoneNumbers = patient.PhoneNumbers,
+                PhoneNumber = patient.PhoneNumber,
                 DateOfBirth = patient.DateOfBirth,
                 Gender = patient.Gender.ToString(),
                 DiagnosisSummary = patient.DiagnosisSummary,
                 BloodType = patient.BloodType.ToString(),
-                Admissions = _mapper.Map<List<AdmissionDto>>(admissions)
+                Admissions = _mapper.Map<List<AdmissionDto>>(admissions),
+                NationalId = patient.NationalId,
             };
 
             return dto;

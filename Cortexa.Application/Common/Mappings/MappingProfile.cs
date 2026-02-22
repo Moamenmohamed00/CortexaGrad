@@ -50,13 +50,14 @@ namespace Cortexa.Application.Common.Mappings
             // Legacy / Specific Mappings
             CreateMap<Patient, PatientAdmissionDto>()
                 .ForMember(d => d.AdmissionId, o => o.Ignore())
+                .ForMember(d=>d.NationalId, o => o.Ignore())
                 .ForMember(d => d.AdmissionDate, o => o.Ignore())
                 .ForMember(d => d.InitialDiagnosis, o => o.Ignore())
                 .ForMember(d => d.Status, o => o.Ignore())
                 .ForMember(d => d.BedId, o => o.Ignore())
                 .ForMember(d => d.RoomId, o => o.Ignore())
                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Gender.ToString()))
-                .ForMember(d => d.Phone, o => o.MapFrom(s => s.PhoneNumbers.FirstOrDefault()));
+                .ForMember(d => d.Phone, o => o.MapFrom(s => s.PhoneNumber.FirstOrDefault()));
 
             CreateMap<Admission, PatientAdmissionDto>()
                 .ForMember(d => d.PatientId, o => o.Ignore())

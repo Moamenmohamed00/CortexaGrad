@@ -9,7 +9,7 @@ namespace Cortexa.Application.Dtos.Actors
         string Id,
         string Name,
         string Email,
-        List<string> PhoneNumbers,
+        string PhoneNumber,
         DateTime DateOfBirth,
         Gender Gender,
         AddressDto Address,

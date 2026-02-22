@@ -25,7 +25,7 @@ namespace Cortexa.Application.Dtos.Auth
         [Required]
         public string FullName { get; set; } = string.Empty;
 
-        public List<string> PhoneNumbers { get; set; } = new();
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public DateTime DateOfBirth { get; set; }
 
@@ -33,6 +33,14 @@ namespace Cortexa.Application.Dtos.Auth
         /// 0 = Male, 1 = Female  (maps to Gender enum)
         /// </summary>
         public int Gender { get; set; }
+
+        [Required(ErrorMessage = "الرقم القومي مطلوب")]
+        [StringLength(14, MinimumLength = 14,
+          ErrorMessage = "الرقم القومي يجب أن يكون 14 رقمًا")]
+        [RegularExpression(@"^\d{14}$",
+          ErrorMessage = "الرقم القومي يجب أن يحتوي على أرقام فقط")]
+        public string NationalId { get; set; } = string.Empty;
+
 
         // Address
         public string Street { get; set; } = string.Empty;
