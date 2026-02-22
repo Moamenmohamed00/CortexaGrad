@@ -1,6 +1,15 @@
-namespace Cortexa.Application.DTOs.Clinical
+using System;
+using Cortexa.Domain.Enums;
+
+namespace Cortexa.Application.Dtos.Clinical
 {
-    public class FluidBalanceDto
-    {
-    }
+    public record FluidBalanceDto(
+        string Id,
+        DateTime RecordedAt,
+        FluidBalanceCategory Category,
+        FluidType Type,
+        int AmountMl,
+        string AdmissionId,
+        string NurseId
+    );
 }

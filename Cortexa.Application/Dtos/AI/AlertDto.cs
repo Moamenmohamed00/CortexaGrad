@@ -1,6 +1,14 @@
-namespace Cortexa.Application.DTOs.AI
+using System;
+using Cortexa.Domain.Enums;
+
+namespace Cortexa.Application.Dtos.AI
 {
-    public class AlertDto
-    {
-    }
+    public record AlertDto(
+        string Id,
+        string AlertMessage,
+        AlertSeverity Severity,
+        DateTime GeneratedAt,
+        AlertStatus Status,
+        string AdmissionId
+    );
 }
