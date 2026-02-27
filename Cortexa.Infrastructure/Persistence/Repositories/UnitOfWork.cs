@@ -1,4 +1,6 @@
 using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
+using Cortexa.Infrastructure.Persistence.Repositories.Clinical;
 
 namespace Cortexa.Infrastructure.Persistence.Repositories
 {
@@ -10,7 +12,14 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         // Lazy-loaded backing fields
         private IPatientRepository? _patients;
         private IAdmissionRepository? _admissions;
-        private IClinicalRepository? _clinical;
+        //private IClinicalRepository? _clinical;
+        private IVitalSignsRepository? _vitalSigns;
+        private IPhysicalExaminationRepository? _physicalExamination;
+        private ICaseHistoryRepository? _caseHistory;
+        private IMedicationRepository? _medication;
+        private INursingNotesRepository? _nursingNotes;
+        private IFluidBalanceRepository? _fluidBalance;
+        private IInterventionProcedureRepository? _interventionProcedure;
         private ILabRepository? _labs;
         private IImagingRepository? _imaging;
         private IDoctorRepository? _doctors;
@@ -28,8 +37,23 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public IAdmissionRepository Admissions =>
             _admissions ??= new AdmissionRepository(_context);
 
-        public IClinicalRepository Clinical =>
-            _clinical ??= new ClinicalRepository(_context);
+        //public IClinicalRepository Clinical =>
+        //    _clinical ??= new ClinicalRepository(_context);
+        public IVitalSignsRepository VitalSigns =>
+            _vitalSigns ??= new VitalSignsRepository(_context);
+        public IPhysicalExaminationRepository PhysicalExaminations =>
+            _physicalExamination ??= new PhysicalExaminationRepository(_context);
+        public ICaseHistoryRepository CaseHistories => 
+            _caseHistory ??= new CaseHistoryRepository(_context);
+
+        public IMedicationRepository Medications => 
+            _medication ??= new MedicationsRepository(_context);
+        public INursingNotesRepository NursingNotes => 
+            _nursingNotes ??= new NursingNotesRepository(_context);
+        public IFluidBalanceRepository FluidBalances => 
+            _fluidBalance ??= new FluidBalanceRepository(_context);
+        public IInterventionProcedureRepository InterventionProcedures => 
+            _interventionProcedure ??= new InterventionProcedureRepository(_context);
 
         public ILabRepository Labs =>
             _labs ??= new LabRepository(_context);

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
+    <None Include="Features\ClinicalData\Commands\AddCaseHistoryCommand.cs" />
   </ItemGroup>
 
   <ItemGroup>

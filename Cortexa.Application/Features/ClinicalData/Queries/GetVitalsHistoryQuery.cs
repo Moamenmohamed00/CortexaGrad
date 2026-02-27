@@ -1,10 +1,10 @@
 using MediatR;
 using AutoMapper;
 using Cortexa.Application.Dtos.Clinical;
-using Cortexa.Application.Interfaces.Repositories;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
 
 namespace Cortexa.Application.Features.ClinicalData.Queries
 {
@@ -12,18 +12,18 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
 
     public class GetVitalsHistoryQueryHandler : IRequestHandler<GetVitalsHistoryQuery, List<VitalSignsDto>>
     {
-        private readonly IClinicalRepository _clinicalRepository;
+        private readonly IVitalSignsRepository _vitalSignsRepository;
         private readonly IMapper _mapper;
 
-        public GetVitalsHistoryQueryHandler(IClinicalRepository clinicalRepository, IMapper mapper)
+        public GetVitalsHistoryQueryHandler(IVitalSignsRepository vitalSignsRepository, IMapper mapper)
         {
-            _clinicalRepository = clinicalRepository;
+            _vitalSignsRepository = vitalSignsRepository;
             _mapper = mapper;
         }
 
         public async Task<List<VitalSignsDto>> Handle(GetVitalsHistoryQuery request, CancellationToken cancellationToken)
         {
-            var vitals = await _clinicalRepository.GetVitalSignsByAdmissionIdAsync(request.AdmissionId);
+            var vitals = await _vitalSignsRepository.GetByAdmissionIdAsync(request.AdmissionId);
             return _mapper.Map<List<VitalSignsDto>>(vitals);
         }
     }

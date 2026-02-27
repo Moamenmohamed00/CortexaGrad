@@ -1,9 +1,11 @@
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
 using Cortexa.Infrastructure.External;
 using Cortexa.Infrastructure.Identity;
 using Cortexa.Infrastructure.Persistence;
 using Cortexa.Infrastructure.Persistence.Repositories;
+using Cortexa.Infrastructure.Persistence.Repositories.Clinical;
 using Cortexa.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +56,14 @@ namespace Cortexa.Infrastructure
             // ── Repositories ───────────────────────────────────────────
             services.AddScoped<IPatientRepository, PatientRepository>();
             services.AddScoped<IAdmissionRepository, AdmissionRepository>();
-            services.AddScoped<IClinicalRepository, ClinicalRepository>();
+            //services.AddScoped<IClinicalRepository, ClinicalRepository>();
+            services.AddScoped<IVitalSignsRepository, VitalSignsRepository>();
+            services.AddScoped<IMedicationRepository, MedicationsRepository>();
+            services.AddScoped<INursingNotesRepository, NursingNotesRepository>();
+            services.AddScoped<IFluidBalanceRepository, FluidBalanceRepository>();
+            services.AddScoped<ICaseHistoryRepository, CaseHistoryRepository>();
+            services.AddScoped<IPhysicalExaminationRepository, PhysicalExaminationRepository>();
+            services.AddScoped<IInterventionProcedureRepository, InterventionProcedureRepository>();            
             services.AddScoped<ILabRepository, LabRepository>();
             services.AddScoped<IImagingRepository, ImagingRepository>();
             services.AddScoped<IDoctorRepository, DoctorRepository>();
