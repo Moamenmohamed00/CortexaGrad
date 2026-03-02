@@ -46,11 +46,7 @@ namespace Cortexa.Application.Features.Patients.Commands
                 DateOfBirth = request.DateOfBirth,
                 Gender = request.Gender,
                 Email = request.Email ?? string.Empty,
-<<<<<<< HEAD
-                PhoneNumber = request.Phone ?? string.Empty,
-=======
                 PhoneNumber = request.Phone,
->>>>>>> 5fe981e2d7fbe504f8a9abe0f9adc25b3bceb213
                 Address = address,
                 BloodType = request.BloodType,
                 DiagnosisSummary = request.DiagnosisSummary,
