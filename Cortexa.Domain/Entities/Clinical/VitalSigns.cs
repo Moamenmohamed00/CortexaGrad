@@ -2,6 +2,7 @@ using System;
 using Cortexa.Domain.Common;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Entities.Core;
+using Cortexa.Domain.Enums;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
@@ -23,6 +24,12 @@ namespace Cortexa.Domain.Entities.Clinical
         public int GCS_Motor { get; set; }
         public int GCS_Total => GCS_Eye + GCS_Verbal + GCS_Motor;
 
+        // NEWS (National Early Warning Score) fields
+        public bool SupplementalOxygen { get; set; }
+        public ConsciousnessLevel ConsciousnessLevel { get; set; }
+        public int NewsScore { get; set; }
+        public NewsRiskLevel NewsRiskLevel { get; set; }
+
         // Relationships
         public string AdmissionId { get; set; } = string.Empty;
         public Admission Admission { get; set; } = null!; // EF Core will set this
@@ -35,3 +42,4 @@ namespace Cortexa.Domain.Entities.Clinical
         public Doctor? Doctor { get; set; }
     }
 }
+

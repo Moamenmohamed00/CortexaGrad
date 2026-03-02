@@ -1,4 +1,5 @@
 using System;
+using Cortexa.Domain.Enums;
 
 namespace Cortexa.Application.Dtos.Clinical
 {
@@ -17,8 +18,13 @@ namespace Cortexa.Application.Dtos.Clinical
         int GcsVerbal,
         int GcsMotor,
         int GcsTotal,
+        bool SupplementalOxygen,
+        ConsciousnessLevel ConsciousnessLevel,
+        int NewsScore,
+        NewsRiskLevel NewsRiskLevel,
         string AdmissionId,
         string NurseId,
         string? DoctorId
     );
 }
+
