@@ -14,6 +14,11 @@ namespace Cortexa.Domain.Common
         public DateTime? LastModifiedAt { get; set; }
         public string? LastModifiedBy { get; set; }
 
+        // Soft Delete
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+        public string? DeletedBy { get; set; }
+
         protected BaseEntity()
         {
             Id = GenerateId();
@@ -29,7 +34,7 @@ namespace Cortexa.Domain.Common
             var entityType = GetType();
             var prefix = GetEntityPrefix(entityType.Name);
             var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(); // 12-char uppercase GUID segment
-            
+
             return $"{prefix}-{uniqueId}";
         }
 

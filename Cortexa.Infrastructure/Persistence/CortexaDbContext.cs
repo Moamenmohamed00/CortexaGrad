@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Cortexa.Application.Common.Interfaces;
@@ -8,6 +9,7 @@ using Cortexa.Domain.Entities.Clinical;
 using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
 using Cortexa.Domain.Entities.Infrastructure;
+using Cortexa.Domain.Enums;
 using Cortexa.Infrastructure.Identity;
 
 namespace Cortexa.Infrastructure.Persistence
@@ -59,17 +61,44 @@ namespace Cortexa.Infrastructure.Persistence
         // Infrastructure
         public DbSet<Room> Rooms => Set<Room>();
         public DbSet<Bed> Beds => Set<Bed>();
-
+        //Audit
+        public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CortexaDbContext).Assembly);
+
+            // Global query filter: automatically exclude soft-deleted entities
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var parameter = System.Linq.Expressions.Expression.Parameter(entityType.ClrType, "e");
+                    var property = System.Linq.Expressions.Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
+                    var falseConstant = System.Linq.Expressions.Expression.Constant(false);
+                    var condition = System.Linq.Expressions.Expression.Equal(property, falseConstant);
+                    var lambda = System.Linq.Expressions.Expression.Lambda(condition, parameter);
+
+                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                }
+            }
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var auditEntries = new List<AuditLog>();
+
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())
             {
+                // Intercept hard deletes → convert to soft delete
+                if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = _dateTime.Now;
+                    entry.Entity.DeletedBy = _currentUserService.UserId;
+                }
+
                 switch (entry.State)
                 {
                     case EntityState.Added:
@@ -82,9 +111,68 @@ namespace Cortexa.Infrastructure.Persistence
                         entry.Entity.LastModifiedBy = _currentUserService.UserId;
                         break;
                 }
+
+                // Generate audit logs for Clinical entities
+                if (IsClinicalEntity(entry.Entity))
+                {
+                    var auditType = entry.State switch
+                    {
+                        EntityState.Added => AuditType.Create,
+                        EntityState.Modified when entry.Entity.IsDeleted => AuditType.Delete,
+                        EntityState.Modified => AuditType.Update,
+                        _ => (AuditType?)null
+                    };
+
+                    if (auditType.HasValue)
+                    {
+                        var auditLog = new AuditLog
+                        {
+                            EntityId = entry.Entity.Id,
+                            EntityName = entry.Entity.GetType().Name,
+                            Type = auditType.Value,
+                            Timestamp = _dateTime.Now,
+                            UserId = _currentUserService.UserId
+                        };
+
+                        if (entry.State == EntityState.Modified)
+                        {
+                            var changedProps = entry.Properties
+                                .Where(p => p.IsModified)
+                                .ToList();
+
+                            auditLog.AffectedColumns = string.Join(", ", changedProps.Select(p => p.Metadata.Name));
+                            auditLog.OldValue = JsonSerializer.Serialize(
+                                changedProps.ToDictionary(p => p.Metadata.Name, p => p.OriginalValue?.ToString()));
+                            auditLog.NewValue = JsonSerializer.Serialize(
+                                changedProps.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString()));
+                        }
+                        else if (entry.State == EntityState.Added)
+                        {
+                            auditLog.NewValue = JsonSerializer.Serialize(
+                                entry.Properties.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString()));
+                        }
+
+                        auditEntries.Add(auditLog);
+                    }
+                }
+            }
+
+            // Add audit logs to context
+            if (auditEntries.Any())
+            {
+                AuditLogs.AddRange(auditEntries);
             }
 
             return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Checks if the entity belongs to the Clinical namespace
+        /// </summary>
+        private static bool IsClinicalEntity(BaseEntity entity)
+        {
+            var ns = entity.GetType().Namespace;
+            return ns != null && ns.Contains("Clinical");
         }
     }
 }

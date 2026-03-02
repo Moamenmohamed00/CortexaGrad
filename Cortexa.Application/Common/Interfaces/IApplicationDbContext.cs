@@ -5,6 +5,7 @@ using Cortexa.Domain.Entities.Clinical;
 using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
 using Cortexa.Domain.Entities.Infrastructure;
+using Cortexa.Domain.Common;
 
 namespace Cortexa.Application.Common.Interfaces
 {
@@ -42,6 +43,8 @@ namespace Cortexa.Application.Common.Interfaces
         // Infrastructure
         DbSet<Room> Rooms { get; }
         DbSet<Bed> Beds { get; }
+        //Audit
+        DbSet<AuditLog> AuditLogs { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
