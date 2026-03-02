@@ -37,6 +37,7 @@ namespace Cortexa.Application.Features.Patients.Commands
 
         public async Task<bool> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
         {
+            
             var patient = await _patientRepository.GetByIdAsync(request.Id);
             if (patient == null) return false;
 
@@ -45,10 +46,11 @@ namespace Cortexa.Application.Features.Patients.Commands
                 patient.PhoneNumber=   request.PhoneNumber ;
             }
 
-            if (!string.IsNullOrEmpty(request.Street))
+            if (!string.IsNullOrEmpty(request.Street)||!string.IsNullOrEmpty(request.City)||!string.IsNullOrEmpty(request.State)||!string.IsNullOrEmpty(request.Country)||!string.IsNullOrEmpty(request.ZipCode))
             {
                 patient.Address = new Address(request.Street, request.City, request.State, request.Country, request.ZipCode);
             }
+
 
             if (!string.IsNullOrEmpty(request.DiagnosisSummary))
             {
