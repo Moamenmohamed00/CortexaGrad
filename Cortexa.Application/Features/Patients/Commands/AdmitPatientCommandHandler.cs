@@ -3,7 +3,9 @@ using Cortexa.Application.Dtos.Patient;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Entities.Core;
+using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
+using Cortexa.Domain.Exceptions;
 using Cortexa.Domain.ValueObjects;
 using MediatR;
 using AdmissionEntity = Cortexa.Domain.Entities.Core.Admission;
@@ -14,23 +16,38 @@ namespace Cortexa.Application.Features.Patients.Commands
     {
         private readonly IPatientRepository _patientRepository;
         private readonly IAdmissionRepository _admissionRepository;
+        private readonly IBedRepository _bedRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public AdmitPatientCommandHandler(
             IPatientRepository patientRepository,
             IAdmissionRepository admissionRepository,
+            IBedRepository bedRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _patientRepository = patientRepository;
             _admissionRepository = admissionRepository;
+            _bedRepository = bedRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<PatientAdmissionDto> Handle(AdmitPatientCommand request, CancellationToken cancellationToken)
         {
+            // ── Validate bed availability before proceeding ──────────
+            Bed? bed = null;
+            if (!string.IsNullOrEmpty(request.BedId))
+            {
+                bed = await _bedRepository.GetByIdAsync(request.BedId)
+                    ?? throw new KeyNotFoundException($"Bed with ID '{request.BedId}' was not found.");
+
+                if (bed.Status != BedStatus.Available)
+                    throw new BedNotAvailableException(bed.Id, bed.BedNumber, bed.RoomId);
+            }
+
+            // ── Create patient ───────────────────────────────────────
             var address = new Address(
                 request.Street,
                 request.City,
@@ -40,7 +57,6 @@ namespace Cortexa.Application.Features.Patients.Commands
 
             var patient = new Patient
             {
-                // filenumber äÚãáå ÈÚÏíä íÒíÏ áæÍÏå
                 Name = request.Name,
                 FileNumber = request.NationalId,
                 DateOfBirth = request.DateOfBirth,
@@ -50,11 +66,12 @@ namespace Cortexa.Application.Features.Patients.Commands
                 Address = address,
                 BloodType = request.BloodType,
                 DiagnosisSummary = request.DiagnosisSummary,
-                NationalId= request.NationalId,
+                NationalId = request.NationalId,
             };
 
             await _patientRepository.AddAsync(patient, cancellationToken);
 
+            // ── Create admission ─────────────────────────────────────
             var admission = new AdmissionEntity
             {
                 PatientId = patient.Id,
@@ -68,6 +85,15 @@ namespace Cortexa.Application.Features.Patients.Commands
             };
 
             await _admissionRepository.AddAsync(admission, cancellationToken);
+
+            // ── Mark bed as Occupied ─────────────────────────────────
+            if (bed != null)
+            {
+                bed.Status = BedStatus.Occupied;
+                bed.CurrentAdmissionId = admission.Id;
+                await _bedRepository.UpdateAsync(bed);
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var dto = _mapper.Map<PatientAdmissionDto>(patient);

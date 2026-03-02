@@ -63,10 +63,11 @@ namespace Cortexa.Infrastructure
             services.AddScoped<IFluidBalanceRepository, FluidBalanceRepository>();
             services.AddScoped<ICaseHistoryRepository, CaseHistoryRepository>();
             services.AddScoped<IPhysicalExaminationRepository, PhysicalExaminationRepository>();
-            services.AddScoped<IInterventionProcedureRepository, InterventionProcedureRepository>();            
+            services.AddScoped<IInterventionProcedureRepository, InterventionProcedureRepository>();
             services.AddScoped<ILabRepository, LabRepository>();
             services.AddScoped<IImagingRepository, ImagingRepository>();
             services.AddScoped<IDoctorRepository, DoctorRepository>();
+            services.AddScoped<IBedRepository, BedRepository>();
             services.AddScoped<IAIRepository, AIRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
