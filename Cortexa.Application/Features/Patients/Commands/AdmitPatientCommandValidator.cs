@@ -11,12 +11,13 @@ namespace Cortexa.Application.Features.Patients.Commands
                 .MaximumLength(200).WithMessage("Name must not exceed 200 characters.");
 
             RuleFor(x => x.NationalId)
-                .NotEmpty().WithMessage("National ID / File Number is required.")
-                .MaximumLength(50).WithMessage("National ID must not exceed 50 characters.");
+                .NotEmpty()
+                .Length(14).WithMessage("National ID must be 14 digits.")
+                .Matches(@"^\d{14}$").WithMessage("National ID must contain only digits.");
 
             RuleFor(x => x.DateOfBirth)
-                .NotEmpty().WithMessage("Date of birth is required.")
-                .LessThan(DateTime.UtcNow).WithMessage("Date of birth must be in the past.");
+                .LessThan(DateTime.UtcNow.AddYears(-1))
+                .WithMessage("Patient must be at least 1 year old.");
 
             RuleFor(x => x.Street)
                 .NotEmpty().WithMessage("Street is required.")
@@ -47,6 +48,13 @@ namespace Cortexa.Application.Features.Patients.Commands
             {
                 RuleFor(x => x.ZipCode)
                     .MaximumLength(20).WithMessage("Zip code must not exceed 20 characters.");
+            });
+
+            When(x => !string.IsNullOrEmpty(x.Phone), () =>
+            {
+                RuleFor(x => x.Phone)
+                    .Matches(@"^\+?\d{10,15}$")
+                    .WithMessage("Invalid phone number.");
             });
         }
     }

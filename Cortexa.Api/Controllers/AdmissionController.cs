@@ -32,6 +32,7 @@ namespace Cortexa.Api.Controllers
         /// <summary>
         /// Creates a new admission (admit patient).
         /// </summary>
+<<<<<<< HEAD
         [HttpPost("patients/{patientId}")]
         public async Task<IActionResult> Create(
             string patientId,
@@ -73,6 +74,50 @@ namespace Cortexa.Api.Controllers
         public async Task<IActionResult> GetById(string patientId)
         {
             var result = await Sender.Send(new GetAdmissionsByPatientIdQuery(patientId));
+=======
+        //[HttpPost("patients/{patientId}")]
+        //public async Task<IActionResult> Create(
+        //    string patientId,
+        //    CreateAdmissionCommand command)
+        //{
+        //    if (patientId != command.PatientId)
+        //        return BadRequest("Route patientId does not match command patientId.");
+
+        //    var admissionId = await Sender.Send(command);
+        //    var admission = await Sender.Send(
+        //        new GetAdmissionsByPatientIdQuery(patientId));
+
+        //    return CreatedAtAction(
+        //        nameof(GetById),
+        //        new { id = admissionId },
+        //        admission);
+        //}
+
+        ///// <summary>
+        ///// Discharges an admission.
+        ///// </summary>
+        //[HttpPut("{id}/discharge")]
+        //public async Task<IActionResult> Discharge(
+        //    string id,
+        //    DischargePatientCommand command)
+        //{
+        //    if (id != command.AdmissionId)
+        //        return BadRequest("Route id does not match admission id.");
+
+        //    var success = await Sender.Send(command);
+
+        //    return success ? NoContent() : NotFound();
+        //}
+
+        /// <summary>
+        /// ÌÃ·» Õ«·… «·ﬁ»Ê· ⁄‰ ÿ—Ìﬁ «·„⁄—› «·Œ«’ »Â« (Admission ID).
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id) //  „  €ÌÌ— «·„⁄«„· ≈·Ï id
+        {
+            //  „ «· ’ÕÌÕ: «·¬‰ Ì»ÕÀ ⁄‰ Õ«·… ﬁ»Ê· „Õœœ… Ê·Ì” ﬁ«∆„… »Õ«·«  «·„—Ì÷
+            var result = await Sender.Send(new GetAdmissionByIdQuery(id));
+>>>>>>> 5fe981e2d7fbe504f8a9abe0f9adc25b3bceb213
 
             return result is not null ? Ok(result) : NotFound();
         }

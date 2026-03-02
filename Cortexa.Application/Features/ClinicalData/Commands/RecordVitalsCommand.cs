@@ -5,6 +5,7 @@ using Cortexa.Application.Interfaces.Repositories;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
 
 namespace Cortexa.Application.Features.ClinicalData.Commands
 {
@@ -23,12 +24,12 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
 
     public class RecordVitalsCommandHandler : IRequestHandler<RecordVitalsCommand, string>
     {
-        private readonly IClinicalRepository _clinicalRepository;
+        private readonly IVitalSignsRepository _vitalSignsRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RecordVitalsCommandHandler(IClinicalRepository clinicalRepository, IUnitOfWork unitOfWork)
+        public RecordVitalsCommandHandler( IVitalSignsRepository vitalSignsRepository, IUnitOfWork unitOfWork)
         {
-            _clinicalRepository = clinicalRepository;
+            _vitalSignsRepository = vitalSignsRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -47,12 +48,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 NurseId = request.NurseId
             };
 
-            // Using generic AddAsync if possible, but I added specific one too. 
-            // Since IClinicalRepository inherits IGenericRepository<VitalSigns>, AddAsync(VitalSigns) is available.
-            // But specifically I added AddVitalSignsAsync. I'll use AddAsync if available from Generic, 
-            // but wait, IClinicalRepository inherits IGenericRepository<VitalSigns>.
-            // So AddAsync(VitalSigns) is there.
-            await _clinicalRepository.AddAsync(entity, cancellationToken);
+
+            await _vitalSignsRepository.AddAsync(entity, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;
