@@ -10,42 +10,31 @@ namespace Cortexa.Api.Controllers
         /// Creates a new patient record.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreatePatientCommand command)
+        public async Task<IActionResult> Create(CreatePatientCommand command)
         {
             var patientId = await Sender.Send(command);
-            return CreatedAtAction(nameof(GetById), new { id = patientId }, new { id = patientId });
-        }
 
-        /// <summary>
-        /// Admits a patient (creates patient + admission in one step).
-        /// </summary>
-        [HttpPost("admit")]
-        public async Task<IActionResult> AdmitPatient([FromBody] AdmitPatientCommand command)
-        {
-            var result = await Sender.Send(command);
-            return CreatedAtAction(nameof(GetDetails), new { patientId = result.PatientId }, result);
+            // Fetch full resource for response (best practice)
+            var patient = await Sender.Send(new GetPatientByIdQuery(patientId));
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = patientId },
+                patient
+            );
         }
 
         /// <summary>
         /// Updates an existing patient record.
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdatePatientCommand command)
+        public async Task<IActionResult> Update(string id, UpdatePatientCommand command)
         {
             if (id != command.Id)
                 return BadRequest("Route id does not match command id.");
 
             var success = await Sender.Send(command);
-            return success ? NoContent() : NotFound();
-        }
 
-        /// <summary>
-        /// Discharges a patient from an admission.
-        /// </summary>
-        [HttpPost("discharge")]
-        public async Task<IActionResult> Discharge([FromBody] DischargePatientCommand command)
-        {
-            var success = await Sender.Send(command);
             return success ? NoContent() : NotFound();
         }
 
@@ -56,36 +45,42 @@ namespace Cortexa.Api.Controllers
         public async Task<IActionResult> GetById(string id)
         {
             var result = await Sender.Send(new GetPatientByIdQuery(id));
-            return result is not null ? Ok(result) : NotFound();
+
+            return result is not null
+                ? Ok(result)
+                : NotFound();
         }
 
         /// <summary>
         /// Gets detailed patient information including admissions.
         /// </summary>
-        [HttpGet("{patientId}/details")]
-        public async Task<IActionResult> GetDetails(string patientId)
+        [HttpGet("{id}/details")]
+        public async Task<IActionResult> GetDetails(string id)
         {
-            var result = await Sender.Send(new GetPatientDetailsQuery(patientId));
-            return Ok(result);
+            var result = await Sender.Send(new GetPatientDetailsQuery(id));
+
+            return result is not null
+                ? Ok(result)
+                : NotFound();
         }
 
         /// <summary>
-        /// Gets all patients.
+        /// Gets all patients with pagination support.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] GetAllPatientsQuery query)
         {
-            var result = await Sender.Send(new GetAllPatientsQuery());
+            var result = await Sender.Send(query);
             return Ok(result);
         }
 
         /// <summary>
         /// Gets all admissions for a specific patient.
         /// </summary>
-        [HttpGet("{patientId}/admissions")]
-        public async Task<IActionResult> GetPatientAdmissions(string patientId)
+        [HttpGet("{id}/admissions")]
+        public async Task<IActionResult> GetPatientAdmissions(string id)
         {
-            var result = await Sender.Send(new GetPatientAdmissionsQuery(patientId));
+            var result = await Sender.Send(new GetPatientAdmissionsQuery(id));
             return Ok(result);
         }
     }
