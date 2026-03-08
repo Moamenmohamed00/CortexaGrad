@@ -102,6 +102,7 @@ namespace Cortexa.Infrastructure.Persistence
                 switch (entry.State)
                 {
                     case EntityState.Added:
+                        entry.Entity.EnsureId(entry.Entity.GetType().Name); 
                         entry.Entity.CreatedAt = _dateTime.Now;
                         entry.Entity.CreatedBy = _currentUserService.UserId;
                         break;
@@ -169,10 +170,10 @@ namespace Cortexa.Infrastructure.Persistence
         /// <summary>
         /// Checks if the entity belongs to the Clinical namespace
         /// </summary>
+ 
         private static bool IsClinicalEntity(BaseEntity entity)
         {
-            var ns = entity.GetType().Namespace;
-            return ns != null && ns.Contains("Clinical");
+            return entity is IAuditableEntity;
         }
     }
 }

@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Cortexa.Domain.Common
 {
-    public abstract class BaseEntity
+    public interface IAuditableEntity { }
+    public abstract class BaseEntity: IAuditableEntity
     {
-        public string Id { get; protected set; }
+        public string Id { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public string? CreatedBy { get; set; }
@@ -21,7 +22,7 @@ namespace Cortexa.Domain.Common
 
         protected BaseEntity()
         {
-            Id = GenerateId();
+            //Id = string.IsNullOrEmpty(Id) ? GenerateId() : Id;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -29,15 +30,22 @@ namespace Cortexa.Domain.Common
         /// Generates an ID with format: {PREFIX}-{GUID}
         /// Prefix is derived from the entity class name (e.g., "Patient" -> "PAT", "Admission" -> "ADM")
         /// </summary>
-        protected virtual string GenerateId()
+        //protected virtual string GenerateId()
+        //{
+        //    var entityType = GetType();
+        //    var prefix = GetEntityPrefix(entityType.Name);
+        //    var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(); // 12-char uppercase GUID segment
+
+        //    return $"{prefix}-{uniqueId}";
+        //}
+        public void EnsureId(string className)
         {
-            var entityType = GetType();
-            var prefix = GetEntityPrefix(entityType.Name);
-            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(); // 12-char uppercase GUID segment
-
-            return $"{prefix}-{uniqueId}";
+            if (string.IsNullOrEmpty(Id))
+            {
+                var prefix = GetEntityPrefix(className);
+                Id = $"{prefix}-{Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper()}";
+            }
         }
-
         /// <summary>
         /// Generates a prefix from the entity class name
         /// Uses explicit mappings for common entities, falls back to automatic generation
