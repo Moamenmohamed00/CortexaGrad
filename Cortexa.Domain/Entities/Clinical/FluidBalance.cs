@@ -6,7 +6,7 @@ using Cortexa.Domain.Enums;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class FluidBalance : BaseEntity
+    public class FluidBalance : BaseEntity, IAuditableEntity
     {
         public DateTime RecordedAt { get; set; }
         public FluidBalanceCategory Category { get; set; } // Intake/OutputEnum

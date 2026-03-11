@@ -102,7 +102,7 @@ namespace Cortexa.Infrastructure.Persistence
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.EnsureId(entry.Entity.GetType().Name); 
+                        //entry.Entity.EnsureId(entry.Entity.GetType().Name); 
                         entry.Entity.CreatedAt = _dateTime.Now;
                         entry.Entity.CreatedBy = _currentUserService.UserId;
                         break;
@@ -114,7 +114,7 @@ namespace Cortexa.Infrastructure.Persistence
                 }
 
                 // Generate audit logs for Clinical entities
-                if (IsClinicalEntity(entry.Entity))
+                if (ShouldAuditEntity(entry.Entity))
                 {
                     var auditType = entry.State switch
                     {
@@ -171,7 +171,7 @@ namespace Cortexa.Infrastructure.Persistence
         /// Checks if the entity belongs to the Clinical namespace
         /// </summary>
  
-        private static bool IsClinicalEntity(BaseEntity entity)
+        private static bool ShouldAuditEntity(BaseEntity entity)
         {
             return entity is IAuditableEntity;
         }

@@ -6,7 +6,7 @@ using Cortexa.Domain.Enums;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class Medications : BaseEntity
+    public class Medications : BaseEntity, IAuditableEntity
     {
         public string DrugName { get; set; } = string.Empty;
         public int Dose { get; set; } // mg/mcg/mL? Maybe string with unit is better? ER says "int Dose". I'll stick to int or string.

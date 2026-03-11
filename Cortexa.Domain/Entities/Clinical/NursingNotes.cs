@@ -5,7 +5,7 @@ using Cortexa.Domain.Entities.Core;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class NursingNotes : BaseEntity
+    public class NursingNotes : BaseEntity, IAuditableEntity
     {
         public string NoteText { get; set; } = string.Empty;
         public DateTime NoteDateTime { get; set; }

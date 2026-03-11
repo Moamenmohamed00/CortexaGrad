@@ -6,7 +6,7 @@ using Cortexa.Domain.Enums;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class VitalSigns : BaseEntity
+    public class VitalSigns : BaseEntity, IAuditableEntity
     {
         public DateTime RecordedAt { get; set; }
         public float Temperature { get; set; }

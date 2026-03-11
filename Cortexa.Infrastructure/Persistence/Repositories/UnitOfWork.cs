@@ -102,6 +102,8 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
 
         public IAIRepository AI => _serviceProvider.GetRequiredService<IAIRepository>();
 
+        public IBedRepository Beds => _serviceProvider.GetRequiredService<IBedRepository>();
+
 
 
         // ── Persistence ────────────────────────────────────────────────
