@@ -48,29 +48,39 @@ namespace Cortexa.Application.Common.Mappings
             CreateMap<KnowledgeSource, KnowledgeSourceDto>();
 
             // Legacy / Specific Mappings
-            CreateMap<Patient, PatientAdmissionDto>()
-                .ForMember(d => d.PatientId, o => o.MapFrom(s => s.Id))
-                .ForMember(d => d.NationalId, o => o.MapFrom(s => s.NationalId))
-                .ForMember(d => d.AdmissionId, o => o.Ignore())
-                .ForMember(d => d.AdmissionDate, o => o.Ignore())
-                .ForMember(d => d.InitialDiagnosis, o => o.Ignore())
-                .ForMember(d => d.Status, o => o.Ignore())
-                .ForMember(d => d.BedId, o => o.Ignore())
-                .ForMember(d => d.RoomId, o => o.Ignore())
-                .ForMember(d => d.Gender, o => o.MapFrom(s => s.Gender.ToString()))
-                .ForMember(d => d.Phone, o => o.MapFrom(s => s.PhoneNumber));
+            //CreateMap<Patient, PatientAdmissionDto>();
+            //    //.ForMember(d => d.PatientId, o => o.MapFrom(s => s.Id))
+            //    //.ForMember(d => d.NationalId, o => o.MapFrom(s => s.NationalId))
+            //    //.ForMember(d => d.AdmissionId, o => o.Ignore())
+            //    //.ForMember(d => d.AdmissionDate, o => o.Ignore())
+            //    //.ForMember(d => d.InitialDiagnosis, o => o.Ignore())
+            //    //.ForMember(d => d.Status, o => o.Ignore())
+            //    //.ForMember(d => d.BedId, o => o.Ignore())
+            //    //.ForMember(d => d.RoomId, o => o.Ignore())
+            //    //.ForMember(d => d.Gender, o => o.MapFrom(s => s.Gender.ToString()))
+            //    //.ForMember(d => d.Phone, o => o.MapFrom(s => s.PhoneNumber));
 
+            //CreateMap<Admission, PatientAdmissionDto>();
+            //    //.ForMember(d => d.AdmissionId, o => o.MapFrom(s => s.Id))
+            //    //.ForMember(d => d.NationalId, o => o.Ignore())
+            //    //.ForMember(d => d.PatientId, o => o.Ignore())
+            //    //.ForMember(d => d.FileNumber, o => o.Ignore())
+            //    //.ForMember(d => d.Name, o => o.Ignore())
+            //    //.ForMember(d => d.DateOfBirth, o => o.Ignore())
+            //    //.ForMember(d => d.Gender, o => o.Ignore())
+            //    //.ForMember(d => d.Email, o => o.Ignore())
+            //    //.ForMember(d => d.Phone, o => o.Ignore())
+            //    //.ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
             CreateMap<Admission, PatientAdmissionDto>()
-                .ForMember(d => d.AdmissionId, o => o.MapFrom(s => s.Id))
-                .ForMember(d => d.NationalId, o => o.Ignore())
-                .ForMember(d => d.PatientId, o => o.Ignore())
-                .ForMember(d => d.FileNumber, o => o.Ignore())
-                .ForMember(d => d.Name, o => o.Ignore())
-                .ForMember(d => d.DateOfBirth, o => o.Ignore())
-                .ForMember(d => d.Gender, o => o.Ignore())
-                .ForMember(d => d.Email, o => o.Ignore())
-                .ForMember(d => d.Phone, o => o.Ignore())
-                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
+    .ForMember(d => d.AdmissionId, o => o.MapFrom(s => s.Id))
+    .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
+    .ForMember(d => d.PatientId, o => o.MapFrom(s => s.Patient.Id))
+    .ForMember(d => d.NationalId, o => o.MapFrom(s => s.Patient.NationalId))
+    .ForMember(d => d.Name, o => o.MapFrom(s => s.Patient.Name))
+    .ForMember(d => d.DateOfBirth, o => o.MapFrom(s => s.Patient.DateOfBirth))
+    .ForMember(d => d.Gender, o => o.MapFrom(s => s.Patient.Gender.ToString()))
+    .ForMember(d => d.Email, o => o.MapFrom(s => s.Patient.Email))
+    .ForMember(d => d.Phone, o => o.MapFrom(s => s.Patient.PhoneNumber));
         }
     }
 }

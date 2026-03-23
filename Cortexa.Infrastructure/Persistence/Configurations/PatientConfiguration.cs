@@ -22,7 +22,6 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
                 .HasMaxLength(200);
 
             builder.Property(p => p.Email)
-                .IsRequired()
                 .HasMaxLength(200);
             builder.Property(p=>p.NationalId)
                 .IsRequired()

@@ -33,22 +33,14 @@ namespace Cortexa.Application.Features.Patients.Commands
   ) : IRequest<PatientAdmissionDto>;
     public class AdmitPatientCommandHandler : IRequestHandler<AdmitPatientCommand, PatientAdmissionDto>
     {
-        private readonly IPatientRepository _patientRepository;
-        private readonly IAdmissionRepository _admissionRepository;
-        private readonly IBedRepository _bedRepository;
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public AdmitPatientCommandHandler(
-            IPatientRepository patientRepository,
-            IAdmissionRepository admissionRepository,
-            IBedRepository bedRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _patientRepository = patientRepository;
-            _admissionRepository = admissionRepository;
-            _bedRepository = bedRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -59,7 +51,7 @@ namespace Cortexa.Application.Features.Patients.Commands
             Bed? bed = null;
             if (!string.IsNullOrEmpty(request.BedId))
             {
-                bed = await _bedRepository.GetByIdAsync(request.BedId)
+                bed = await _unitOfWork.Beds.GetByIdAsync(request.BedId)
                     ?? throw new KeyNotFoundException($"Bed with ID '{request.BedId}' was not found.");
 
                 if (bed.Status != BedStatus.Available)
@@ -88,7 +80,7 @@ namespace Cortexa.Application.Features.Patients.Commands
                 NationalId = request.NationalId,
             };
 
-            await _patientRepository.AddAsync(patient, cancellationToken);
+            await _unitOfWork.Patients.AddAsync(patient, cancellationToken);
 
             // ── Create admission ─────────────────────────────────────
             var admission = new AdmissionEntity
@@ -103,14 +95,14 @@ namespace Cortexa.Application.Features.Patients.Commands
                 RoomId = request.RoomId
             };
 
-            await _admissionRepository.AddAsync(admission, cancellationToken);
+            await _unitOfWork.Admissions.AddAsync(admission, cancellationToken);
 
             // ── Mark bed as Occupied ─────────────────────────────────
             if (bed != null)
             {
                 bed.Status = BedStatus.Occupied;
                 bed.CurrentAdmissionId = admission.Id;
-                await _bedRepository.UpdateAsync(bed);
+                await _unitOfWork.Beds.UpdateAsync(bed);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
