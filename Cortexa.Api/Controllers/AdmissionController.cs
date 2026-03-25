@@ -48,6 +48,7 @@ namespace Cortexa.Api.Controllers
                 admission);
         }
 
+
         /// <summary>
         /// Discharges an admission.
         /// </summary>
@@ -83,6 +84,17 @@ namespace Cortexa.Api.Controllers
         {
             var result = await Sender.Send(query);
             return Ok(result);
+        }
+
+        [HttpPost("admit")]
+        public async Task<IActionResult> AdmitPatient([FromBody] AdmitPatientCommand command)
+        {
+            var result = await Sender.Send(command);
+
+            // ÅĞÇ ßÇäÊ ãíËæÏ ÇáÜ Get ãæÌæÏÉ İí Controller ãÎÊáİ¡ íÌÈ ÊæÖíÍ Ğáß
+            // Ãæ ÇÓÊÎÏÇã Ok(result) ÅĞÇ ßäÊ áÇ ÊåÊã ÈÜ Location Header
+            return Ok(result);
+
         }
     }
 }

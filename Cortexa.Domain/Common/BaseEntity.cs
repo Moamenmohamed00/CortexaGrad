@@ -8,7 +8,7 @@ namespace Cortexa.Domain.Common
     public interface IAuditableEntity { }
     public abstract class BaseEntity
     {
-        public string Id { get; set; }
+        public string Id { get; protected set; }
 
         public DateTime CreatedAt { get; set; }
         public string? CreatedBy { get; set; }

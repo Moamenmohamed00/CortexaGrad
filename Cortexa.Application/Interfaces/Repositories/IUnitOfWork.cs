@@ -22,9 +22,15 @@ namespace Cortexa.Application.Interfaces.Repositories
         ILabRepository Labs { get; }
         IImagingRepository Imaging { get; }
         IDoctorRepository Doctors { get; }
+
+        INurseRepository Nurses { get; }
         IAIRepository AI { get; }
 
         IBedRepository Beds { get; }
+
+        IRoomRepository Rooms { get; }
+
+        IRagRepository Rags { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         // managment all transaction on this tables to be synchronized

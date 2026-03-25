@@ -7,4 +7,5 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
     {
         public BedRepository(CortexaDbContext context) : base(context) { }
     }
+    
 }

@@ -5,12 +5,15 @@ using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Dtos.Clinical;
 using Cortexa.Application.Dtos.Diagnostics;
 using Cortexa.Application.Dtos.AI;
+using Cortexa.Application.Dtos.Beds;
+using Cortexa.Application.Dtos.Rooms;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Entities.Core;
 using Cortexa.Domain.Entities.Clinical;
 using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
 using Cortexa.Domain.ValueObjects;
+using Cortexa.Domain.Entities.Infrastructure;
 namespace Cortexa.Application.Common.Mappings
 {
     public class MappingProfile : Profile
@@ -22,6 +25,12 @@ namespace Cortexa.Application.Common.Mappings
             CreateMap<Doctor, DoctorDto>();
             CreateMap<Nurse, NurseDto>();
             CreateMap<Patient, PatientSummaryDto>();
+            CreateMap<Bed, BedDto>()
+             .ForCtorParam("BedId", opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<Room, RoomDto>()
+                .ForCtorParam("RoomId", opt => opt.MapFrom(src => src.Id));
+
 
             // Core
             CreateMap<Admission, AdmissionDto>();
@@ -81,6 +90,7 @@ namespace Cortexa.Application.Common.Mappings
     .ForMember(d => d.Gender, o => o.MapFrom(s => s.Patient.Gender.ToString()))
     .ForMember(d => d.Email, o => o.MapFrom(s => s.Patient.Email))
     .ForMember(d => d.Phone, o => o.MapFrom(s => s.Patient.PhoneNumber));
+
         }
     }
 }

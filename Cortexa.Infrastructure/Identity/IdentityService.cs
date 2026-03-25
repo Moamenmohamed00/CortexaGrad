@@ -1,6 +1,7 @@
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Core;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Enums;
 using Cortexa.Domain.ValueObjects;
@@ -24,6 +25,8 @@ namespace Cortexa.Infrastructure.Identity
         private readonly IEmailService _emailService;
         private readonly IApplicationDbContext _dbContext;
         private readonly ILogger<IdentityService> _logger;
+        private readonly IDoctorRepository _doctorRepository;
+        private readonly INurseRepository _nurseRepository;
 
         public IdentityService(
             UserManager<ApplicationUser> userManager,
@@ -32,7 +35,9 @@ namespace Cortexa.Infrastructure.Identity
             IJwtTokenGenerator jwtTokenGenerator,
             IEmailService emailService,
             IApplicationDbContext dbContext,
-            ILogger<IdentityService> logger)
+            ILogger<IdentityService> logger,
+            IDoctorRepository doctorRepository,
+            INurseRepository nurseRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -41,6 +46,8 @@ namespace Cortexa.Infrastructure.Identity
             _emailService = emailService;
             _dbContext = dbContext;
             _logger = logger;
+            _doctorRepository = doctorRepository;
+            _nurseRepository = nurseRepository;
         }
 
         // ── Login ──────────────────────────────────────────────────────
@@ -73,7 +80,58 @@ namespace Cortexa.Infrastructure.Identity
                     "Invalid email or password.");
             }
 
+            
             var roles = (await _userManager.GetRolesAsync(user)).ToList();
+
+            if (!roles.Any())
+            {
+                _logger.LogWarning(
+                    "Authentication warning: User {UserId} ({Email}) has no roles assigned",
+                    user.Id, email);
+            }
+
+            if (roles.Any())
+            {
+                if (roles.Contains("Doctor") && !_dbContext.Doctors.Any(d => d.Email == email))
+                {
+                    _logger.LogError(
+                        "Data inconsistency: User {UserId} ({Email}) is in 'Doctor' role but no Doctor entity found",
+                        user.Id, email);
+                    return ResultDto<AuthResponseDto>.Failure(
+                        "Account data is corrupted. Please contact support.");
+                }
+                else if (roles.Contains("Nurse") && !_dbContext.Nurses.Any(n => n.Email == email))
+                {
+                    _logger.LogError(
+                        "Data inconsistency: User {UserId} ({Email}) is in 'Nurse' role but no Nurse entity found",
+                        user.Id, email);
+                    return ResultDto<AuthResponseDto>.Failure(
+                        "Account data is corrupted. Please contact support.");
+                }
+                else if (!roles.Contains("Doctor") && !roles.Contains("Nurse"))
+                {
+                    _logger.LogError(
+                        "Data inconsistency: User {UserId} ({Email}) has invalid role(s): {Roles}",
+                        user.Id, email, string.Join(", ", roles));
+                    return ResultDto<AuthResponseDto>.Failure(
+                        "Account data is corrupted. Please contact support.");
+                }
+
+            }
+
+            string? _UserIdInSystem = null;
+
+            if (roles?.Contains("Doctor") == true)
+            {
+                var doctor = await _doctorRepository.GetByEmailAsync(email);
+                _UserIdInSystem = doctor?.Id.ToString();
+            }
+            else if (roles?.Contains("Nurse") == true)
+            {
+                var nurse = await _nurseRepository.GetByEmailAsync(email);
+                _UserIdInSystem = nurse?.Id.ToString();
+            }
+
 
             var token = _jwtTokenGenerator.GenerateToken(
                 user.Id,
@@ -86,7 +144,9 @@ namespace Cortexa.Infrastructure.Identity
                 Token = token,
                 Email = user.Email!,
                 UserId = user.Id,
-                Roles = roles
+                Roles = roles,
+                UserIdInSystem = _UserIdInSystem
+
             };
 
             _logger.LogInformation(
@@ -238,10 +298,7 @@ If you did not request a password reset, please ignore this email.";
         }
 
         // ── Reset Password with OTP ────────────────────────────────────
-        public async Task<ResultDto<bool>> ResetPasswordWithOtpAsync(
-     string email,
-     string otp,
-     string newPassword)
+        public async Task<ResultDto<bool>> ResetPasswordWithOtpAsync(string email,string otp,string newPassword)
         {
             var user = await _userManager.FindByEmailAsync(email);
 

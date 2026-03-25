@@ -2,6 +2,7 @@ using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 namespace Cortexa.Infrastructure.Persistence.Repositories
 {
@@ -9,7 +10,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
     {
         public PatientRepository(CortexaDbContext context) : base(context) { }
 
-        public async Task<Patient?> GetByNationalIdAsync(string nationalId)
+        public async Task<Patient?> GetByNationalIdAsync(string nationalId,CancellationToken cancellationToken)
         {
             return await _context.Patients
                 .FirstOrDefaultAsync(p => p.NationalId == nationalId);

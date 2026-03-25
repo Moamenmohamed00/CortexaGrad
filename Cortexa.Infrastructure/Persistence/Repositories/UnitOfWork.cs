@@ -82,6 +82,8 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public IAdmissionRepository Admissions => _serviceProvider.GetRequiredService<IAdmissionRepository>();
         public IDoctorRepository Doctors => _serviceProvider.GetRequiredService<IDoctorRepository>();
 
+        public INurseRepository Nurses => _serviceProvider.GetRequiredService<INurseRepository>();
+
         public IVitalSignsRepository VitalSigns => _serviceProvider.GetRequiredService<IVitalSignsRepository>();
 
         public IPhysicalExaminationRepository PhysicalExaminations => _serviceProvider.GetRequiredService<IPhysicalExaminationRepository>();
@@ -103,6 +105,10 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public IAIRepository AI => _serviceProvider.GetRequiredService<IAIRepository>();
 
         public IBedRepository Beds => _serviceProvider.GetRequiredService<IBedRepository>();
+
+        public IRoomRepository Rooms => _serviceProvider.GetRequiredService<IRoomRepository>();
+
+        public IRagRepository Rags => _serviceProvider.GetRequiredService<IRagRepository>();
 
 
 

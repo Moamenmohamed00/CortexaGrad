@@ -5,4 +5,6 @@ namespace Cortexa.Application.Interfaces.Repositories
     public interface IBedRepository : IGenericRepository<Bed>
     {
     }
+
+
 }

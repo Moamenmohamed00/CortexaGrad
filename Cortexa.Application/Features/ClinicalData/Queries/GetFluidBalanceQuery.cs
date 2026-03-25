@@ -1,10 +1,11 @@
-using MediatR;
 using AutoMapper;
 using Cortexa.Application.Dtos.Clinical;
+using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
+using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Cortexa.Application.Interfaces.Repositories.Clinical;
 
 namespace Cortexa.Application.Features.ClinicalData.Queries
 {
@@ -12,18 +13,18 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
 
     public class GetFluidBalanceQueryHandler : IRequestHandler<GetFluidBalanceQuery, List<FluidBalanceDto>>
     {
-        private readonly IFluidBalanceRepository _fluidBalanceRepository;
+        private readonly IUnitOfWork _unitofwork;
         private readonly IMapper _mapper;
 
-        public GetFluidBalanceQueryHandler(IFluidBalanceRepository fluidBalanceRepository, IMapper mapper)
+        public GetFluidBalanceQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _fluidBalanceRepository = fluidBalanceRepository;
+            _unitofwork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<List<FluidBalanceDto>> Handle(GetFluidBalanceQuery request, CancellationToken cancellationToken)
         {
-            var fluidBalances = await _fluidBalanceRepository.GetByAdmissionIdAsync(request.AdmissionId);
+            var fluidBalances = await _unitofwork.FluidBalances.GetByAdmissionIdAsync(request.AdmissionId);
             return _mapper.Map<List<FluidBalanceDto>>(fluidBalances);
         }
     }

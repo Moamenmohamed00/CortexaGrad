@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Cortexa.Application.Dtos.Clinical;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
 using MediatR;
 using System;
@@ -14,14 +15,14 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
     public class GetCaseHistoryQueryHandler
         : IRequestHandler<GetCaseHistoryQuery, List<CaseHistoryDto>>
     {
-        private readonly ICaseHistoryRepository _repo;
+        private readonly IUnitOfWork _unitofwork;
         private readonly IMapper _mapper;
 
         public GetCaseHistoryQueryHandler(
-            ICaseHistoryRepository repo,
+            IUnitOfWork unitofwork,
             IMapper mapper)
         {
-            _repo = repo;
+            _unitofwork = unitofwork;
             _mapper = mapper;
         }
 
@@ -29,7 +30,7 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
             GetCaseHistoryQuery request,
             CancellationToken ct)
         {
-            var data = await _repo.GetByAdmissionIdAsync(request.AdmissionId);
+            var data = await _unitofwork.CaseHistories.GetByAdmissionIdAsync(request.AdmissionId);
             return _mapper.Map<List<CaseHistoryDto>>(data);
         }
     }

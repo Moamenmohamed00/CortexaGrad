@@ -16,7 +16,14 @@ namespace Cortexa.Infrastructure.Persistence.Repositories.Clinical
                 .OrderByDescending(v => v.RecordedAt)
                 .ToListAsync();
         }
+        public async Task<VitalSigns?> GetLatestByAdmissionIdAsync(string admissionId)
+        {
+            return await _context.VitalSigns
+                .Where(v => v.AdmissionId == admissionId)
+                .OrderByDescending(v => v.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
 
-  
+
     }
 }

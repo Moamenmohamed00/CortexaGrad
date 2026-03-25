@@ -7,5 +7,7 @@ namespace Cortexa.Application.Interfaces.Repositories.Clinical
     public interface IVitalSignsRepository : IGenericRepository<VitalSigns>
     {
         Task<IReadOnlyList<VitalSigns>> GetByAdmissionIdAsync(string admissionId);
+
+        Task<VitalSigns?> GetLatestByAdmissionIdAsync(string admissionId);
     }
 }
