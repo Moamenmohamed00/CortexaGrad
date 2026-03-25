@@ -1,5 +1,6 @@
 using Cortexa.Application.Features.Patients.Commands;
 using Cortexa.Application.Features.Patients.Queries;
+using Cortexa.Application.Features.Rooms.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
@@ -84,4 +85,5 @@ namespace Cortexa.Api.Controllers
             return Ok(result);
         }
     }
+
 }

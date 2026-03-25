@@ -1,4 +1,6 @@
 using Cortexa.Application.Features.Admission.Queries;
+using Cortexa.Application.Features.Admission.Commands;
+using Cortexa.Application.Features.Patients.Commands;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
@@ -26,44 +28,45 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Creates a new admission (admit patient).
+        /// Creates a new admission(admit patient).
         /// </summary>
-        //[HttpPost("patients/{patientId}")]
-        //public async Task<IActionResult> Create(
-        //    string patientId,
-        //    CreateAdmissionCommand command)
-        //{
-        //    if (patientId != command.PatientId)
-        //        return BadRequest("Route patientId does not match command patientId.");
+        [HttpPost("patients/{patientId}")]
+        public async Task<IActionResult> Create(
+            string patientId,
+            CreateAdmissionCommand command)
+        {
+            if (patientId != command.PatientId)
+                return BadRequest("Route patientId does not match command patientId.");
 
-        //    var admissionId = await Sender.Send(command);
-        //    var admission = await Sender.Send(
-        //        new GetAdmissionsByPatientIdQuery(patientId));
+            var admissionId = await Sender.Send(command);
+            var admission = await Sender.Send(
+                new GetAdmissionsByPatientIdQuery(patientId));
 
-        //    return CreatedAtAction(
-        //        nameof(GetById),
-        //        new { id = admissionId },
-        //        admission);
-        //}
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = admissionId },
+                admission);
+        }
 
-        ///// <summary>
-        ///// Discharges an admission.
-        ///// </summary>
-        //[HttpPut("{id}/discharge")]
-        //public async Task<IActionResult> Discharge(
-        //    string id,
-        //    DischargePatientCommand command)
-        //{
-        //    if (id != command.AdmissionId)
-        //        return BadRequest("Route id does not match admission id.");
-
-        //    var success = await Sender.Send(command);
-
-        //    return success ? NoContent() : NotFound();
-        //}
 
         /// <summary>
-        /// ÌÃ·» Õ«·… «·ﬁ»Ê· ⁄‰ ÿ—Ìﬁ «·„⁄—› «·Œ«’ »Â« (Admission ID).
+        /// Discharges an admission.
+        /// </summary>
+        [HttpPut("{id}/discharge")]
+        public async Task<IActionResult> Discharge(
+            string id,
+            DischargePatientCommand command)
+        {
+            if (id != command.AdmissionId)
+                return BadRequest("Route id does not match admission id.");
+
+            var success = await Sender.Send(command);
+
+            return success ? NoContent() : NotFound();
+        }
+
+        /// <summary>
+        /// ÌÃ·» Õ«·… «·ﬁ»Ê· ⁄‰ ÿ—Ìﬁ «·„⁄—› «·Œ«’ »Â«(Admission ID).
         /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id) //  „  €ÌÌ— «·„⁄«„· ≈·Ï id
@@ -81,6 +84,17 @@ namespace Cortexa.Api.Controllers
         {
             var result = await Sender.Send(query);
             return Ok(result);
+        }
+
+        [HttpPost("admit")]
+        public async Task<IActionResult> AdmitPatient([FromBody] AdmitPatientCommand command)
+        {
+            var result = await Sender.Send(command);
+
+            // ≈–« ﬂ«‰  „ÌÀÊœ «·‹ Get „ÊÃÊœ… ›Ì Controller „Œ ·›° ÌÃ»  Ê÷ÌÕ –·ﬂ
+            // √Ê «” Œœ«„ Ok(result) ≈–« ﬂ‰  ·«  Â „ »‹ Location Header
+            return Ok(result);
+
         }
     }
 }

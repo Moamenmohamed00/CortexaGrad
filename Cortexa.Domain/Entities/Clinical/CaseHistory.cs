@@ -4,7 +4,7 @@ using Cortexa.Domain.Entities.Core;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class CaseHistory : BaseEntity
+    public class CaseHistory : BaseEntity, IAuditableEntity
     {
         public string Complaint { get; set; } = string.Empty;
         public string PresentIllness { get; set; } = string.Empty;

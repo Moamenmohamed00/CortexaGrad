@@ -12,70 +12,92 @@ using AdmissionEntity = Cortexa.Domain.Entities.Core.Admission;
 
 namespace Cortexa.Application.Features.Patients.Commands
 {
+    public record AdmitPatientCommand(
+      string Name,
+      string NationalId,
+      DateTime DateOfBirth,
+      Gender Gender,
+      string? Email,
+      string? Phone,
+      string Street,
+      string City,
+      string State,
+      string? ZipCode,
+      string? Country,
+      BloodType BloodType,
+      string? DiagnosisSummary,
+      string DoctorId,
+      string InitialDiagnosis,
+      string? BedId,
+      string? RoomId
+  ) : IRequest<PatientAdmissionDto>;
     public class AdmitPatientCommandHandler : IRequestHandler<AdmitPatientCommand, PatientAdmissionDto>
     {
-        private readonly IPatientRepository _patientRepository;
-        private readonly IAdmissionRepository _admissionRepository;
-        private readonly IBedRepository _bedRepository;
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public AdmitPatientCommandHandler(
-            IPatientRepository patientRepository,
-            IAdmissionRepository admissionRepository,
-            IBedRepository bedRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _patientRepository = patientRepository;
-            _admissionRepository = admissionRepository;
-            _bedRepository = bedRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<PatientAdmissionDto> Handle(AdmitPatientCommand request, CancellationToken cancellationToken)
         {
-            // ── Validate bed availability before proceeding ──────────
+            // 1. التأكد من حالة السرير أولاً
             Bed? bed = null;
             if (!string.IsNullOrEmpty(request.BedId))
             {
-                bed = await _bedRepository.GetByIdAsync(request.BedId)
+                bed = await _unitOfWork.Beds.GetByIdAsync(request.BedId)
                     ?? throw new KeyNotFoundException($"Bed with ID '{request.BedId}' was not found.");
 
                 if (bed.Status != BedStatus.Available)
                     throw new BedNotAvailableException(bed.Id, bed.BedNumber, bed.RoomId);
             }
 
-            // ── Create patient ───────────────────────────────────────
-            var address = new Address(
-                request.Street,
-                request.City,
-                request.State,
-                request.ZipCode ?? string.Empty,
-                request.Country ?? request.State);
+            // 2. البحث عن المريض بالرقم القومي (بدلاً من الإضافة المباشرة)
+            var patient = await _unitOfWork.Patients.GetByNationalIdAsync(request.NationalId, cancellationToken);
 
-            var patient = new Patient
+            if (patient == null)
             {
-                Name = request.Name,
-                FileNumber = request.NationalId,
-                DateOfBirth = request.DateOfBirth,
-                Gender = request.Gender,
-                Email = request.Email ?? string.Empty,
-                PhoneNumber = request.Phone,
-                Address = address,
-                BloodType = request.BloodType,
-                DiagnosisSummary = request.DiagnosisSummary,
-                NationalId = request.NationalId,
-            };
+                // مريض جديد: أنشئ الكائن وأضفه
+                var address = new Address(
+                    request.Street,
+                    request.City,
+                    request.State,
+                    request.ZipCode ?? string.Empty,
+                    request.Country ?? request.State);
 
-            await _patientRepository.AddAsync(patient, cancellationToken);
+                patient = new Patient
+                {
+                    Name = request.Name,
+                    FileNumber = request.NationalId,
+                    DateOfBirth = request.DateOfBirth,
+                    Gender = request.Gender,
+                    Email = request.Email ?? string.Empty,
+                    PhoneNumber = request.Phone,
+                    Address = address,
+                    BloodType = request.BloodType,
+                    DiagnosisSummary = request.DiagnosisSummary,
+                    NationalId = request.NationalId,
+                };
 
-            // ── Create admission ─────────────────────────────────────
+                await _unitOfWork.Patients.AddAsync(patient, cancellationToken);
+            }
+            else
+            {
+                // مريض موجود مسبقاً: يمكنك تحديث بياناته هنا إذا لزم الأمر
+                patient.PhoneNumber = request.Phone ?? patient.PhoneNumber;
+                await _unitOfWork.Patients.UpdateAsync(patient);
+            }
+
+            // 3. إنشاء الـ Admission (سواء للمريض الجديد أو الموجود)
             var admission = new AdmissionEntity
             {
-                PatientId = patient.Id,
-                Patient = patient,
+                PatientId = patient.Id, // هنا نستخدم الـ Id سواء كان جديداً أو قديماً
                 DoctorId = request.DoctorId,
                 AdmissionDate = DateTime.UtcNow,
                 InitialDiagnosis = request.InitialDiagnosis,
@@ -84,20 +106,23 @@ namespace Cortexa.Application.Features.Patients.Commands
                 RoomId = request.RoomId
             };
 
-            await _admissionRepository.AddAsync(admission, cancellationToken);
+            await _unitOfWork.Admissions.AddAsync(admission, cancellationToken);
 
-            // ── Mark bed as Occupied ─────────────────────────────────
+            // 4. تحديث حالة السرير
             if (bed != null)
             {
                 bed.Status = BedStatus.Occupied;
                 bed.CurrentAdmissionId = admission.Id;
-                await _bedRepository.UpdateAsync(bed);
+                await _unitOfWork.Beds.UpdateAsync(bed);
             }
 
+            // 5. حفظ كل التغييرات في Transaction واحد
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var dto = _mapper.Map<PatientAdmissionDto>(patient);
-            _mapper.Map(admission, dto);
+            // 6. التحويل إلى DTO
+            var dto = _mapper.Map<PatientAdmissionDto>(admission);
+            //_mapper.Map(admission, dto);
+
             return dto;
         }
     }

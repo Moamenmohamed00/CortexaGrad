@@ -1,6 +1,7 @@
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
+using Cortexa.Application.Interfaces.Services;
 using Cortexa.Infrastructure.External;
 using Cortexa.Infrastructure.Identity;
 using Cortexa.Infrastructure.Persistence;
@@ -67,8 +68,11 @@ namespace Cortexa.Infrastructure
             services.AddScoped<ILabRepository, LabRepository>();
             services.AddScoped<IImagingRepository, ImagingRepository>();
             services.AddScoped<IDoctorRepository, DoctorRepository>();
+            services.AddScoped<INurseRepository, NurseRepository>();
             services.AddScoped<IBedRepository, BedRepository>();
+            services.AddScoped<IRoomRepository, RoomRepository>();  
             services.AddScoped<IAIRepository, AIRepository>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // ── Services ───────────────────────────────────────────────
@@ -83,7 +87,10 @@ namespace Cortexa.Infrastructure
             services.Configure<JwtSettings>(
                 configuration.GetSection(JwtSettings.SectionName));
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-            services.AddScoped<IIdentityService, IdentityService>();
+            // IIdentityService is registered in both Application and Common interfaces to allow for flexibility in referencing it from different layers without causing circular dependencies.
+            //لو حصل مشكله هتبقى بسبب الموضوع ده
+            services.AddScoped<IAIService, PythonRAGService>();
+            services.AddScoped<Application.Common.Interfaces.IIdentityService, IdentityService>();
             services.AddScoped<Application.Interfaces.Services.IIdentityService, IdentityService>();
 
             // ── External HTTP Clients ──────────────────────────────────

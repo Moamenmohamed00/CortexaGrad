@@ -1,10 +1,12 @@
-using MediatR;
 using AutoMapper;
 using Cortexa.Application.Dtos.Clinical;
+using Cortexa.Application.Dtos.Rooms;
+using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories.Clinical;
+using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Cortexa.Application.Interfaces.Repositories.Clinical;
 
 namespace Cortexa.Application.Features.ClinicalData.Queries
 {
@@ -12,19 +14,21 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
 
     public class GetVitalsHistoryQueryHandler : IRequestHandler<GetVitalsHistoryQuery, List<VitalSignsDto>>
     {
-        private readonly IVitalSignsRepository _vitalSignsRepository;
+        private readonly IUnitOfWork _unitofwork;
         private readonly IMapper _mapper;
 
-        public GetVitalsHistoryQueryHandler(IVitalSignsRepository vitalSignsRepository, IMapper mapper)
+        public GetVitalsHistoryQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _vitalSignsRepository = vitalSignsRepository;
+            _unitofwork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<List<VitalSignsDto>> Handle(GetVitalsHistoryQuery request, CancellationToken cancellationToken)
         {
-            var vitals = await _vitalSignsRepository.GetByAdmissionIdAsync(request.AdmissionId);
+            var vitals = await _unitofwork.VitalSigns.GetByAdmissionIdAsync(request.AdmissionId);
             return _mapper.Map<List<VitalSignsDto>>(vitals);
         }
     }
+
+    
 }

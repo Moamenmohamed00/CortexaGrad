@@ -8,5 +8,7 @@ namespace Cortexa.Application.Interfaces.Repositories
     {
         Task<IReadOnlyList<Doctor>> GetBySpecializationAsync(string specialization);
         Task<IReadOnlyList<Doctor>> GetAvailableDoctorsAsync();
+
+        Task<Doctor?> GetByEmailAsync(string email);
     }
 }

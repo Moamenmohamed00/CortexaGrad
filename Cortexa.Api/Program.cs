@@ -34,13 +34,13 @@ if (app.Environment.IsDevelopment())
 // ── HTTP Request Pipeline ──────────────────────────────────────────
 app.UseMiddleware<ExceptionMiddleware>();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseMiddleware<ApiKeyMiddleware>();
@@ -51,6 +51,12 @@ app.MapControllers();
 // ── SignalR Hubs ───────────────────────────────────────────────────
 app.MapHub<AlertHub>("/hubs/alerts");
 app.MapHub<MonitoringHub>("/hubs/monitoring");
-
+//app.MapGet("/", () => Results.Ok(new
+//{
+//    service = "Cortexa API",
+//    status = "Running",
+//    environment = app.Environment.EnvironmentName,
+//    time = DateTime.UtcNow
+//})); 
 app.Run();
 //after finish use code wiki to make readme file

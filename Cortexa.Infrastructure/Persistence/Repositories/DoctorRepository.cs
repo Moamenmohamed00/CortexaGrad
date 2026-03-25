@@ -19,5 +19,10 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         {
             return await _context.Doctors.ToListAsync();
         }
+
+        public Task<Doctor?> GetByEmailAsync(string email)
+        {
+            return _context.Doctors.FirstOrDefaultAsync(d => d.Email == email);
+        }
     }
 }

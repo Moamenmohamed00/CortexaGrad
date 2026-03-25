@@ -1,9 +1,9 @@
-﻿using Cortexa.Application.Common.Interfaces;
+﻿using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
+using Cortexa.Domain.Services;
+
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-
 
 namespace Cortexa.Application.Features.Admission.Commands
 {
@@ -14,36 +14,36 @@ namespace Cortexa.Application.Features.Admission.Commands
         string InitialDiagnosis,
         string? RoomId,
         string? BedId
-    ) : IRequest<string>; // returns AdmissionId
-    public class CreateAdmissionCommandHandler
-        : IRequestHandler<CreateAdmissionCommand, string>
-    {
-        private readonly IApplicationDbContext _context;
+    ) : IRequest<string>;
 
-        public CreateAdmissionCommandHandler(IApplicationDbContext context)
+    public class CreateAdmissionCommandHandler : IRequestHandler<CreateAdmissionCommand, string>
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CreateAdmissionCommandHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> Handle(
-            CreateAdmissionCommand request,
-            CancellationToken cancellationToken)
+        public async Task<string> Handle(CreateAdmissionCommand request, CancellationToken cancellationToken)
         {
-            // Validate Patient exists
-            var patientExists = await _context.Patients
-                .AnyAsync(p => p.Id == request.PatientId, cancellationToken);
+            var patientExists = await _unitOfWork.Patients.GetByIdAsync(request.PatientId) != null;
+            if (!patientExists) throw new Exception("Patient not found.");
 
-            if (!patientExists)
-                throw new Exception("Patient not found.");
+            var doctorExists = await _unitOfWork.Doctors.GetByIdAsync(request.DoctorId) != null;
+            if (!doctorExists) throw new Exception("Doctor not found.");
 
-            // Validate Doctor exists
-            var doctorExists = await _context.Doctors
-                .AnyAsync(d => d.Id == request.DoctorId, cancellationToken);
+            Bed? bed = null;
+            if (!string.IsNullOrEmpty(request.BedId))
+            {
+                bed = await _unitOfWork.Beds.GetByIdAsync(request.BedId)
+                    ?? throw new KeyNotFoundException($"Bed {request.BedId} not found.");
 
-            if (!doctorExists)
-                throw new Exception("Doctor not found.");
+                if (bed.Status != BedStatus.Available)
+                    throw new Exception("Bed is already occupied.");
+            }
 
-            var admission = new Cortexa.Domain.Entities.Core.Admission
+            var admission = new Cortexa.Domain.Entities.Core.Admission 
             {
                 PatientId = request.PatientId,
                 DoctorId = request.DoctorId,
@@ -54,9 +54,16 @@ namespace Cortexa.Application.Features.Admission.Commands
                 Status = AdmissionStatus.Active
             };
 
-            _context.Admissions.Add(admission);
+            await _unitOfWork.Admissions.AddAsync(admission, cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            if (bed != null)
+            {
+                bed.Status = BedStatus.Occupied;
+                bed.CurrentAdmissionId = admission.Id;
+                await _unitOfWork.Beds.UpdateAsync(bed);
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return admission.Id;
         }

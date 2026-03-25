@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Cortexa.Domain.Common
 {
+    public interface IAuditableEntity { }
     public abstract class BaseEntity
     {
         public string Id { get; protected set; }
@@ -21,7 +22,7 @@ namespace Cortexa.Domain.Common
 
         protected BaseEntity()
         {
-            Id = GenerateId();
+            Id = string.IsNullOrEmpty(Id) ? GenerateId() : Id;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -37,7 +38,14 @@ namespace Cortexa.Domain.Common
 
             return $"{prefix}-{uniqueId}";
         }
-
+        //public void EnsureId(string className)
+        //{
+        //    if (string.IsNullOrEmpty(Id))
+        //    {
+        //        var prefix = GetEntityPrefix(className);
+        //        Id = $"{prefix}-{Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper()}";
+        //    }
+        //}
         /// <summary>
         /// Generates a prefix from the entity class name
         /// Uses explicit mappings for common entities, falls back to automatic generation

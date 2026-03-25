@@ -1,16 +1,17 @@
-using System.Text.Json;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Domain.Common;
 using Cortexa.Domain.Entities.Actors;
-using Cortexa.Domain.Entities.Core;
-using Cortexa.Domain.Entities.Clinical;
-using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
+using Cortexa.Domain.Entities.Clinical;
+using Cortexa.Domain.Entities.Core;
+using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
 using Cortexa.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Text.Json;
 
 namespace Cortexa.Infrastructure.Persistence
 {
@@ -86,93 +87,119 @@ namespace Cortexa.Infrastructure.Persistence
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var auditEntries = new List<AuditLog>();
+            // 1. تثبيت الوقت لضمان تطابق التوقيت في كل الجداول
+            var currentTime = _dateTime.Now;
+            var userId = _currentUserService.UserId;
 
-            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
-            {
-                // Intercept hard deletes → convert to soft delete
-                if (entry.State == EntityState.Deleted)
-                {
-                    entry.State = EntityState.Modified;
-                    entry.Entity.IsDeleted = true;
-                    entry.Entity.DeletedAt = _dateTime.Now;
-                    entry.Entity.DeletedBy = _currentUserService.UserId;
-                }
+            // 2. تحديث الداتا الأساسية (Soft Delete & Metadata)
+            ApplySoftDelete(currentTime, userId);
+            ApplyMetadata(currentTime, userId);
 
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatedAt = _dateTime.Now;
-                        entry.Entity.CreatedBy = _currentUserService.UserId;
-                        break;
+            // 3. تحضير الـ Audit Logs (بما أن الـ ID يتولد يدوياً، لا داعي لانتظار الـ Database)
+            var auditEntries = PrepareAuditEntries(currentTime, userId);
 
-                    case EntityState.Modified:
-                        entry.Entity.LastModifiedAt = _dateTime.Now;
-                        entry.Entity.LastModifiedBy = _currentUserService.UserId;
-                        break;
-                }
-
-                // Generate audit logs for Clinical entities
-                if (IsClinicalEntity(entry.Entity))
-                {
-                    var auditType = entry.State switch
-                    {
-                        EntityState.Added => AuditType.Create,
-                        EntityState.Modified when entry.Entity.IsDeleted => AuditType.Delete,
-                        EntityState.Modified => AuditType.Update,
-                        _ => (AuditType?)null
-                    };
-
-                    if (auditType.HasValue)
-                    {
-                        var auditLog = new AuditLog
-                        {
-                            EntityId = entry.Entity.Id,
-                            EntityName = entry.Entity.GetType().Name,
-                            Type = auditType.Value,
-                            Timestamp = _dateTime.Now,
-                            UserId = _currentUserService.UserId
-                        };
-
-                        if (entry.State == EntityState.Modified)
-                        {
-                            var changedProps = entry.Properties
-                                .Where(p => p.IsModified)
-                                .ToList();
-
-                            auditLog.AffectedColumns = string.Join(", ", changedProps.Select(p => p.Metadata.Name));
-                            auditLog.OldValue = JsonSerializer.Serialize(
-                                changedProps.ToDictionary(p => p.Metadata.Name, p => p.OriginalValue?.ToString()));
-                            auditLog.NewValue = JsonSerializer.Serialize(
-                                changedProps.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString()));
-                        }
-                        else if (entry.State == EntityState.Added)
-                        {
-                            auditLog.NewValue = JsonSerializer.Serialize(
-                                entry.Properties.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue?.ToString()));
-                        }
-
-                        auditEntries.Add(auditLog);
-                    }
-                }
-            }
-
-            // Add audit logs to context
             if (auditEntries.Any())
             {
                 AuditLogs.AddRange(auditEntries);
             }
 
+            // 4. حفظ كل شيء في Call واحدة لقاعدة البيانات (Atomic Transaction)
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// Checks if the entity belongs to the Clinical namespace
-        /// </summary>
-        private static bool IsClinicalEntity(BaseEntity entity)
+        private void ApplySoftDelete(DateTime now, string userId)
         {
-            var ns = entity.GetType().Namespace;
-            return ns != null && ns.Contains("Clinical");
+            var deletedEntries = ChangeTracker.Entries<BaseEntity>()
+                .Where(e => e.State == EntityState.Deleted);
+
+            foreach (var entry in deletedEntries)
+            {
+                entry.State = EntityState.Modified; // تحويل الحذف المسح لـ Update
+                entry.Entity.IsDeleted = true;
+                entry.Entity.DeletedAt = now;
+                entry.Entity.DeletedBy = userId;
+            }
+        }
+
+        private void ApplyMetadata(DateTime now, string userId)
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.CreatedBy = userId;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.LastModifiedAt = now;
+                    entry.Entity.LastModifiedBy = userId;
+                }
+            }
+        }
+
+        private List<AuditLog> PrepareAuditEntries(DateTime now, string userId)
+        {
+            var auditEntries = new List<AuditLog>();
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                    continue;
+
+                if (!ShouldAuditEntity(entry.Entity))
+                    continue;
+
+                var auditType = entry.State switch
+                {
+                    EntityState.Added => AuditType.Create,
+                    EntityState.Modified when entry.Entity.IsDeleted => AuditType.Delete, // حالة الـ Soft Delete
+                    EntityState.Modified => AuditType.Update,
+                    _ => (AuditType?)null
+                };
+
+                if (auditType == null) continue;
+
+                var auditLog = new AuditLog
+                {
+                    EntityId = entry.Entity.Id,
+                    EntityName = entry.Entity.GetType().Name,
+                    Type = auditType.Value,
+                    Timestamp = now,
+                    UserId = userId
+                };
+
+                // منطق الـ Serialization (يفضل عمله فقط عند الحاجة لتوفير الأداء)
+                if (entry.State == EntityState.Added)
+                {
+                    auditLog.NewValue = SerializeProperties(entry.Properties, isCurrent: true);
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    var changedProps = entry.Properties.Where(p => p.IsModified).ToList();
+                    if (!changedProps.Any()) continue;
+
+                    auditLog.AffectedColumns = string.Join(", ", changedProps.Select(p => p.Metadata.Name));
+                    auditLog.OldValue = SerializeProperties(changedProps, isCurrent: false);
+                    auditLog.NewValue = SerializeProperties(changedProps, isCurrent: true);
+                }
+
+                auditEntries.Add(auditLog);
+            }
+            return auditEntries;
+        }
+        private static bool ShouldAuditEntity(BaseEntity entity)
+        {
+            return entity is IAuditableEntity;
+        }
+
+        private string SerializeProperties(IEnumerable<PropertyEntry> properties, bool isCurrent)
+        {
+            var dict = properties.ToDictionary(
+                p => p.Metadata.Name,
+                p => (isCurrent ? p.CurrentValue : p.OriginalValue)?.ToString()
+            );
+            return JsonSerializer.Serialize(dict);
         }
     }
 }

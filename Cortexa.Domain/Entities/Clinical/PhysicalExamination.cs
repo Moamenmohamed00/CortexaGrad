@@ -5,7 +5,7 @@ using Cortexa.Domain.Entities.Core;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class PhysicalExamination : BaseEntity
+    public class PhysicalExamination : BaseEntity, IAuditableEntity
     {
         public DateTime ExamDate { get; set; }
         public float Temperature { get; set; }

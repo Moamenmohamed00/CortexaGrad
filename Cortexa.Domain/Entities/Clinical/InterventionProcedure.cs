@@ -6,7 +6,7 @@ using Cortexa.Domain.Enums;
 
 namespace Cortexa.Domain.Entities.Clinical
 {
-    public class InterventionProcedure : BaseEntity
+    public class InterventionProcedure : BaseEntity, IAuditableEntity
     {
         public CareInterventionType Type { get; set; } // CVL, Cannula, Foley
         public int Size { get; set; }
