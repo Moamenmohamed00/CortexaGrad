@@ -10,7 +10,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class RecordVitalsCommand : IRequest<string>
     {
@@ -29,19 +29,15 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
 
     public class RecordVitalsCommandHandler : IRequestHandler<RecordVitalsCommand, string>
     {
-        private readonly IVitalSignsRepository _vitalSignsRepository;
-        private readonly IAIRepository _aiRepository;
+
         private readonly INotificationService _notificationService;
         private readonly IUnitOfWork _unitOfWork;
 
         public RecordVitalsCommandHandler(
-            IVitalSignsRepository vitalSignsRepository,
-            IAIRepository aiRepository,
             INotificationService notificationService,
             IUnitOfWork unitOfWork)
         {
-            _vitalSignsRepository = vitalSignsRepository;
-            _aiRepository = aiRepository;
+
             _notificationService = notificationService;
             _unitOfWork = unitOfWork;
         }
@@ -68,7 +64,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
             entity.NewsScore = newsScore;
             entity.NewsRiskLevel = riskLevel;
 
-            await _vitalSignsRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.VitalSigns.AddAsync(entity, cancellationToken);
 
             // ── Auto-generate alert for Medium / High risk ───────────
             if (riskLevel >= NewsRiskLevel.Medium)
@@ -87,7 +83,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                     Status = AlertStatus.Active
                 };
 
-                await _aiRepository.AddAsync(alert, cancellationToken);
+                await _unitOfWork.AI.AddAsync(alert, cancellationToken);
 
                 // ── Send real-time SignalR notification ───────────────
                 await _notificationService.SendRealTimeAlertAsync(

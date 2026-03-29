@@ -1,8 +1,12 @@
-using MediatR;
+using Cortexa.Application.Dtos.Actors;
+using Cortexa.Application.Dtos.Patient;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.Actors;
+using Cortexa.Domain.Entities.Core;
 using Cortexa.Domain.Enums;
 using Cortexa.Domain.ValueObjects;
-using Cortexa.Application.Interfaces.Repositories;
+using MediatR;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,36 +14,37 @@ using System.Threading.Tasks;
 
 namespace Cortexa.Application.Features.Patients.Commands
 {
-    public class CreatePatientCommand : IRequest<string>
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public DateTime DateOfBirth { get; set; }
-        public Gender Gender { get; set; }
-        public string Street { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
-        public string ZipCode { get; set; } = string.Empty;
-        public string FileNumber { get; set; } = string.Empty;
-        public BloodType BloodType { get; set; }
+    public record CreatePatientCommand 
+    (
+         string Name ,
+         string Email,
+         string PhoneNumber,
+         DateTime DateOfBirth ,
+         Gender Gender,
+         string Street ,
+         string City ,
+         string State ,
+         string Country ,
+         string ZipCode ,
+         string FileNumber ,
+         BloodType BloodType ,
+         string NationalId 
+    ): IRequest<PatientDto>;
 
-        public string NationalId {  get; set; } = string.Empty;
-    }
-
-    public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, string>
+    public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, PatientDto>
     {
         private readonly IPatientRepository _patientRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CreatePatientCommandHandler(IPatientRepository patientRepository, IUnitOfWork unitOfWork)
+        public CreatePatientCommandHandler(IPatientRepository patientRepository, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _patientRepository = patientRepository;
             _unitOfWork = unitOfWork;
+            _mapper=mapper;
         }
 
-        public async Task<string> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
+        public async Task<PatientDto> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
         {
             var patient = new Patient
             {
@@ -80,7 +85,12 @@ namespace Cortexa.Application.Features.Patients.Commands
             await _patientRepository.AddAsync(patient, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return patient.Id;
+            var dto = _mapper.Map<PatientDto>(patient);
+
+
+            return dto;
         }
+
+
     }
 }

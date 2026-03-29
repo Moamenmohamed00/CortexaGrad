@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class AddNursingNoteCommand : IRequest<string>
     {
@@ -18,12 +18,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
 
     public class AddNursingNoteCommandHandler : IRequestHandler<AddNursingNoteCommand, string>
     {
-        private readonly INursingNotesRepository _nursingNotesRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddNursingNoteCommandHandler(INursingNotesRepository nursingNotesRepository, IUnitOfWork unitOfWork)
+        public AddNursingNoteCommandHandler( IUnitOfWork unitOfWork)
         {
-            _nursingNotesRepository = nursingNotesRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -37,7 +35,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 NurseId = request.NurseId
             };
 
-            await _nursingNotesRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.NursingNotes.AddAsync(entity, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;

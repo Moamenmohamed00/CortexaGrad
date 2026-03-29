@@ -76,15 +76,7 @@ namespace Cortexa.Api.Controllers
 
             return result is not null ? Ok(result) : NotFound();
         }
-        /// <summary>
-        /// Gets all admissions with pagination.
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetActiveAdmissionsQuery query)
-        {
-            var result = await Sender.Send(query);
-            return Ok(result);
-        }
+
 
         [HttpPost("admit")]
         public async Task<IActionResult> AdmitPatient([FromBody] AdmitPatientCommand command)

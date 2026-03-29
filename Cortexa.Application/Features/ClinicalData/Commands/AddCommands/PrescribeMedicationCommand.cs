@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class PrescribeMedicationCommand : IRequest<string>
     {
@@ -24,12 +24,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
 
     public class PrescribeMedicationCommandHandler : IRequestHandler<PrescribeMedicationCommand, string>
     {
-        private readonly IMedicationRepository _medicationRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PrescribeMedicationCommandHandler(IMedicationRepository medicationRepository, IUnitOfWork unitOfWork)
+        public PrescribeMedicationCommandHandler( IUnitOfWork unitOfWork)
         {
-            _medicationRepository = medicationRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -48,7 +46,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 DoctorId = request.DoctorId
             };
 
-            await _medicationRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.Medications.AddAsync(entity, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;

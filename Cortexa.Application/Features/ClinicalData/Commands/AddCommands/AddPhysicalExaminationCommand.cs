@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class AddPhysicalExaminationCommand : IRequest<string>
     {
@@ -31,20 +31,17 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
     public class AddPhysicalExaminationCommandHandler
         : IRequestHandler<AddPhysicalExaminationCommand, string>
     {
-        private readonly IPhysicalExaminationRepository _repo;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AddPhysicalExaminationCommandHandler(
-            IPhysicalExaminationRepository repo,
-            IUnitOfWork uow)
+            IUnitOfWork unitOfWork)
         {
-            _repo = repo;
-            _uow = uow;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> Handle(
             AddPhysicalExaminationCommand request,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             var entity = new PhysicalExamination
             {
@@ -63,8 +60,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 DoctorId = request.DoctorId
             };
 
-            await _repo.AddAsync(entity, ct);
-            await _uow.SaveChangesAsync(ct);
+            await _unitOfWork.PhysicalExaminations.AddAsync(entity, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;
         }
