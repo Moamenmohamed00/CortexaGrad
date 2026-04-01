@@ -31,7 +31,7 @@ namespace Cortexa.Api.Extensions
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Description = "Enter your JWT token: Bearer {token}",
+                    Description = "Enter your JWT token: {token}",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
