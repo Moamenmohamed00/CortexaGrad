@@ -23,6 +23,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
 
 // ── Database Seeding (Development) ─────────────────────────────────

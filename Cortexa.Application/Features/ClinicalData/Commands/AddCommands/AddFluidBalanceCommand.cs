@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class AddFluidBalanceCommand : IRequest<string>
     {
@@ -83,12 +83,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
 
     public class AddFluidBalanceCommandHandler : IRequestHandler<AddFluidBalanceCommand, string>
     {
-        private readonly  IFluidBalanceRepository _fluidBalanceRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddFluidBalanceCommandHandler( IFluidBalanceRepository fluidBalanceRepository, IUnitOfWork unitOfWork)
+        public AddFluidBalanceCommandHandler(IUnitOfWork unitOfWork)
         {
-            _fluidBalanceRepository = fluidBalanceRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -104,7 +102,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 NurseId = request.NurseId
             };
 
-            await _fluidBalanceRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.FluidBalances.AddAsync(entity,cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;

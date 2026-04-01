@@ -10,8 +10,8 @@ namespace Cortexa.Api.Controllers
         public async Task<IActionResult> GetAllRooms()
         {
             var result = await Sender.Send(new GetRoomsQuery());
-            return Ok(result);
+            return result is not null ? Ok(result) : NotFound();
         }
 
-        }
+    }
     }

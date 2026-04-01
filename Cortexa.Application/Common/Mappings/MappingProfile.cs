@@ -41,7 +41,9 @@ namespace Cortexa.Application.Common.Mappings
             CreateMap<Medications, MedicationDto>();
             CreateMap<LabResult, LabResultDto>(); // Technically Diagnostic but referenced in Nurse
             CreateMap<NursingNotes, NursingNotesDto>();
-            CreateMap<FluidBalance, FluidBalanceDto>();
+            CreateMap<FluidBalance, FluidBalanceDto>()
+                .ForMember(dest => dest.AmountMl,
+                    opt => opt.MapFrom(src => src.Amount_ML));
             CreateMap<CaseHistory, CaseHistoryDto>();
             CreateMap<PhysicalExamination, PhysicalExaminationDto>();
             CreateMap<InterventionProcedure, InterventionProcedureDto>();

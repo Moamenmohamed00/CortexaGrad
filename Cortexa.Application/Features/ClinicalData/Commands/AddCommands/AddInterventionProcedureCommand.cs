@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cortexa.Application.Features.ClinicalData.Commands
+namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 {
     public class AddInterventionProcedureCommand : IRequest<string>
     {
@@ -23,20 +23,18 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
     public class AddInterventionProcedureCommandHandler
         : IRequestHandler<AddInterventionProcedureCommand, string>
     {
-        private readonly IInterventionProcedureRepository _repo;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AddInterventionProcedureCommandHandler(
-            IInterventionProcedureRepository repo,
-            IUnitOfWork uow)
+            IUnitOfWork unitOfWork)
         {
-            _repo = repo;
-            _uow = uow;
+            _unitOfWork = unitOfWork;
         }
+
 
         public async Task<string> Handle(
             AddInterventionProcedureCommand request,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             var entity = new InterventionProcedure
             {
@@ -48,8 +46,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 NurseId = request.NurseId
             };
 
-            await _repo.AddAsync(entity, ct);
-            await _uow.SaveChangesAsync(ct);
+            await _unitOfWork.InterventionProcedures.AddAsync(entity,cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return entity.Id;
         }

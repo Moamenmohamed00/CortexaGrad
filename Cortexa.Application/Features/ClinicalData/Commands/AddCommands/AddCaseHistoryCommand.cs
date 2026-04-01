@@ -24,15 +24,12 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
     public class AddCaseHistoryCommandHandler
         : IRequestHandler<AddCaseHistoryCommand, string>
     {
-        private readonly ICaseHistoryRepository _repo;
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AddCaseHistoryCommandHandler(
-            ICaseHistoryRepository repo,
-            IUnitOfWork uow)
+            IUnitOfWork unitOfWork)
         {
-            _repo = repo;
-            _uow = uow;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> Handle(
@@ -52,10 +49,13 @@ namespace Cortexa.Application.Features.ClinicalData.Commands
                 DoctorId = request.DoctorId
             };
 
-            await _repo.AddAsync(entity, ct);
-            await _uow.SaveChangesAsync(ct);
+            await _unitOfWork.CaseHistories.AddAsync(entity, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             return entity.Id;
         }
     }
+
+
 }
+

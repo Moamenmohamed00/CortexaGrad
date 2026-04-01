@@ -13,16 +13,9 @@ namespace Cortexa.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreatePatientCommand command)
         {
-            var patientId = await Sender.Send(command);
+            var patient = await Sender.Send(command);
 
-            // Fetch full resource for response (best practice)
-            var patient = await Sender.Send(new GetPatientByIdQuery(patientId));
-
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = patientId },
-                patient
-            );
+            return Ok(patient);
         }
 
         /// <summary>
@@ -47,6 +40,7 @@ namespace Cortexa.Api.Controllers
         {
             var result = await Sender.Send(new GetPatientByIdQuery(id));
 
+
             return result is not null
                 ? Ok(result)
                 : NotFound();
@@ -69,9 +63,9 @@ namespace Cortexa.Api.Controllers
         /// Gets all patients with pagination support.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllPatientsQuery query)
+        public async Task<IActionResult> GetAll()
         {
-            var result = await Sender.Send(query);
+            var result = await Sender.Send(new GetAllPatientsQuery());
             return Ok(result);
         }
 
