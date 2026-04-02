@@ -7,7 +7,10 @@ using System.Text;
 namespace Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands
 {
 
-    public record DeleteCaseHistoryCommand(string Id) : IRequest<bool>;
+    public record DeleteCaseHistoryCommand(
+        string AdmissionId,
+        string Id
+        ) : IRequest<bool>;
 
     public class DeleteCaseHistoryCommandHandler
         : IRequestHandler<DeleteCaseHistoryCommand, bool>
@@ -23,7 +26,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands
         {
             var entity = await _unitOfWork.CaseHistories.GetByIdAsync(request.Id);
 
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             await _unitOfWork.CaseHistories.DeleteAsync(entity);
             await _unitOfWork.SaveChangesAsync(ct);

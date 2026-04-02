@@ -6,6 +6,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
     public class UpdateFluidBalanceCommand : IRequest<bool>
     {
+        public string AdmissionId { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
         public FluidBalanceCategory Category { get; set; }
         public FluidType Type { get; set; }
@@ -20,7 +21,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
         public async Task<bool> Handle(UpdateFluidBalanceCommand request, CancellationToken ct)
         {
             var entity = await _unitOfWork.FluidBalances.GetByIdAsync(request.Id);
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             entity.Category = request.Category;
             entity.Type = request.Type;

@@ -1,3 +1,4 @@
+using System.Text;
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
@@ -8,10 +9,12 @@ using Cortexa.Infrastructure.Persistence;
 using Cortexa.Infrastructure.Persistence.Repositories;
 using Cortexa.Infrastructure.Persistence.Repositories.Clinical;
 using Cortexa.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Cortexa.Infrastructure
 {
@@ -87,6 +90,33 @@ namespace Cortexa.Infrastructure
             services.Configure<JwtSettings>(
                 configuration.GetSection(JwtSettings.SectionName));
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+            // ── JWT Bearer Authentication ──────────────────────────────
+            var jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
+                ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer           = true,
+                    ValidateAudience         = true,
+                    ValidateLifetime         = true,
+                    ValidateIssuerSigningKey  = true,
+                    ValidIssuer              = jwtSettings.Issuer,
+                    ValidAudience            = jwtSettings.Audience,
+                    IssuerSigningKey         = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Key)),
+                    // Respect ClaimTypes.Role used by JwtTokenGenerator
+                    RoleClaimType            = System.Security.Claims.ClaimTypes.Role
+                };
+            });
+
             // IIdentityService is registered in both Application and Common interfaces to allow for flexibility in referencing it from different layers without causing circular dependencies.
             //لو حصل مشكله هتبقى بسبب الموضوع ده
             services.AddScoped<IAIService, PythonRAGService>();

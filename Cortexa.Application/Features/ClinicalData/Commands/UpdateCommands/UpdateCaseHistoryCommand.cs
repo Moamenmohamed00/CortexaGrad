@@ -5,6 +5,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
     public class UpdateCaseHistoryCommand : IRequest<bool>
         {
+
+            public string AdmissionId { get; set; } = string.Empty;
             public string Id { get; set; } = string.Empty;
             public string Complaint { get; set; } = string.Empty;
             public string PresentIllness { get; set; } = string.Empty;
@@ -27,8 +29,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
         public async Task<bool> Handle(UpdateCaseHistoryCommand request, CancellationToken ct)
         {
             var entity = await _unitOfWork.CaseHistories.GetByIdAsync(request.Id);
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
 
-            if (entity == null) return false;
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             entity.Complaint = request.Complaint;
             entity.PresentIllness = request.PresentIllness;

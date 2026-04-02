@@ -10,6 +10,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
     public class UpdateVitalsCommand : IRequest<bool>
     {
+        public string AdmissionId { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
         public float Temperature { get; set; }
         public int BP_Systolic { get; set; }
@@ -36,7 +37,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
         public async Task<bool> Handle(UpdateVitalsCommand request, CancellationToken cancellationToken)
         {
             var entity = await _unitOfWork.VitalSigns.GetByIdAsync(request.Id);
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             entity.Temperature = request.Temperature;
             entity.BP_Systolic = request.BP_Systolic;

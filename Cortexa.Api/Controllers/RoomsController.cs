@@ -1,9 +1,10 @@
 using Cortexa.Application.Features.Rooms.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
-    public class RoomsController : ApiControllerBase
+    public class RoomsController(ISender sender) : ApiControllerBase(sender)
     {
 
         [HttpGet]

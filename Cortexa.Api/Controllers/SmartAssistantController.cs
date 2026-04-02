@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
@@ -7,7 +8,7 @@ namespace Cortexa.Api.Controllers
     /// Currently a placeholder — endpoints will be enabled once the
     /// underlying MediatR commands/queries are implemented.
     /// </summary>
-    public class SmartAssistantController : ApiControllerBase
+    public class SmartAssistantController(ISender sender) : ApiControllerBase(sender)
     {
     }
 }
