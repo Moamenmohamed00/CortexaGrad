@@ -76,6 +76,7 @@ namespace Cortexa.Infrastructure
             services.AddScoped<IRoomRepository, RoomRepository>();  
             services.AddScoped<IAIRepository, AIRepository>();
 
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // ── Services ───────────────────────────────────────────────

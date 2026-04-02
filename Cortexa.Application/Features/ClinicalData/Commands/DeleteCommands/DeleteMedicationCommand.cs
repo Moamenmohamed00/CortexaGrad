@@ -3,7 +3,10 @@ using MediatR;
 
 namespace Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands
 {
-    public record DeleteMedicationCommand(string Id) : IRequest<bool>;
+    public record DeleteMedicationCommand(
+        string AdmissionId, 
+        string Id
+        ) : IRequest<bool>;
 
     public class DeleteMedicationCommandHandler : IRequestHandler<DeleteMedicationCommand, bool>
     {
@@ -17,7 +20,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands
         public async Task<bool> Handle(DeleteMedicationCommand request, CancellationToken ct)
         {
             var entity = await _unitOfWork.Medications.GetByIdAsync(request.Id);
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             await _unitOfWork.Medications.DeleteAsync(entity);
             await _unitOfWork.SaveChangesAsync(ct);

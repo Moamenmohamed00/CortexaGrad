@@ -2,10 +2,11 @@ using Cortexa.Application.Features.Admission.Queries;
 using Cortexa.Application.Features.Admission.Commands;
 using Cortexa.Application.Features.Patients.Commands;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 
 namespace Cortexa.Api.Controllers
 {
-    public class AdmissionController : ApiControllerBase
+    public class AdmissionController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
         /// Gets all currently active admissions.

@@ -6,6 +6,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
     public class UpdateMedicationCommand : IRequest<bool>
     {
+        public string AdmissionId { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
         public string DrugName { get; set; } = string.Empty;
         public int Dose { get; set; }
@@ -23,7 +24,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
         public async Task<bool> Handle(UpdateMedicationCommand request, CancellationToken ct)
         {
             var entity = await _unitOfWork.Medications.GetByIdAsync(request.Id);
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             entity.DrugName = request.DrugName;
             entity.Dose = request.Dose;

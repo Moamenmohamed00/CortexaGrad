@@ -8,13 +8,8 @@ namespace Cortexa.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public abstract class ApiControllerBase : ControllerBase
+    public abstract class ApiControllerBase(ISender sender) : ControllerBase
     {
-        private ISender? _sender;
-
-        /// <summary>
-        /// Lazily resolves ISender from the DI container.
-        /// </summary>
-        protected ISender Sender => _sender ??= HttpContext.RequestServices.GetRequiredService<ISender>();
+        protected ISender Sender => sender;
     }
 }

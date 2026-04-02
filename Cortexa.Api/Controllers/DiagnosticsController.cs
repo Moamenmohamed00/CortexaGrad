@@ -1,10 +1,11 @@
 using Cortexa.Application.Features.Diagnostics.Commands;
 using Cortexa.Application.Features.Diagnostics.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
-    public class DiagnosticsController : ApiControllerBase
+    public class DiagnosticsController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
         /// Creates a lab order for an admission.

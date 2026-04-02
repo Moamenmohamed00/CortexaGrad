@@ -2,13 +2,14 @@ using Cortexa.Application.Features.ClinicalData.Commands.AddCommands;
 using Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands;
 using Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands;
 using Cortexa.Application.Features.ClinicalData.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/admissions/{admissionId}/nursing-notes")]
-    public class NursingNotesController : ApiControllerBase
+    public class NursingNotesController(ISender sender) : ApiControllerBase(sender)
     {
         [HttpPost]
         public async Task<IActionResult> Add(
@@ -34,7 +35,7 @@ namespace Cortexa.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> Update(string admissionId, [FromBody] UpdateNursingNoteCommand command)
         {
-            if (admissionId != command.Id)
+            if (admissionId == command.Id)
             {
                 return BadRequest("ID mismatch");
             }
@@ -47,9 +48,9 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete(string admissionId)
+        public async Task<IActionResult> Delete(string admissionId, string Id)
         {
-            var success = await Sender.Send(new DeleteNursingNoteCommand(admissionId));
+            var success = await Sender.Send(new DeleteNursingNoteCommand(admissionId, Id));
 
             if (!success) return NotFound();
 

@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
@@ -7,7 +8,7 @@ namespace Cortexa.Api.Controllers
     /// Currently a placeholder — endpoints will be enabled once the
     /// underlying MediatR queries are implemented.
     /// </summary>
-    public class StaffController : ApiControllerBase
+    public class StaffController(ISender sender) : ApiControllerBase(sender)
     {
     }
 }

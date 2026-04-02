@@ -1,12 +1,13 @@
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Features.Auth;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
     [AllowAnonymous]
-    public class AuthController : ApiControllerBase
+    public class AuthController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
         /// Registers a new user account.

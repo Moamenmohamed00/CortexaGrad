@@ -6,6 +6,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
     public class UpdateInterventionProcedureCommand : IRequest<bool>
     {
+        public string AdmissionId { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
         public CareInterventionType Type { get; set; }
         public int Size { get; set; }
@@ -20,7 +21,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
         public async Task<bool> Handle(UpdateInterventionProcedureCommand request, CancellationToken ct)
         {
             var entity = await _unitOfWork.InterventionProcedures.GetByIdAsync(request.Id);
-            if (entity == null) return false;
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId);
+
+            if (entity == null || admission==null) return false;
+            if (entity.AdmissionId != admission.Id) return false;
 
             entity.Type = request.Type;
             entity.Size = request.Size;
