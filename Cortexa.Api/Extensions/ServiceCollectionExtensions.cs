@@ -38,14 +38,14 @@ namespace Cortexa.Api.Extensions
                     BearerFormat = "JWT"
                 });
 
-                // ApiKey security definition
-                options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-                {
-                    Name = "X-Api-Key",
-                    Description = "API Key authentication via header",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
-                });
+                //// ApiKey security definition
+                //options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                //{
+                //    Name = "X-Api-Key",
+                //    Description = "API Key authentication via header",
+                //    In = ParameterLocation.Header,
+                //    Type = SecuritySchemeType.ApiKey
+                //});
 
                 // Global security requirement
                 options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
@@ -54,10 +54,10 @@ namespace Cortexa.Api.Extensions
                         new OpenApiSecuritySchemeReference("Bearer", document),
                         new List<string>()
                     },
-                    {
-                        new OpenApiSecuritySchemeReference("ApiKey", document),
-                        new List<string>()
-                    }
+                    //{
+                    //    new OpenApiSecuritySchemeReference("ApiKey", document),
+                    //    new List<string>()
+                    //}
                 });
             });
 
