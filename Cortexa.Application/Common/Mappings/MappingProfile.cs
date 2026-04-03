@@ -38,6 +38,11 @@ namespace Cortexa.Application.Common.Mappings
 
             // Clinical
             CreateMap<VitalSigns, VitalSignsDto>();
+            CreateMap<VitalSignsDto, VitalSigns>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Let DB handle Id if it's new
+                .ForMember(dest => dest.Admission, opt => opt.Ignore()) // Navigation properties should be ignored
+                .ForMember(dest => dest.Nurse, opt => opt.Ignore())
+                .ForMember(dest => dest.Doctor, opt => opt.Ignore());
             CreateMap<Medications, MedicationDto>();
             CreateMap<LabResult, LabResultDto>(); // Technically Diagnostic but referenced in Nurse
             CreateMap<NursingNotes, NursingNotesDto>();

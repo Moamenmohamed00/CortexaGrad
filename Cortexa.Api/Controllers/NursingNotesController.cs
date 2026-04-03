@@ -3,11 +3,13 @@ using Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands;
 using Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands;
 using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Nurse")]
     [Route("api/admissions/{admissionId}/nursing-notes")]
     public class NursingNotesController(ISender sender) : ApiControllerBase(sender)
     {

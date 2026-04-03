@@ -21,7 +21,7 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
                 .HasMaxLength(50);
 
             // Ignore computed property
-            builder.Ignore(v => v.GCS_Total);
+            builder.Ignore(v => v.GcsTotal);
 
             // ── Relationships ──────────────────────────────────────────
             builder.HasOne(v => v.Admission)
