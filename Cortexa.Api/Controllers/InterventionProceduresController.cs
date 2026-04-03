@@ -3,12 +3,14 @@ using Cortexa.Application.Features.ClinicalData.Commands.DeleteCommands;
 using Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands;
 using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/admissions/{admissionId}/intervention-procedures")]
+    [Authorize]
     public class InterventionProceduresController(ISender sender) : ApiControllerBase(sender)
     {
         [HttpPost]
@@ -24,6 +26,7 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(
