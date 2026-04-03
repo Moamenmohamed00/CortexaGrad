@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Doctor")]
+    [Authorize]
     [Route("api/admissions/{admissionId}/physical-examination")]
     public class PhysicalExaminationController(ISender sender) : ApiControllerBase(sender)
     {
@@ -26,7 +26,7 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

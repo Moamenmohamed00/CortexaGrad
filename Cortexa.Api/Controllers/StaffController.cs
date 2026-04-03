@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
+    [ApiController]
+    [Route("api/staff")]
     /// <summary>
     /// Endpoints for staff management.
     /// Currently a placeholder — endpoints will be enabled once the

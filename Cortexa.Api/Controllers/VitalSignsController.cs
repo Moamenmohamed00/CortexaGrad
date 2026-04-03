@@ -4,11 +4,13 @@ using Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands;
 using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/admissions/{admissionId}/vitals")]
+    [Authorize]
     public class VitalSignsController(ISender sender) : ApiControllerBase(sender)
     {
         [HttpPost]
@@ -24,6 +26,7 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetHistory(string admissionId)
         {
             var result = await Sender.Send(
