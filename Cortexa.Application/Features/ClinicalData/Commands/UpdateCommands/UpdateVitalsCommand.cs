@@ -43,8 +43,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
             if (entity.AdmissionId != admission.Id) return false;
 
             entity.Temperature = request.Temperature;
-            entity.BP_Systolic = request.BP_Systolic;
-            entity.BP_Diastolic = request.BP_Diastolic;
+            entity.BpSystolic = request.BP_Systolic;
+            entity.BpDiastolic = request.BP_Diastolic;
             entity.HeartRate = request.HeartRate;
             entity.RespRate = request.RespRate;
             entity.PulseOxy = request.PulseOxy;

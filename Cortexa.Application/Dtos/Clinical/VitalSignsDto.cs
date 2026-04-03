@@ -4,27 +4,27 @@ using Cortexa.Domain.Enums;
 namespace Cortexa.Application.Dtos.Clinical
 {
     public record VitalSignsDto(
-        string Id,
-        DateTime RecordedAt,
-        float Temperature,
-        int HeartRate,
-        int RespRate,
-        int BpSystolic,
-        int BpDiastolic,
-        int PulseOxy,
-        int Cvp,
-        string InsulinGiven,
-        int GcsEye,
-        int GcsVerbal,
-        int GcsMotor,
-        int GcsTotal,
-        bool SupplementalOxygen,
-        ConsciousnessLevel ConsciousnessLevel,
-        int NewsScore,
-        NewsRiskLevel NewsRiskLevel,
-        string AdmissionId,
-        string NurseId,
-        string? DoctorId
-    );
+         string Id,
+         DateTime RecordedAt,
+         float Temperature,
+         int HeartRate,
+         int RespRate,
+         int BpSystolic,
+         int BpDiastolic,
+         int PulseOxy,
+         int Cvp,
+         string InsulinGiven,
+         int GcsEye,
+         int GcsVerbal,
+         int GcsMotor,
+         int GcsTotal, 
+         bool SupplementalOxygen,
+         ConsciousnessLevel ConsciousnessLevel,
+         int NewsScore,
+         NewsRiskLevel NewsRiskLevel,
+         string AdmissionId,
+         string NurseId,
+         string? DoctorId
+     );
 }
 

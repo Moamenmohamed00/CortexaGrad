@@ -48,8 +48,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
             {
                 AdmissionId = request.AdmissionId,
                 Temperature = request.Temperature,
-                BP_Systolic = request.BP_Systolic,
-                BP_Diastolic = request.BP_Diastolic,
+                BpSystolic = request.BP_Systolic,
+                BpDiastolic = request.BP_Diastolic,
                 HeartRate = request.HeartRate,
                 RespRate = request.RespRate,
                 PulseOxy = request.PulseOxy,

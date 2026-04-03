@@ -18,7 +18,7 @@ namespace Cortexa.Domain.Services
             int spo2Score = ScoreOxygenSaturation(vitals.PulseOxy);
             int o2Score = ScoreSupplementalOxygen(vitals.SupplementalOxygen);
             int tempScore = ScoreTemperature(vitals.Temperature);
-            int bpScore = ScoreSystolicBP(vitals.BP_Systolic);
+            int bpScore = ScoreSystolicBP(vitals.BpSystolic);
             int hrScore = ScoreHeartRate(vitals.HeartRate);
             int consciousnessScore = ScoreConsciousness(vitals.ConsciousnessLevel);
 

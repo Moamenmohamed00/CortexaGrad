@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Nurse")]
     [Route("api/admissions/{admissionId}/nursing-notes")]
     [Authorize]
     public class NursingNotesController(ISender sender) : ApiControllerBase(sender)

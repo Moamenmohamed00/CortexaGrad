@@ -12,32 +12,30 @@ namespace Cortexa.Domain.Entities.Clinical
         public float Temperature { get; set; }
         public int HeartRate { get; set; }
         public int RespRate { get; set; }
-        public int BP_Systolic { get; set; }
-        public int BP_Diastolic { get; set; }
-        public int PulseOxy { get; set; } // SpO2
-        public int CVP { get; set; } // Central Venous Pressure
-        public string InsulinGiven { get; set; } = string.Empty; // Could be decimal or string
 
-        // Glasgow Coma Scale
-        public int GCS_Eye { get; set; }
-        public int GCS_Verbal { get; set; }
-        public int GCS_Motor { get; set; }
-        public int GCS_Total => GCS_Eye + GCS_Verbal + GCS_Motor;
+        // Use standard PascalCase to match DTOs and C# conventions
+        public int BpSystolic { get; set; }
+        public int BpDiastolic { get; set; }
+        public int PulseOxy { get; set; }
+        public int Cvp { get; set; }
+        public string InsulinGiven { get; set; } = string.Empty;
 
-        // NEWS (National Early Warning Score) fields
+        public int GcsEye { get; set; }
+        public int GcsVerbal { get; set; }
+        public int GcsMotor { get; set; }
+        public int GcsTotal => GcsEye + GcsVerbal + GcsMotor;
+
         public bool SupplementalOxygen { get; set; }
         public ConsciousnessLevel ConsciousnessLevel { get; set; }
         public int NewsScore { get; set; }
         public NewsRiskLevel NewsRiskLevel { get; set; }
 
-        // Relationships
         public string AdmissionId { get; set; } = string.Empty;
-        public Admission Admission { get; set; } = null!; // EF Core will set this
+        public Admission Admission { get; set; } = null!;
 
         public string NurseId { get; set; } = string.Empty;
-        public Nurse Nurse { get; set; } = null!; // EF Core will set this
+        public Nurse Nurse { get; set; } = null!;
 
-        // Optional Verification by Doctor
         public string? DoctorId { get; set; }
         public Doctor? Doctor { get; set; }
     }

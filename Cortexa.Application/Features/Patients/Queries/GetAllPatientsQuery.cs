@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace Cortexa.Application.Features.Patients.Queries
 {
     public record GetAllPatientsQuery : IRequest<List<PatientDto>>;
