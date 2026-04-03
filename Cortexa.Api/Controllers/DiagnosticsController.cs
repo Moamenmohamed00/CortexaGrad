@@ -8,7 +8,7 @@ namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/admissions/{admissionId}/diagnostics")]
+    [Route("api/Diagnostics")]
     public class DiagnosticsController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
@@ -68,6 +68,7 @@ namespace Cortexa.Api.Controllers
         /// </summary>
         [HttpGet("imaging/{admissionId}")]
         [Authorize(Roles ="Doctor,Nurse")]
+
         public async Task<IActionResult> GetImagingStudies(string admissionId)
         {
             var result = await Sender.Send(new GetImagingStudiesQuery(admissionId));

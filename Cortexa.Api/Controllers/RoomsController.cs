@@ -7,7 +7,7 @@ namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/rooms")]
+    [Route("api/Rooms")]
     public class RoomsController(ISender sender) : ApiControllerBase(sender)
     {
 

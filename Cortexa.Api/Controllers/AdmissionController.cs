@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Route("api/admissions")]
+    [Route("api/admission")]
     [Authorize]
     public class AdmissionController(ISender sender) : ApiControllerBase(sender)
     {
