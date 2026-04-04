@@ -27,5 +27,6 @@ namespace Cortexa.Infrastructure.Services
 
         public bool IsAuthenticated =>
             _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
     }
 }
