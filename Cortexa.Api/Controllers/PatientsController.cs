@@ -3,9 +3,13 @@ using Cortexa.Application.Features.Patients.Queries;
 using Cortexa.Application.Features.Rooms.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cortexa.Api.Controllers
 {
+    [ApiController]
+    [Authorize]
+    [Route("api/Patients")]
     public class PatientsController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
@@ -37,6 +41,7 @@ namespace Cortexa.Api.Controllers
         /// Gets a patient by ID.
         /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetById(string id)
         {
             var result = await Sender.Send(new GetPatientByIdQuery(id));
@@ -51,6 +56,7 @@ namespace Cortexa.Api.Controllers
         /// Gets detailed patient information including admissions.
         /// </summary>
         [HttpGet("{id}/details")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetDetails(string id)
         {
             var result = await Sender.Send(new GetPatientDetailsQuery(id));
@@ -64,6 +70,7 @@ namespace Cortexa.Api.Controllers
         /// Gets all patients with pagination support.
         /// </summary>
         [HttpGet]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetAll()
         {
             var result = await Sender.Send(new GetAllPatientsQuery());
@@ -74,6 +81,7 @@ namespace Cortexa.Api.Controllers
         /// Gets all admissions for a specific patient.
         /// </summary>
         [HttpGet("{id}/admissions")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetPatientAdmissions(string id)
         {
             var result = await Sender.Send(new GetPatientAdmissionsQuery(id));

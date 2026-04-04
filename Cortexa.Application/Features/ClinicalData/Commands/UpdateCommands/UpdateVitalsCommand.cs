@@ -1,4 +1,4 @@
-﻿using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
 using Cortexa.Domain.Entities.AI;
 using Cortexa.Domain.Enums;
@@ -78,7 +78,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 
                 var alert = new Alert
                 {
-                    AdmissionId = request.Id,
+                    AdmissionId = request.AdmissionId,
                     AlertMessage = $"NEWS Score: {newsScore} — {riskLevel} clinical risk. " +
                                    $"Immediate assessment required.",
                     Severity = severity,
@@ -90,7 +90,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 
                 // ── Send real-time SignalR notification ───────────────
                 await _notificationService.SendRealTimeAlertAsync(
-                    request.Id,
+                    request.AdmissionId,
                     $"NEWS-{riskLevel}",
                     alert.AlertMessage,
                     cancellationToken);

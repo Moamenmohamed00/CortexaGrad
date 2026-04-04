@@ -2,9 +2,13 @@ using Cortexa.Application.Features.Diagnostics.Commands;
 using Cortexa.Application.Features.Diagnostics.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cortexa.Api.Controllers
 {
+    [ApiController]
+    [Authorize]
+    [Route("api/Diagnostics")]
     public class DiagnosticsController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
@@ -41,6 +45,7 @@ namespace Cortexa.Api.Controllers
         /// Gets all lab orders for an admission.
         /// </summary>
         [HttpGet("lab-orders/{admissionId}")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetLabOrders(string admissionId)
         {
             var result = await Sender.Send(new GetLabOrdersQuery(admissionId));
@@ -51,6 +56,7 @@ namespace Cortexa.Api.Controllers
         /// Gets all lab results for a specific lab order.
         /// </summary>
         [HttpGet("lab-results/{orderId}")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetLabResults(string orderId)
         {
             var result = await Sender.Send(new GetLabResultsQuery(orderId));
@@ -61,6 +67,8 @@ namespace Cortexa.Api.Controllers
         /// Gets all imaging studies for an admission.
         /// </summary>
         [HttpGet("imaging/{admissionId}")]
+        [Authorize(Roles ="Doctor,Nurse")]
+
         public async Task<IActionResult> GetImagingStudies(string admissionId)
         {
             var result = await Sender.Send(new GetImagingStudiesQuery(admissionId));

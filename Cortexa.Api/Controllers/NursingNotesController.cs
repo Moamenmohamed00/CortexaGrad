@@ -11,6 +11,7 @@ namespace Cortexa.Api.Controllers
     [ApiController]
     [Authorize(Roles = "Nurse")]
     [Route("api/admissions/{admissionId}/nursing-notes")]
+    [Authorize]
     public class NursingNotesController(ISender sender) : ApiControllerBase(sender)
     {
         [HttpPost]
@@ -26,6 +27,7 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

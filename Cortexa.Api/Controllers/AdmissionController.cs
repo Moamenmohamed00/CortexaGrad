@@ -3,15 +3,20 @@ using Cortexa.Application.Features.Admission.Commands;
 using Cortexa.Application.Features.Patients.Commands;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cortexa.Api.Controllers
 {
+    [ApiController]
+    [Route("api/admission")]
+    [Authorize]
     public class AdmissionController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
         /// Gets all currently active admissions.
         /// </summary>
         [HttpGet("active")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetActiveAdmissions()
         {
             var result = await Sender.Send(new GetActiveAdmissionsQuery());
@@ -22,6 +27,7 @@ namespace Cortexa.Api.Controllers
         /// Gets all admissions for a specific patient.
         /// </summary>
         [HttpGet("patient/{patientId}")]
+        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> GetByPatientId(string patientId)
         {
             var result = await Sender.Send(new GetAdmissionsByPatientIdQuery(patientId));
@@ -67,12 +73,13 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// íÌáÈ ÍÇáÉ ÇáŞÈæá Úä ØÑíŞ ÇáãÚÑİ ÇáÎÇÕ ÈåÇ(Admission ID).
+        ///        (Admission ID).
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id) // Êã ÊÛííÑ ÇáãÚÇãá Åáì id
+        [Authorize(Roles ="Doctor,Nurse")]
+        public async Task<IActionResult> GetById(string id) //     id
         {
-            // Êã ÇáÊÕÍíÍ: ÇáÂä íÈÍË Úä ÍÇáÉ ŞÈæá ãÍÏÏÉ æáíÓ ŞÇÆãÉ ÈÍÇáÇÊ ÇáãÑíÖ
+            //  :          
             var result = await Sender.Send(new GetAdmissionByIdQuery(id));
 
             return result is not null ? Ok(result) : NotFound();
@@ -84,8 +91,8 @@ namespace Cortexa.Api.Controllers
         {
             var result = await Sender.Send(command);
 
-            // ÅĞÇ ßÇäÊ ãíËæÏ ÇáÜ Get ãæÌæÏÉ İí Controller ãÎÊáİ¡ íÌÈ ÊæÖíÍ Ğáß
-            // Ãæ ÇÓÊÎÏÇã Ok(result) ÅĞÇ ßäÊ áÇ ÊåÊã ÈÜ Location Header
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Get ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Controller ï¿½ï¿½ï¿½ï¿½İ¡ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ok(result) ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Location Header
             return Ok(result);
 
         }

@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
-    [AllowAnonymous]
+    [ApiController]
+    [Route("api/Auth")]
     public class AuthController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
