@@ -1,3 +1,5 @@
+using Cortexa.Application.Features.SmartAssistant.Commands;
+using Cortexa.Application.Features.SmartAssistant.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Cortexa.Application.Features.SmartAssistant.Commands;
@@ -6,8 +8,13 @@ using System.Threading.Tasks;
 
 namespace Cortexa.Api.Controllers
 {
-    // أزلنا التعليق من على ApiController لأنها موجودة بالفعل في ApiControllerBase
-    // لكن لا بأس من تحديد الـ Route هنا لتجاوز الـ Route الافتراضي إذا أردت
+
+    /// <summary>
+    /// Endpoints for the AI Smart Assistant features (alerts, RAG queries).
+    /// Currently a placeholder — endpoints will be enabled once the
+    /// underlying MediatR commands/queries are implemented.
+    /// </summary>
+
     [Route("api/[controller]")]
     public class SmartAssistantController(ISender sender) : ApiControllerBase(sender)
     {
