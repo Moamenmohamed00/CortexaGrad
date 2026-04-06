@@ -50,7 +50,7 @@ namespace Cortexa.Infrastructure.Identity
             var securityToken = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
+                expires: DateTime.UtcNow.AddDays(_jwtSettings.DurationInDays),
                 claims: claims,
                 signingCredentials: signingCredentials);
 

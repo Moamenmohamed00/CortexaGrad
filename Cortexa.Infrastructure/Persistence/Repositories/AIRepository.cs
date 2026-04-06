@@ -23,5 +23,13 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .OrderByDescending(a => a.GeneratedAt)
                 .ToListAsync();
         }
+
+        public async Task<IReadOnlyList<Alert>> GetAllActiveAlertsAsync()
+        {
+            return await _context.Alerts
+                .Where(a => a.Status == Domain.Enums.AlertStatus.Active)
+                .OrderByDescending(a => a.GeneratedAt)
+                .ToListAsync();
+        }
     }
 }

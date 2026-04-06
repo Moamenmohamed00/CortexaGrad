@@ -2,6 +2,9 @@ using Cortexa.Application.Features.SmartAssistant.Commands;
 using Cortexa.Application.Features.SmartAssistant.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Cortexa.Application.Features.SmartAssistant.Commands;
+using Cortexa.Application.Features.SmartAssistant.Queries;
+using System.Threading.Tasks;
 
 namespace Cortexa.Api.Controllers
 {
