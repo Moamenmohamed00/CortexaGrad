@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,15 +21,17 @@ namespace Cortexa.Application.Features.SmartAssistant.Queries
 
         public async Task<IEnumerable<AlertDto>> Handle(GetActiveAlertsQuery request, CancellationToken cancellationToken)
         {
-            // جلب التنبيهات بناءً على AdmissionId أو PatientId
-            var alerts = request.AdmissionId != null
-                ? await _aiRepository.GetAlertsByAdmissionIdAsync(request.AdmissionId)
-                : await _aiRepository.GetAlertsByPatientIdAsync(request.PatientId!);
+            IReadOnlyList<Domain.Entities.AI.Alert> alerts;
 
-            // فلترة التنبيهات النشطة فقط (بافتراض أن لديك Status مثل Active)
-            // وتحويلها إلى Dto
-            var activeAlerts = alerts
-                .Where(a => a.Status == AlertStatus.Active) // تأكد من اسم الحالة في الـ Enum الخاص بك
+            if (request.AdmissionId != null)
+                alerts = await _aiRepository.GetAlertsByAdmissionIdAsync(request.AdmissionId);
+            else if (request.PatientId != null)
+                alerts = await _aiRepository.GetAlertsByPatientIdAsync(request.PatientId);
+            else
+                alerts = await _aiRepository.GetAllActiveAlertsAsync(); // no filter → all active
+
+            return alerts
+                .Where(a => a.Status == AlertStatus.Active)
                 .Select(a => new AlertDto(
                     a.Id,
                     a.AlertMessage,
@@ -38,8 +40,6 @@ namespace Cortexa.Application.Features.SmartAssistant.Queries
                     a.Status,
                     a.AdmissionId
                 )).ToList();
-
-            return activeAlerts;
         }
     }
 }
