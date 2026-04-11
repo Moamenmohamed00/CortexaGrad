@@ -40,7 +40,7 @@ namespace Cortexa.Infrastructure.Identity
                 new(ClaimTypes.NameIdentifier, userId),
                 new(ClaimTypes.Name, userName),
             };
-
+            //a7a
             // Add role claims
             foreach (var role in roles)
             {
