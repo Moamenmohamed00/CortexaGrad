@@ -21,31 +21,31 @@ namespace Cortexa.Api.Controllers
         // ── RAG Integration ────────────────────────────────────────────────
 
         /// <summary>
-        /// Ask the AI a question based on the patient's admission documents.
+        /// Ask the AI a question based on the indexed documents for a given project.
         /// </summary>
         [HttpPost("rag/ask")]
-        public async Task<IActionResult> AskQuestion([FromQuery] string admissionId, [FromBody] Cortexa.Application.Dtos.AI.RagSearchRequest request, CancellationToken ct)
+        public async Task<IActionResult> AskQuestion([FromQuery] string projectId, [FromBody] Cortexa.Application.Dtos.AI.RagSearchRequest request, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(admissionId))
-                return BadRequest("admissionId is required.");
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
 
-            var result = await aiService.AskQuestionAsync(admissionId, request.Text, request.Limit, ct);
+            var result = await aiService.AskQuestionAsync(projectId, request.Text, request.Limit, ct);
             return Ok(result);
         }
 
         /// <summary>
-        /// Upload and index a document for a specific admission.
+        /// Upload and index a document for a specific project workspace.
         /// </summary>
         [HttpPost("rag/upload")]
-        public async Task<IActionResult> UploadDocument([FromQuery] string admissionId, IFormFile file, CancellationToken ct)
+        public async Task<IActionResult> UploadDocument([FromQuery] string projectId, IFormFile file, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(admissionId))
-                return BadRequest("admissionId is required.");
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
             if (file == null || file.Length == 0)
                 return BadRequest("No file provided.");
 
             using var stream = file.OpenReadStream();
-            var result = await aiService.UploadAndIndexDocumentAsync(admissionId, stream, file.FileName, ct);
+            var result = await aiService.UploadAndIndexDocumentAsync(projectId, stream, file.FileName, ct);
             
             if (!result.Success)
                 return StatusCode(500, result);
@@ -54,15 +54,15 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Get the vector index metadata for a specific admission.
+        /// Get the vector index metadata for a specific project.
         /// </summary>
         [HttpGet("rag/info")]
-        public async Task<IActionResult> GetIndexInfo([FromQuery] string admissionId, CancellationToken ct)
+        public async Task<IActionResult> GetIndexInfo([FromQuery] string projectId, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(admissionId))
-                return BadRequest("admissionId is required.");
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
 
-            var result = await aiService.GetIndexInfoAsync(admissionId, ct);
+            var result = await aiService.GetIndexInfoAsync(projectId, ct);
             return Ok(result ?? new { message = "No index info available." });
         }
 

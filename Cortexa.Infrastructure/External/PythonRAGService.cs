@@ -16,17 +16,16 @@ namespace Cortexa.Infrastructure.External
         }
 
         public async Task<RagAnswerResponse> AskQuestionAsync(
-            string admissionId,
+            string projectId,
             string question,
             int limit = 5,
             CancellationToken ct = default)
         {
-            // Force project_id="1" because the HuggingFace backend only currently has index 1 based on friend's setup.
-            var result = await _aiClient.AskAsync("1", question, limit, ct);
+            var result = await _aiClient.AskAsync(projectId, question, limit, ct);
 
             if (result is null)
             {
-                _logger.LogWarning("RAG returned no answer for admission {Id}", admissionId);
+                _logger.LogWarning("RAG returned no answer for project {Id}", projectId);
                 return new RagAnswerResponse
                 {
                     Answer = "AI assistant unavailable.",
@@ -39,28 +38,25 @@ namespace Cortexa.Infrastructure.External
 
         // ── Upload & Index Pipeline ────────────────────────────────────────
         public async Task<RagUploadResponse> UploadAndIndexDocumentAsync(
-            string admissionId,
+            string projectId,
             Stream fileStream,
             string fileName,
             CancellationToken ct = default)
         {
-            // Force project_id="1"
-            var fileId = await _aiClient.UploadFileAsync("1", fileStream, fileName, ct);
+            var fileId = await _aiClient.UploadFileAsync(projectId, fileStream, fileName, ct);
             if (fileId is null)
                 return new RagUploadResponse { Success = false, Message = "Upload failed." };
 
-            // Step 2: Process (chunk) the file
-            var processed = await _aiClient.ProcessFileAsync("1", fileId, ct: ct);
+            var processed = await _aiClient.ProcessFileAsync(projectId, fileId, ct: ct);
             if (!processed)
                 return new RagUploadResponse { Success = false, FileId = fileId, Message = "Processing failed." };
 
-            // Step 3: Push chunks to the vector index
-            var pushed = await _aiClient.PushToIndexAsync("1", ct: ct);
+            var pushed = await _aiClient.PushToIndexAsync(projectId, ct: ct);
             if (!pushed)
                 return new RagUploadResponse { Success = false, FileId = fileId, Message = "Index push failed." };
 
             _logger.LogInformation(
-                "Document '{File}' fully indexed for admission {Id}", fileName, admissionId);
+                "Document '{File}' fully indexed for project {Id}", fileName, projectId);
 
             return new RagUploadResponse
             {
@@ -71,9 +67,9 @@ namespace Cortexa.Infrastructure.External
         }
 
         // ── Index Info ─────────────────────────────────────────────────────
-        public async Task<object?> GetIndexInfoAsync(string admissionId, CancellationToken ct = default)
+        public async Task<object?> GetIndexInfoAsync(string projectId, CancellationToken ct = default)
         {
-            var raw = await _aiClient.GetIndexInfoAsync("1", ct);
+            var raw = await _aiClient.GetIndexInfoAsync(projectId, ct);
             return raw is null ? null : (object)raw;
         }
 

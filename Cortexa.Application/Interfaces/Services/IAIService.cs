@@ -6,11 +6,11 @@ namespace Cortexa.Application.Interfaces.Services
     {
         // ── RAG Ask ────────────────────────────────────────────────────────
         /// <summary>
-        /// Sends a natural language question to the RAG model scoped to an admission's
-        /// document workspace and returns a grounded AI answer.
+        /// Sends a natural language question to the RAG model scoped to a
+        /// specific project workspace and returns a grounded AI answer.
         /// </summary>
         Task<RagAnswerResponse> AskQuestionAsync(
-            string admissionId,
+            string projectId,
             string question,
             int limit = 5,
             CancellationToken ct = default);
@@ -18,20 +18,20 @@ namespace Cortexa.Application.Interfaces.Services
         // ── RAG Upload ─────────────────────────────────────────────────────
         /// <summary>
         /// Full pipeline: uploads the file, processes it into chunks, then pushes to index.
-        /// Uses admissionId as the project_id (workspace).
+        /// Uses projectId as the workspace on the RAG backend.
         /// </summary>
         Task<RagUploadResponse> UploadAndIndexDocumentAsync(
-            string admissionId,
+            string projectId,
             Stream fileStream,
             string fileName,
             CancellationToken ct = default);
 
         // ── RAG Index Info ─────────────────────────────────────────────────
         /// <summary>
-        /// Returns index metadata for the given admission workspace.
+        /// Returns index metadata for the given project workspace.
         /// </summary>
         Task<object?> GetIndexInfoAsync(
-            string admissionId,
+            string projectId,
             CancellationToken ct = default);
 
         // ── Legacy / kept for backward compat ──────────────────────────────
