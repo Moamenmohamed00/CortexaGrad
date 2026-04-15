@@ -16,8 +16,58 @@ namespace Cortexa.Api.Controllers
     /// </summary>
 
     [Route("api/[controller]")]
-    public class SmartAssistantController(ISender sender) : ApiControllerBase(sender)
+    public class SmartAssistantController(ISender sender, Cortexa.Application.Interfaces.Services.IAIService aiService) : ApiControllerBase(sender)
     {
+        // ── RAG Integration ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Ask the AI a question based on the patient's admission documents.
+        /// </summary>
+        [HttpPost("rag/ask")]
+        public async Task<IActionResult> AskQuestion([FromQuery] string admissionId, [FromBody] Cortexa.Application.Dtos.AI.RagSearchRequest request, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(admissionId))
+                return BadRequest("admissionId is required.");
+
+            var result = await aiService.AskQuestionAsync(admissionId, request.Text, request.Limit, ct);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Upload and index a document for a specific admission.
+        /// </summary>
+        [HttpPost("rag/upload")]
+        public async Task<IActionResult> UploadDocument([FromQuery] string admissionId, IFormFile file, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(admissionId))
+                return BadRequest("admissionId is required.");
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            using var stream = file.OpenReadStream();
+            var result = await aiService.UploadAndIndexDocumentAsync(admissionId, stream, file.FileName, ct);
+            
+            if (!result.Success)
+                return StatusCode(500, result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get the vector index metadata for a specific admission.
+        /// </summary>
+        [HttpGet("rag/info")]
+        public async Task<IActionResult> GetIndexInfo([FromQuery] string admissionId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(admissionId))
+                return BadRequest("admissionId is required.");
+
+            var result = await aiService.GetIndexInfoAsync(admissionId, ct);
+            return Ok(result ?? new { message = "No index info available." });
+        }
+
+        // ── Alerts ─────────────────────────────────────────────────────────
+
         /// <summary>
         /// جلب التنبيهات النشطة بناءً على المريض أو الدخول (Admission)
         /// </summary>

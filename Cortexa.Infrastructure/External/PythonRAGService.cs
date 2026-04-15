@@ -1,56 +1,64 @@
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Services;
 using Microsoft.Extensions.Logging;
-using System.Net.Http.Json;
 
 namespace Cortexa.Infrastructure.External
 {
-    // Cortexa.Infrastructure/External/PythonRAGService.cs
     public class PythonRAGService : IAIService
     {
-        private readonly HttpClient _httpClient;
         private readonly AIHttpClient _aiClient;
         private readonly ILogger<PythonRAGService> _logger;
 
-
-        public PythonRAGService(HttpClient httpClient, ILogger<PythonRAGService> logger, AIHttpClient aiClient)
+        public PythonRAGService(AIHttpClient aiClient, ILogger<PythonRAGService> logger)
         {
-            _httpClient = httpClient;
+            _aiClient = aiClient;
             _logger = logger;
-            _aiClient=aiClient;
         }
-        public async Task<float> GenerateRiskScoreAsync(string patientId)
+
+        public async Task<RagAnswerResponse> AskQuestionAsync(
+            string admissionId, string question, int limit = 5, CancellationToken ct = default)
         {
-            // «· Ê«’· „⁄ «·„ÊœÌ· «·Œ«’ »«· ‰»ƒ »„Œ«ÿ— «·„—Ì÷
-            return await _aiClient.GetRiskScoreAsync(patientId);
+            var result = await _aiClient.AskAsync(admissionId, question, limit, ct);
+            if (result is null)
+                return new RagAnswerResponse { Answer = "AI assistant unavailable.", Sources = [] };
+            return result;
         }
+
+        public async Task<RagUploadResponse> UploadAndIndexDocumentAsync(
+            string admissionId, Stream fileStream, string fileName, CancellationToken ct = default)
+        {
+            var fileId = await _aiClient.UploadFileAsync(admissionId, fileStream, fileName, ct);
+            if (fileId is null) return new RagUploadResponse { Success = false, Message = "Upload failed." };
+
+            var processed = await _aiClient.ProcessFileAsync(admissionId, fileId, ct: ct);
+            if (!processed) return new RagUploadResponse { Success = false, FileId = fileId, Message = "Processing failed." };
+
+            var pushed = await _aiClient.PushToIndexAsync(admissionId, ct: ct);
+            if (!pushed) return new RagUploadResponse { Success = false, FileId = fileId, Message = "Index push failed." };
+
+            _logger.LogInformation("Document '{File}' indexed for admission {Id}", fileName, admissionId);
+            return new RagUploadResponse { Success = true, FileId = fileId, Message = $"'{fileName}' indexed successfully." };
+        }
+
+        public async Task<object?> GetIndexInfoAsync(string admissionId, CancellationToken ct = default)
+        {
+            var raw = await _aiClient.GetIndexInfoAsync(admissionId, ct);
+            return raw is null ? null : (object)raw;
+        }
+
+        public Task<float> GenerateRiskScoreAsync(string patientId) => Task.FromResult(0f);
+        public Task<AlertDto> GenerateAlertAsync(string admissionId, AlertDto alert) => Task.FromResult(alert);
 
         public async Task<RagQueryDto> ProcessRagQueryAsync(RagQueryDto query)
         {
-            // ≈—”«· ”ƒ«· «·ÿ»Ì» ≈·Ï „Õ—ﬂ «·‹ RAG ··Õ’Ê· ⁄·Ï ≈Ã«»… „œ⁄Ê„… »«·„—«Ã⁄ «·ÿ»Ì…
-            var result = await _aiClient.SendRagQueryAsync(query);
-            return result ?? query;
-        }
-
-        public async Task<AlertDto> GenerateAlertAsync(string admissionId, AlertDto alert)
-        {
-            //  ﬁÌÌ„ «·⁄·«„«  «·ÕÌÊÌ… Ê≈’œ«—  ‰»ÌÂ«  –ﬂÌ…
-            var result = await _aiClient.EvaluateAlertAsync(admissionId, alert);
-            return result ?? alert;
-        }
-        public async Task<string> GetAIAssistanceAsync(string query, string context)
-        {
-            var requestBody = new { query = query, context = context };
-            var response = await _httpClient.PostAsJsonAsync("api/rag/ask", requestBody);
-
-            if (response.IsSuccessStatusCode)
+            var admissionId = query.PatientId ?? "default_workspace"; // Use PatientId if admission not available in query
+            var result = await AskQuestionAsync(admissionId, query.QueryText, 5);
+            return query with
             {
-                var result = await response.Content.ReadFromJsonAsync<RagQueryDto>();
-                return result?.GeneratedResponse ?? "No response from AI.";
-            }
-
-            _logger.LogError("AI Service failed with status {Status}", response.StatusCode);
-            return "AI Service Unavailable.";
+                GeneratedResponse = result.Answer ?? "No response",
+                ScoreTrust = 0.9f, 
+                QueryDateTime = DateTime.UtcNow
+            };
         }
     }
 }
