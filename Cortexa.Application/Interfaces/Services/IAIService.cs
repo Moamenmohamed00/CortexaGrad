@@ -6,11 +6,13 @@ namespace Cortexa.Application.Interfaces.Services
     {
         // ── RAG Ask ────────────────────────────────────────────────────────
         /// <summary>
-        /// Sends a natural language question to the RAG model scoped to a
-        /// specific project workspace and returns a grounded AI answer.
+        /// Automatically fetches the patient's clinical data for the given admission,
+        /// builds context, and sends the question + context to the RAG model.
+        /// The projectId determines which document workspace to query.
         /// </summary>
         Task<RagAnswerResponse> AskQuestionAsync(
             string projectId,
+            string admissionId,
             string question,
             int limit = 5,
             CancellationToken ct = default);
@@ -18,7 +20,6 @@ namespace Cortexa.Application.Interfaces.Services
         // ── RAG Upload ─────────────────────────────────────────────────────
         /// <summary>
         /// Full pipeline: uploads the file, processes it into chunks, then pushes to index.
-        /// Uses projectId as the workspace on the RAG backend.
         /// </summary>
         Task<RagUploadResponse> UploadAndIndexDocumentAsync(
             string projectId,
