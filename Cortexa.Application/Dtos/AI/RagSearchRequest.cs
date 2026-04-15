@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Cortexa.Application.Dtos.AI
 {
     /// <summary>
@@ -6,7 +8,10 @@ namespace Cortexa.Application.Dtos.AI
     /// </summary>
     public class RagSearchRequest
     {
+        [JsonPropertyName("text")]
         public string Text { get; set; } = string.Empty;
+
+        [JsonPropertyName("limit")]
         public int Limit { get; set; } = 5;
     }
 }
