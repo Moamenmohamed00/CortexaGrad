@@ -16,8 +16,65 @@ namespace Cortexa.Api.Controllers
     /// </summary>
 
     [Route("api/[controller]")]
-    public class SmartAssistantController(ISender sender) : ApiControllerBase(sender)
+    public class SmartAssistantController(ISender sender, Cortexa.Application.Interfaces.Services.IAIService aiService) : ApiControllerBase(sender)
     {
+        // ── RAG Integration ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Ask the AI a question. Patient clinical data is automatically fetched
+        /// from the database using admissionId and sent as context to the RAG model.
+        /// </summary>
+        [HttpPost("rag/ask")]
+        public async Task<IActionResult> AskQuestion(
+            [FromQuery] string projectId,
+            [FromQuery] string admissionId,
+            [FromBody] Cortexa.Application.Dtos.AI.RagSearchRequest request,
+            CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
+            if (string.IsNullOrWhiteSpace(admissionId))
+                return BadRequest("admissionId is required.");
+
+            var result = await aiService.AskQuestionAsync(projectId, admissionId, request.Text, request.Limit, ct);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Upload and index a document for a specific project workspace.
+        /// </summary>
+        [HttpPost("rag/upload")]
+        public async Task<IActionResult> UploadDocument([FromQuery] string projectId, IFormFile file, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            using var stream = file.OpenReadStream();
+            var result = await aiService.UploadAndIndexDocumentAsync(projectId, stream, file.FileName, ct);
+            
+            if (!result.Success)
+                return StatusCode(500, result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get the vector index metadata for a specific project.
+        /// </summary>
+        [HttpGet("rag/info")]
+        public async Task<IActionResult> GetIndexInfo([FromQuery] string projectId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(projectId))
+                return BadRequest("projectId is required.");
+
+            var result = await aiService.GetIndexInfoAsync(projectId, ct);
+            return Ok(result ?? new { message = "No index info available." });
+        }
+
+        // ── Alerts ─────────────────────────────────────────────────────────
+
         /// <summary>
         /// جلب التنبيهات النشطة بناءً على المريض أو الدخول (Admission)
         /// </summary>
