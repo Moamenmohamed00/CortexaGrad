@@ -1,13 +1,23 @@
-using AutoMapper;
+Ôªøusing AutoMapper;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
 using Cortexa.Domain.Entities.AI;
 using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Cortexa.Application.Features.SmartAssistant.Commands
 {
-    public record AskRAGQueryCommand(RagQueryDto QueryDto) : IRequest<RagQueryDto>;
+    public record AskRAGQueryCommand(
+        string ProjectId, 
+        string AdmissionId, 
+        string DoctorId, 
+        string QueryText, 
+        int Limit = 5
+    ) : IRequest<RagQueryDto>;
 
     public class AskRAGQueryCommandHandler : IRequestHandler<AskRAGQueryCommand, RagQueryDto>
     {
@@ -24,16 +34,31 @@ namespace Cortexa.Application.Features.SmartAssistant.Commands
 
         public async Task<RagQueryDto> Handle(AskRAGQueryCommand request, CancellationToken cancellationToken)
         {
-            // 1. „⁄«·Ã… «·”ƒ«· ⁄»— Œœ„… «·‹ AI
-            var responseDto = await _aiService.ProcessRagQueryAsync(request.QueryDto);
+            // 1. Fetch patient side from admission
+            var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId)
+                ?? throw new System.Collections.Generic.KeyNotFoundException("Admission res not found");
 
-            // 2.  ÕÊÌ· «·‹ DTO ≈·Ï Entity ·Õ›ŸÂ ›Ì «·”Ã· «· «—ÌŒÌ (History)
-            var ragEntity = _mapper.Map<RAGQuery>(responseDto);
+            // 2. Call the Python AI service
+            var result = await _aiService.AskQuestionAsync(request.ProjectId, request.AdmissionId, request.QueryText, request.Limit, cancellationToken);
+            
+            // 3. Prepare the entity to save chat history
+            var ragEntity = new RAGQuery
+            {
+                QueryText = request.QueryText,
+                GeneratedResponse = result.Answer ?? "No response obtained",
+                DoctorId = request.DoctorId,
+                PatientId = admission.PatientId,
+                QueryDateTime = DateTime.UtcNow,
+                ScoreTrust = 0.9f, 
+                RelevanceLevel = Cortexa.Domain.Enums.RelevanceLevel.High
+            };
 
-            await _unitOfWork.Rags.AddAsync(ragEntity);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.Rags.AddAsync(ragEntity, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<RagQueryDto>(ragEntity);
+            // 4. Return the new DTO mapped, appending the sources so UI can see them
+            var mapped = _mapper.Map<RagQueryDto>(ragEntity);
+            return mapped with { Sources = result.Sources ?? new List<string>() };
         }
     }
 }
