@@ -1,10 +1,14 @@
-﻿using Cortexa.Application.Features.SmartAssistant.Commands;
+﻿using Cortexa.Application.Common.Interfaces;
+using Cortexa.Application.Features.SmartAssistant.Commands;
 using Cortexa.Application.Features.SmartAssistant.Queries;
+using Cortexa.Application.Interfaces.Services;
+using Cortexa.Infrastructure.Services;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Claims;
 
 namespace Cortexa.Api.Controllers
 {
@@ -12,10 +16,20 @@ namespace Cortexa.Api.Controllers
     /// <summary>
     /// Endpoints for the AI Smart Assistant features (alerts, RAG queries).
     /// </summary>
-
+    [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
-    public class SmartAssistantController(ISender sender, Cortexa.Application.Interfaces.Services.IAIService aiService) : ApiControllerBase(sender)
+    public class SmartAssistantController : ApiControllerBase
     {
+        private readonly IAIService _aiService;
+        private readonly ICurrentUserService _currentUserService;
+
+        public SmartAssistantController(ISender sender,IAIService aiService, ICurrentUserService currentUserService): base(sender) 
+        {
+            _aiService = aiService;
+            _currentUserService = currentUserService;
+        }
+
         // ── RAG Integration ────────────────────────────────────────────────
 
         /// <summary>
@@ -35,7 +49,9 @@ namespace Cortexa.Api.Controllers
             if (string.IsNullOrWhiteSpace(admissionId))
                 return BadRequest("admissionId is required.");
 
-            var doctorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown_doctor";
+            //var doctorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown_doctor";
+            var doctorId = _currentUserService.UserId ?? "unknown_doctor";
+
 
             var command = new AskRAGQueryCommand(
                 ProjectId: projectId,
@@ -78,7 +94,7 @@ namespace Cortexa.Api.Controllers
                 return BadRequest("No file provided.");
 
             using var stream = file.OpenReadStream();
-            var result = await aiService.UploadAndIndexDocumentAsync(projectId, stream, file.FileName, ct);
+            var result = await _aiService.UploadAndIndexDocumentAsync(projectId, stream, file.FileName, ct);
             
             if (!result.Success)
                 return StatusCode(500, result);
@@ -95,7 +111,7 @@ namespace Cortexa.Api.Controllers
             if (string.IsNullOrWhiteSpace(projectId))
                 return BadRequest("projectId is required.");
 
-            var result = await aiService.GetIndexInfoAsync(projectId, ct);
+            var result = await _aiService.GetIndexInfoAsync(projectId, ct);
             return Ok(result ?? new { message = "No index info available." });
         }
 
