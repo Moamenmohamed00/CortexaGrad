@@ -23,7 +23,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId)
         {
             return await _context.Admissions
-                .Where(a => a.PatientId == patientId)
+                .Where(a => a.PatientId == patientId && a.Status == AdmissionStatus.Active)
                 .Include(a => a.Doctor)
                 .OrderByDescending(a => a.AdmissionDate)
                 .AsNoTracking()
