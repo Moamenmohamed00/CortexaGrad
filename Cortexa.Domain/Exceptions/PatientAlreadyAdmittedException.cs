@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Cortexa.Domain.Exceptions
 {
-    public class PatientAlreadyAdmittedException : Exception
+    public class PatientAlreadyAdmittedException : DomainException
     {
         public PatientAlreadyAdmittedException(string id, string name)
-            : base($"Patient with ID {id} and Name {name} is already admitted.")
+            : base($"Patient with ID {id} and Name {name} is already admitted.", 400, "Patient Already Admitted")
         {
         }
     }

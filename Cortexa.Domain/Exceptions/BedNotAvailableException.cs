@@ -5,20 +5,20 @@ namespace Cortexa.Domain.Exceptions
     /// <summary>
     /// Exception thrown when attempting to assign a patient to a bed that is not available
     /// </summary>
-    public class BedNotAvailableException : Exception
+    public class BedNotAvailableException : DomainException
     {
         public string BedId { get; }
         public string? BedNumber { get; }
         public string? RoomId { get; }
 
         public BedNotAvailableException(string bedId)
-            : base($"Bed with ID '{bedId}' is not available for assignment.")
+            : base($"Bed with ID '{bedId}' is not available for assignment.", 400, "Bed Not Available")
         {
             BedId = bedId;
         }
 
         public BedNotAvailableException(string bedId, string bedNumber, string? roomId = null)
-            : base($"Bed '{bedNumber}' (ID: {bedId}) is not available for assignment.")
+            : base($"Bed '{bedNumber}' (ID: {bedId}) is not available for assignment.", 400, "Bed Not Available")
         {
             BedId = bedId;
             BedNumber = bedNumber;
@@ -26,7 +26,7 @@ namespace Cortexa.Domain.Exceptions
         }
 
         public BedNotAvailableException(string bedId, string bedNumber, string? roomId, Exception innerException)
-            : base($"Bed '{bedNumber}' (ID: {bedId}) is not available for assignment.", innerException)
+            : base($"Bed '{bedNumber}' (ID: {bedId}) is not available for assignment.", 400, "Bed Not Available")
         {
             BedId = bedId;
             BedNumber = bedNumber;
