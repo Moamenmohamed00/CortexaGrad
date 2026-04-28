@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Cortexa.Domain.Common;
 using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Enums;
@@ -20,5 +21,8 @@ namespace Cortexa.Domain.Entities.AI
 
         public string? PatientId { get; set; } // Optional context
         public Patient? Patient { get; set; }
+
+
+
     }
 }

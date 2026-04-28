@@ -22,12 +22,10 @@ namespace Cortexa.Api.Controllers
     public class SmartAssistantController : ApiControllerBase
     {
         private readonly IAIService _aiService;
-        private readonly ICurrentUserService _currentUserService;
 
-        public SmartAssistantController(ISender sender,IAIService aiService, ICurrentUserService currentUserService): base(sender) 
+        public SmartAssistantController(ISender sender,IAIService aiService): base(sender) 
         {
             _aiService = aiService;
-            _currentUserService = currentUserService;
         }
 
         // ── RAG Integration ────────────────────────────────────────────────
@@ -49,14 +47,9 @@ namespace Cortexa.Api.Controllers
             if (string.IsNullOrWhiteSpace(admissionId))
                 return BadRequest("admissionId is required.");
 
-            //var doctorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown_doctor";
-            var doctorId = _currentUserService.UserId ?? "unknown_doctor";
-
-
             var command = new AskRAGQueryCommand(
                 ProjectId: projectId,
                 AdmissionId: admissionId,
-                DoctorId: doctorId,
                 QueryText: request.Text,
                 Limit: request.Limit
             );

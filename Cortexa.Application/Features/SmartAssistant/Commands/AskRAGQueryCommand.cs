@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
@@ -14,7 +15,6 @@ namespace Cortexa.Application.Features.SmartAssistant.Commands
     public record AskRAGQueryCommand(
         string ProjectId, 
         string AdmissionId, 
-        string DoctorId, 
         string QueryText, 
         int Limit = 5
     ) : IRequest<RagQueryDto>;
@@ -23,20 +23,33 @@ namespace Cortexa.Application.Features.SmartAssistant.Commands
     {
         private readonly IAIService _aiService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public AskRAGQueryCommandHandler(IAIService aiService, IUnitOfWork unitOfWork, IMapper mapper)
+        public AskRAGQueryCommandHandler(IAIService aiService, IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
         {
             _aiService = aiService;
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
             _mapper = mapper;
         }
 
         public async Task<RagQueryDto> Handle(AskRAGQueryCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.QueryText))
+                throw new ArgumentException("Query text cannot be empty", nameof(request.QueryText));
+            if (string.IsNullOrWhiteSpace(request.ProjectId))
+                throw new ArgumentException("Project ID cannot be empty", nameof(request.ProjectId));
+
+            string currentUserEmail = _currentUserService.UserEmail 
+                ?? throw new InvalidOperationException("Current user email is not available");
+
+            var Doctor = await _unitOfWork.Doctors.GetByEmailAsync(currentUserEmail)
+                ?? throw new KeyNotFoundException("Doctor not found for the current user");
+
             // 1. Fetch patient side from admission
             var admission = await _unitOfWork.Admissions.GetByIdAsync(request.AdmissionId)
-                ?? throw new System.Collections.Generic.KeyNotFoundException("Admission res not found");
+                ?? throw new KeyNotFoundException("Admission res not found");
 
             // 2. Call the Python AI service
             var result = await _aiService.AskQuestionAsync(request.ProjectId, request.AdmissionId, request.QueryText, request.Limit, cancellationToken);
@@ -46,7 +59,7 @@ namespace Cortexa.Application.Features.SmartAssistant.Commands
             {
                 QueryText = request.QueryText,
                 GeneratedResponse = result.Answer ?? "No response obtained",
-                DoctorId = request.DoctorId,
+                DoctorId = Doctor.Id,
                 PatientId = admission.PatientId,
                 QueryDateTime = DateTime.UtcNow,
                 ScoreTrust = 0.9f, 
