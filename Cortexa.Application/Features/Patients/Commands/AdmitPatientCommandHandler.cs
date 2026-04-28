@@ -61,7 +61,8 @@ namespace Cortexa.Application.Features.Patients.Commands
             // 2. البحث عن المريض بالرقم القومي (بدلاً من الإضافة المباشرة)
             var patient = await _unitOfWork.Patients.GetByNationalIdAsync(request.NationalId, cancellationToken);
 
-            if (patient == null)
+            var isNewPatient = patient == null; // لتحديد إذا كان المريض جديداً أم لا
+            if (isNewPatient)
             {
                 // مريض جديد: أنشئ الكائن وأضفه
                 var address = new Address(
@@ -78,7 +79,7 @@ namespace Cortexa.Application.Features.Patients.Commands
                     DateOfBirth = request.DateOfBirth,
                     Gender = request.Gender,
                     Email = request.Email ?? string.Empty,
-                    PhoneNumber = request.Phone,
+                    PhoneNumber = request.Phone ?? string.Empty,
                     Address = address,
                     BloodType = request.BloodType,
                     DiagnosisSummary = request.DiagnosisSummary,
@@ -90,8 +91,21 @@ namespace Cortexa.Application.Features.Patients.Commands
             else
             {
                 // مريض موجود مسبقاً: يمكنك تحديث بياناته هنا إذا لزم الأمر
-                patient.PhoneNumber = request.Phone ?? patient.PhoneNumber;
+                if (!string.IsNullOrWhiteSpace(request.DiagnosisSummary))
+                {
+                    patient.DiagnosisSummary = request.DiagnosisSummary;
+                }
+                if (!string.IsNullOrWhiteSpace(request.Phone))
+                {
+                    patient.PhoneNumber = request.Phone;
+                }
                 await _unitOfWork.Patients.UpdateAsync(patient);
+            }
+
+            var existingActiveAdmission = await _unitOfWork.Admissions.GetAdmissionsByPatientIdAsync(patient.Id);
+            if (existingActiveAdmission != null)
+            {
+                throw new PatientAlreadyAdmittedException(patient.Id, patient.Name);
             }
 
             // 3. إنشاء الـ Admission (سواء للمريض الجديد أو الموجود)

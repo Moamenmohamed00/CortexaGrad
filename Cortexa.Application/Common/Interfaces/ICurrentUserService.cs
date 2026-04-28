@@ -5,6 +5,7 @@ namespace Cortexa.Application.Common.Interfaces
         string? UserId { get; }
         string? UserName { get; }
         string? UserRole { get; }
+        string? UserEmail { get; }
         bool IsAuthenticated { get; }
     }
 }

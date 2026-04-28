@@ -25,6 +25,7 @@ namespace Cortexa.Api.Controllers
             return Created($"{Request.Path}/{id}", new { id });
         }
 
+
         [HttpGet]
         [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)

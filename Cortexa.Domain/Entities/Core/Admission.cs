@@ -50,5 +50,10 @@ namespace Cortexa.Domain.Entities.Core
         public ICollection<Alert> Alerts { get; set; } = new List<Alert>();
 
         public Admission() { }
+
+        public bool IsActive()
+        {
+            return Status == AdmissionStatus.Active;
+        }
     }
 }

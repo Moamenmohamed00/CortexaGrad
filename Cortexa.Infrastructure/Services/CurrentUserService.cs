@@ -24,6 +24,8 @@ namespace Cortexa.Infrastructure.Services
 
         public string? UserRole =>
             _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
+        public string? UserEmail =>
+            _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
 
         public bool IsAuthenticated =>
             _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;

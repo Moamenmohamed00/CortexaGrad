@@ -1,3 +1,4 @@
+using Cortexa.Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -39,10 +40,15 @@ namespace Cortexa.Api.Middlewares
                 InvalidOperationException => (StatusCodes.Status400BadRequest, "Bad Request"),
                 KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource Not Found"),
                 UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
+
+                DomainException domainEx => (domainEx.StatusCode, domainEx.Title),
+
                 _ when IsNotFoundException(exception)
-                                           => (StatusCodes.Status404NotFound, "Resource Not Found"),
+                    => (StatusCodes.Status404NotFound, "Resource Not Found"),
+
                 _ when IsConflictException(exception)
-                                           => (StatusCodes.Status409Conflict, "Conflict"),
+                    => (StatusCodes.Status409Conflict, "Conflict"),
+
                 _ => (StatusCodes.Status500InternalServerError, "Server Error")
             };
 

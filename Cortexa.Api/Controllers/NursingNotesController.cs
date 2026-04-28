@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Nurse")]
     [Route("api/admissions/{admissionId}/nursing-notes")]
     public class NursingNotesController(ISender sender) : ApiControllerBase(sender)
     {
         [HttpPost]
+        [Authorize(Roles = "Nurse")]
         public async Task<IActionResult> Add(
             string admissionId,
             [FromBody] AddNursingNoteCommand command)
@@ -36,6 +36,8 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Nurse")]
+
         public async Task<IActionResult> Update(string admissionId, [FromBody] UpdateNursingNoteCommand command)
         {
             if (admissionId == command.Id)
@@ -51,6 +53,8 @@ namespace Cortexa.Api.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "Nurse")]
+
         public async Task<IActionResult> Delete(string admissionId, string Id)
         {
             var success = await Sender.Send(new DeleteNursingNoteCommand(admissionId, Id));
