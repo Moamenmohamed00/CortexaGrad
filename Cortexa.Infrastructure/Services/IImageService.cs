@@ -13,7 +13,9 @@ namespace Cortexa.Application.Interfaces.Services
 {
     public interface IImageService
     {
+        //Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file);
         Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file);
+
         Task<bool> DeleteImageAsync(string publicId);
     }
 
@@ -39,8 +41,11 @@ namespace Cortexa.Application.Interfaces.Services
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "ECommerce_Products",
-                    Transformation = new Transformation().Height(500).Width(500).Crop("fill")
+                    Folder = "Medical/Imaging",
+                    Transformation = new Transformation().Quality("auto"),
+                    UseFilename = true,
+                    UniqueFilename = true,
+                    Overwrite = false
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);

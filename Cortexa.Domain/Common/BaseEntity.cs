@@ -81,6 +81,7 @@ namespace Cortexa.Domain.Common
                 { "LabOrder", "LAB" },
                 { "LabResult", "RES" },
                 { "Imaging", "IMG" },
+                { "ImagingFile", "IMF" },
                 { "Culture", "CUL" },
                 
                 // AI
