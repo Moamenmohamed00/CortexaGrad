@@ -6,5 +6,7 @@ namespace Cortexa.Application.Interfaces.Repositories.Clinical
     : IGenericRepository<PhysicalExamination>
     {
         Task<IReadOnlyList<PhysicalExamination>> GetByAdmissionIdAsync(string admissionId);
+
+        Task<PhysicalExamination?> GetLatestByAdmissionIdAsync(string admissionId);
     }
 }
