@@ -25,6 +25,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
             return await _context.Admissions
                 .Where(a => a.PatientId == patientId && a.Status == AdmissionStatus.Active)
                 .Include(a => a.Doctor)
+                .Include(a=>a.Patient)
                 .OrderByDescending(a => a.AdmissionDate)
                 .AsNoTracking()
                 .ToListAsync();

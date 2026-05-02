@@ -17,6 +17,12 @@ namespace Cortexa.Infrastructure.Persistence.Repositories.Clinical
                 .ToListAsync();
         }
 
-
+        public async Task<NursingNotes?> GetLatestByAdmissionIdAsync(string admissionId)
+        {
+            return await _context.NursingNotes
+                .Where(n => n.AdmissionId == admissionId)
+                .OrderByDescending(n => n.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
     }
 }

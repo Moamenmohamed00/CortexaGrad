@@ -13,7 +13,15 @@ namespace Cortexa.Infrastructure.Persistence.Repositories.Clinical
         {
             return await _context.PhysicalExaminations
                 .Where(p => p.AdmissionId == admissionId)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
+        }
+        public async Task<PhysicalExamination?> GetLatestByAdmissionIdAsync(string admissionId)
+        {
+            return await _context.PhysicalExaminations
+                .Where(p => p.AdmissionId == admissionId)
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
         }
 
 
