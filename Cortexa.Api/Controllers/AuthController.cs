@@ -11,22 +11,32 @@ namespace Cortexa.Api.Controllers
     public class AuthController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
-        /// Registers a new user account.
+        /// Registers a new user (Doctor/Nurse) in the system.
         /// </summary>
+        /// <param name="command">The registration details.</param>
+        /// <response code="200">User registered successfully.</response>
+        /// <response code="400">If validation fails or user already exists.</response>
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto command)
         {
-            var result = await Sender.Send(new RegisterCommand(request));
+            var result = await Sender.Send(new RegisterCommand(command));
             return Ok(result);
         }
 
         /// <summary>
         /// Authenticates a user and returns a JWT token.
         /// </summary>
+        /// <param name="command">Login credentials.</param>
+        /// <response code="200">Returns the authentication token and user info.</response>
+        /// <response code="401">Invalid credentials provided.</response>
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto command)
         {
-            var result = await Sender.Send(new LoginCommand(request.Email, request.Password));
+            var result = await Sender.Send(new LoginCommand(command.Email, command.Password));
             return Ok(result);
         }
 
@@ -34,19 +44,19 @@ namespace Cortexa.Api.Controllers
         /// Sends a password-reset OTP to the specified email.
         /// </summary>
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto command)
         {
-            var result = await Sender.Send(new ForgotPasswordCommand(request.Email));
+            var result = await Sender.Send(new ForgotPasswordCommand(command.Email));
             return Ok(result);
         }
         /// <summary>
         /// Resets the password using the provided OTP.
         /// </summary>
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto command)
         {
             var result = await Sender.Send(
-                new ResetPasswordCommand(request.Email, request.Otp, request.NewPassword));
+                new ResetPasswordCommand(command.Email, command.Otp, command.NewPassword));
 
             return Ok(result);
         }

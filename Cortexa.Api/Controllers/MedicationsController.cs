@@ -13,7 +13,9 @@ namespace Cortexa.Api.Controllers
     [Route("api/admissions/{admissionId}/medications")]
     public class MedicationsController(ISender sender) : ApiControllerBase(sender)
     {
+        /// <summary>Prescribes a new medication for a patient.</summary>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Prescribe(
             string admissionId,
             [FromBody] PrescribeMedicationCommand command)
@@ -26,8 +28,9 @@ namespace Cortexa.Api.Controllers
         }
 
 
+        /// <summary>Retrieves all prescribed medications for an admission.</summary>
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
+        [Authorize(Roles = "Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(
@@ -36,7 +39,9 @@ namespace Cortexa.Api.Controllers
             return result is not null ? Ok(result) : NotFound();
         }
 
+        /// <summary>Updates prescription details.</summary>
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Update(string admissionId, [FromBody] UpdateMedicationCommand command)
         {
             if (admissionId == command.Id)
@@ -51,7 +56,9 @@ namespace Cortexa.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>Deletes a medication entry.</summary>
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Delete(string admissionId, string Id)
         {
             var success = await Sender.Send(new DeleteMedicationCommand(admissionId, Id));

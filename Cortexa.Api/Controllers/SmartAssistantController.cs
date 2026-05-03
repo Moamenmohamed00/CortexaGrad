@@ -36,6 +36,7 @@ namespace Cortexa.Api.Controllers
         /// The chat interaction is then saved to the patient's individual AI chat history.
         /// </summary>
         [HttpPost("rag/ask")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AskQuestion(
             [FromQuery] string projectId,
             [FromQuery] string admissionId,

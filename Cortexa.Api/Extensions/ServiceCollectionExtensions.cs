@@ -3,6 +3,7 @@ using Cortexa.Api.Hubs;
 using Cortexa.Api.Services;
 using Cortexa.Application.Interfaces.Services;
 using Microsoft.OpenApi;
+using System.Reflection;
 
 namespace Cortexa.Api.Extensions
 {
@@ -26,6 +27,11 @@ namespace Cortexa.Api.Extensions
                     Version = "v1",
                     Description = "Cortexa Hospital Management System API"
                 });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
 
                 // JWT Bearer security definition
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
