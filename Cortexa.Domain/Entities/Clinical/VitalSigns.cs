@@ -33,8 +33,8 @@ namespace Cortexa.Domain.Entities.Clinical
         public string AdmissionId { get; set; } = string.Empty;
         public Admission Admission { get; set; } = null!;
 
-        public string NurseId { get; set; } = string.Empty;
-        public Nurse Nurse { get; set; } = null!;
+        public string? NurseId { get; set; } 
+        public Nurse? Nurse { get; set; } 
 
         public string? DoctorId { get; set; }
         public Doctor? Doctor { get; set; }

@@ -24,7 +24,9 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
         public bool SupplementalOxygen { get; set; }
         public ConsciousnessLevel ConsciousnessLevel { get; set; }
         public DateTime RecordedAt { get; set; }
-        public string NurseId { get; set; } = string.Empty;
+        public string? NurseId { get; set; } = string.Empty;
+        public string? DoctorId { get; set; } = string.Empty;
+
     }
 
     public class RecordVitalsCommandHandler : IRequestHandler<RecordVitalsCommand, string>
@@ -44,6 +46,10 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
 
         public async Task<string> Handle(RecordVitalsCommand request, CancellationToken cancellationToken)
         {
+            if (request.DoctorId == null && request.NurseId == null)
+            {
+                throw new ArgumentException("At least one of DoctorId or NurseId must be provided.");
+            }
             var entity = new VitalSigns
             {
                 AdmissionId = request.AdmissionId,
@@ -55,9 +61,13 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.AddCommands
                 PulseOxy = request.PulseOxy,
                 SupplementalOxygen = request.SupplementalOxygen,
                 ConsciousnessLevel = request.ConsciousnessLevel,
-                RecordedAt = request.RecordedAt,
-                NurseId = request.NurseId
+                RecordedAt = request.RecordedAt,       
             };
+            if (request.NurseId != null)  
+                entity.NurseId = request.NurseId;    
+            else       
+                entity.DoctorId = request.DoctorId;
+            
 
             // ── Calculate NEWS score ─────────────────────────────────
             var (newsScore, riskLevel) = NewsCalculator.Calculate(entity);
