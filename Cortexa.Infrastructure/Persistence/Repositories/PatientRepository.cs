@@ -24,5 +24,13 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<string?> GetPatientNameByPatientIdAsync(string patientId)
+        {
+            var patient = await _context.Patients
+                .FirstOrDefaultAsync(p => p.Id == patientId);
+
+            return patient?.Name;
+        }
     }
 }

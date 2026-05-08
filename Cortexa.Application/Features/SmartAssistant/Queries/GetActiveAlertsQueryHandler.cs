@@ -6,7 +6,7 @@ using MediatR;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Enums;
-
+using Microsoft.EntityFrameworkCore;
 namespace Cortexa.Application.Features.SmartAssistant.Queries
 {
     // 2. منفذ الاستعلام (الـ Handler)
@@ -19,34 +19,41 @@ namespace Cortexa.Application.Features.SmartAssistant.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<AlertDto>> Handle(GetActiveAlertsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<AlertDto>> Handle(
+    GetActiveAlertsQuery request,
+    CancellationToken cancellationToken)
         {
-            IReadOnlyList<Domain.Entities.AI.Alert> alerts;
+            var query = _unitOfWork.AI.GetAlertsQuery();
 
-            if (request.AdmissionId != null)
-                alerts = await _unitOfWork.AI.GetAlertsByAdmissionIdAsync(request.AdmissionId);
-            else if (request.PatientId != null)
-                alerts = await _unitOfWork.AI.GetAlertsByPatientIdAsync(request.PatientId);
-            else
-                alerts = await _unitOfWork.AI.GetAllActiveAlertsAsync(); // no filter → all active
+            query = query.Where(a => a.Status == AlertStatus.Active);
 
-            if (request.AdmissionId == null || alerts == null)
-                throw new Exception("AdmissionId Or PatientId is Null");
+            if (!string.IsNullOrWhiteSpace(request.PatientId))
+            {
+                query = query.Where(a =>
+                    a.Admission != null &&
+                    a.Admission.PatientId == request.PatientId);
+            }
 
-            string patientName = await _unitOfWork.Admissions
-                .GetPatientNameByAdmissionIdAsync(request.AdmissionId);
+            if (!string.IsNullOrWhiteSpace(request.AdmissionId))
+            {
+                query = query.Where(a =>
+                    a.AdmissionId == request.AdmissionId);
+            }
 
-            return alerts
-                .Where(a => a.Status == AlertStatus.Active)
+            return await query
+                .OrderByDescending(a => a.GeneratedAt)
                 .Select(a => new AlertDto(
                     a.Id,
-                    patientName,
+                    a.Admission != null && a.Admission.Patient != null
+                        ? a.Admission.Patient.Name
+                        : "Unknown Patient",
                     a.AlertMessage,
                     a.Severity,
                     a.GeneratedAt,
                     a.Status,
                     a.AdmissionId
-                )).ToList();
+                ))
+                .ToListAsync(cancellationToken);
         }
     }
 }
