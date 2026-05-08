@@ -1,0 +1,27 @@
+---
+title: "Authentication"
+description: "How Cortexia authenticates API requests."
+icon: "shield-keyhole"
+---
+
+Cortexia uses ASP.NET Identity for users and JWT Bearer authentication for API access.
+
+## Flow
+
+1. A user logs in through the Auth API.
+2. The API validates credentials through Identity.
+3. The backend returns a JWT.
+4. Clients send the token in the `Authorization` header.
+
+```http
+Authorization: Bearer <token>
+```
+
+## Roles
+
+Several endpoints use role-based authorization, mainly:
+
+- `Doctor`
+- `Nurse`
+
+Some write operations are limited to one role, while read operations are often available to both Doctor and Nurse.

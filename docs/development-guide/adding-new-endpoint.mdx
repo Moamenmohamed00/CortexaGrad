@@ -1,0 +1,22 @@
+---
+title: "Adding a New Endpoint"
+description: "How to add API endpoints consistently."
+icon: "route"
+---
+
+Endpoint implementation should follow the existing controller-to-MediatR pattern.
+
+## Checklist
+
+- Add the route to the appropriate controller.
+- Use `[Authorize]` or role-specific authorization when needed.
+- Accept a command/query DTO rather than manually parsing request bodies.
+- Send work to MediatR using `Sender.Send(...)`.
+- Return standard HTTP responses such as `200 OK`, `201 Created`, `204 NoContent`, or `404 NotFound`.
+- Keep persistence out of the controller.
+
+If the endpoint is part of a clinical record, prefer nesting it under:
+
+```text
+api/admissions/{admissionId}/...
+```

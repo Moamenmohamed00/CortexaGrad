@@ -1,0 +1,25 @@
+---
+title: "Coding Patterns"
+description: "Core implementation patterns used in Cortexia."
+icon: "code"
+---
+
+## Controllers
+
+Controllers should stay thin. They should receive HTTP input, create commands or queries, and call `Sender.Send(...)`.
+
+## Application Handlers
+
+Handlers own use-case logic. They should coordinate repositories, domain services, mapping, validation assumptions, and notifications.
+
+## Validation
+
+Validation belongs in FluentValidation validators and runs through the MediatR validation pipeline.
+
+## Persistence
+
+Use repositories and `IUnitOfWork` instead of directly using EF Core from controllers.
+
+## Mapping
+
+Use AutoMapper profiles for entity-to-DTO mapping where the project already follows that pattern.

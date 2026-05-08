@@ -1,0 +1,46 @@
+---
+title: "Layers"
+description: "Responsibilities of each Cortexia project."
+icon: "layer-group"
+---
+
+## `Cortexa.Api`
+
+Owns HTTP concerns:
+
+- Controllers
+- Middleware
+- Filters
+- Swagger and Scalar
+- SignalR hubs
+
+## `Cortexa.Application`
+
+Owns use cases:
+
+- Commands and queries
+- MediatR handlers
+- DTOs
+- FluentValidation validators
+- AutoMapper profiles
+- Application interfaces
+
+## `Cortexa.Domain`
+
+Owns core business concepts:
+
+- Patient, Admission, VitalSigns, Alert, and other entities
+- Enums and value objects
+- Domain exceptions
+- Domain services such as NEWS calculation
+
+## `Cortexa.Infrastructure`
+
+Owns implementation details:
+
+- EF Core and SQL Server
+- Repositories and Unit of Work
+- ASP.NET Identity
+- JWT generation
+- Email service
+- External AI/RAG HTTP client

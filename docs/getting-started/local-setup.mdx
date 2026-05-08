@@ -1,0 +1,34 @@
+---
+title: "Local Setup"
+description: "Run the Cortexia backend locally."
+icon: "laptop-code"
+---
+
+## Prerequisites
+
+- .NET SDK compatible with the solution.
+- SQL Server or SQL Server LocalDB.
+- A valid `DefaultConnection` connection string.
+- Optional: access to the configured external AI/RAG service.
+
+## Run the API
+
+From the repository root:
+
+```bash
+dotnet restore
+dotnet build CortexaGrad.sln
+dotnet run --project Cortexa.Api
+```
+
+The API exposes Swagger and Scalar when the environment is Development or Production.
+
+## Main Entry Point
+
+The runtime pipeline starts in:
+
+```text
+Cortexa.Api/Program.cs
+```
+
+The API registers the Application, Infrastructure, and API services from this file.

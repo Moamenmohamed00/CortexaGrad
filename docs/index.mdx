@@ -1,0 +1,44 @@
+---
+title: "Cortexia Documentation"
+description: "Architecture, API, and development documentation for the Cortexia hospital management backend."
+icon: "hospital"
+---
+
+Cortexia is a hospital management backend built with ASP.NET Core, MediatR, Entity Framework Core, SQL Server, ASP.NET Identity, JWT authentication, SignalR notifications, and an external AI/RAG integration.
+
+The documentation is organized around how the system is built and how contributors should extend it safely.
+
+<CardGroup cols={2}>
+  <Card title="Getting Started" icon="rocket" href="/getting-started/overview">
+    Set up the backend locally, configure required settings, and understand authentication.
+  </Card>
+
+  <Card title="Architecture" icon="diagram-project" href="/architecture/overview">
+    Understand the Clean Architecture layers, request flow, persistence, auditing, SignalR, and AI integration.
+  </Card>
+
+  <Card title="Domain Modules" icon="layer-group" href="/domains/patients">
+    Learn how Cortexia models patients, admissions, clinical records, diagnostics, staff, rooms, and smart assistant features.
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Review API conventions, authentication, and the generated OpenAPI reference.
+  </Card>
+</CardGroup>
+
+## Project Shape
+
+The backend solution is split into four main projects:
+
+| Project | Responsibility |
+| --- | --- |
+| `Cortexa.Api` | HTTP controllers, middleware, Swagger, SignalR hubs, request pipeline |
+| `Cortexa.Application` | Use cases, commands, queries, handlers, DTOs, validation, mapping |
+| `Cortexa.Domain` | Entities, enums, value objects, domain exceptions, domain services |
+| `Cortexa.Infrastructure` | EF Core, SQL Server, repositories, Identity, JWT, email, external AI clients |
+
+Most requests follow this path:
+
+```text
+Client -> API Middleware -> Controller -> MediatR -> Handler -> Repository/UnitOfWork -> DbContext -> SQL Server
+```

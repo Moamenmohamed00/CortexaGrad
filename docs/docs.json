@@ -1,0 +1,115 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Cortexia",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Docs",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "index"
+            ]
+          },
+          {
+            "group": "Getting Started",
+            "pages": [
+              "getting-started/overview",
+              "getting-started/local-setup",
+              "getting-started/configuration",
+              "getting-started/authentication"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/request-flow",
+              "architecture/layers",
+              "architecture/dependency-injection",
+              "architecture/database-and-auditing",
+              "architecture/realtime-signalr",
+              "architecture/ai-rag-integration"
+            ]
+          },
+          {
+            "group": "Domain Modules",
+            "pages": [
+              "domains/patients",
+              "domains/admissions",
+              "domains/clinical-data",
+              "domains/diagnostics",
+              "domains/staff-and-rooms",
+              "domains/smart-assistant"
+            ]
+          },
+          {
+            "group": "Development Guide",
+            "pages": [
+              "development-guide/coding-patterns",
+              "development-guide/adding-new-feature",
+              "development-guide/adding-new-endpoint",
+              "development-guide/migrations-and-seeding"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "operations/deployment",
+              "operations/environment-variables",
+              "operations/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": []
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [],
+    "primary": {
+      "type": "button",
+      "label": "API Reference",
+      "href": "/api-reference/introduction"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {}
+  }
+}

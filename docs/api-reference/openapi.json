@@ -1,0 +1,29 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cortexia API",
+    "description": "OpenAPI placeholder for the Cortexia hospital management backend. Regenerate this file from the running ASP.NET Core Swagger endpoint when API contracts change.",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:5001",
+      "description": "Local development"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {},
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

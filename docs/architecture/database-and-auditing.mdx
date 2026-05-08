@@ -1,0 +1,50 @@
+---
+title: "Database and Auditing"
+description: "How Cortexia persists data and records audit metadata."
+icon: "database"
+---
+
+Cortexia uses Entity Framework Core with SQL Server.
+
+The main DbContext is:
+
+```text
+Cortexa.Infrastructure/Persistence/CortexaDbContext.cs
+```
+
+## Persistence Behavior
+
+`SaveChangesAsync` applies extra behavior before writing to SQL Server:
+
+- Soft delete conversion
+- Created and modified metadata
+- Deleted metadata
+- Audit log generation for auditable entities
+
+```mermaid
+flowchart TD
+  Handler[Application Handler]
+  UoW[IUnitOfWork]
+  DbContext[CortexaDbContext]
+  Tracker[EF ChangeTracker]
+  SoftDelete[Apply soft delete]
+  Metadata[Apply metadata]
+  Audit[Prepare audit logs]
+  Save[base.SaveChangesAsync]
+  Sql[(SQL Server)]
+
+  Handler --> UoW
+  UoW --> DbContext
+  DbContext --> Tracker
+  Tracker --> SoftDelete
+  SoftDelete --> Metadata
+  Metadata --> Audit
+  Audit --> Save
+  Save --> Sql
+```
+
+## Soft Delete
+
+Entities derived from the base entity receive a global query filter that excludes soft-deleted records.
+
+Delete operations are converted into updates that set deletion metadata instead of physically removing the row.

@@ -1,0 +1,19 @@
+---
+title: "Adding a New Feature"
+description: "Recommended steps for adding a backend feature."
+icon: "plus"
+---
+
+Use this sequence when adding a new use case:
+
+1. Define or update the Domain entity if the business model changes.
+2. Add DTOs in the Application layer.
+3. Add a command or query under the relevant feature folder.
+4. Add a MediatR handler.
+5. Add validation if the request accepts input.
+6. Add repository interface methods if persistence is needed.
+7. Implement repository behavior in Infrastructure.
+8. Expose the use case through an API controller action.
+9. Update OpenAPI and docs.
+
+Keep the dependency direction intact: API depends on Application; Infrastructure implements Application interfaces; Domain stays independent.

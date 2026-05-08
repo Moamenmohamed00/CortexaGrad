@@ -1,0 +1,42 @@
+---
+title: "Realtime SignalR"
+description: "How Cortexia sends realtime updates."
+icon: "tower-broadcast"
+---
+
+Cortexia uses SignalR for realtime notifications.
+
+Mapped hubs:
+
+```text
+/hubs/alerts
+/hubs/monitoring
+```
+
+The API layer registers `SignalRNotificationService` as the implementation of `INotificationService`.
+
+Typical use case:
+
+1. Clinical data is recorded.
+2. The application handler detects a risky condition.
+3. An alert is created.
+4. A SignalR notification is sent to connected clients.
+
+```mermaid
+sequenceDiagram
+  actor Clinician
+  participant Api as API Controller
+  participant Handler as Application Handler
+  participant Notify as INotificationService
+  participant Hub as SignalR Hub
+  participant Client as Connected Client
+
+  Clinician->>Api: Record clinical data
+  Api->>Handler: Send command
+  Handler->>Handler: Evaluate risk
+  Handler->>Notify: Send alert notification
+  Notify->>Hub: Publish hub message
+  Hub-->>Client: Realtime alert update
+  Handler-->>Api: Command result
+  Api-->>Clinician: HTTP response
+```

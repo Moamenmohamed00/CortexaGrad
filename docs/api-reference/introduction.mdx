@@ -1,0 +1,23 @@
+---
+title: "API Introduction"
+description: "Cortexia API reference overview."
+icon: "code"
+---
+
+The Cortexia API is an ASP.NET Core Web API.
+
+Primary API areas:
+
+- Authentication: `api/Auth`
+- Patients: `api/Patients`
+- Admissions: `api/admission`
+- Clinical data: `api/admissions/{admissionId}/...`
+- Diagnostics: `api/Diagnostics`
+- Staff, doctors, rooms: `api/Staff`, `api/Doctors`, `api/Rooms`
+- Smart Assistant: `api/SmartAssistant`
+
+## OpenAPI
+
+Swagger is configured in the API project and Scalar is mapped to the generated Swagger document.
+
+The checked-in `openapi.json` should be regenerated from the running API when endpoint contracts change.

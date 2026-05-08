@@ -1,0 +1,20 @@
+---
+title: "Environment Variables"
+description: "Runtime configuration values for Cortexia deployments."
+icon: "sliders"
+---
+
+Prefer environment-specific configuration for secrets and deployment-specific values.
+
+Important configuration areas:
+
+| Setting | Purpose |
+| --- | --- |
+| `ConnectionStrings__DefaultConnection` | SQL Server connection |
+| `JwtSettings__Key` | JWT signing key |
+| `JwtSettings__Issuer` | Expected token issuer |
+| `JwtSettings__Audience` | Expected token audience |
+| `EmailSettings__*` | Email delivery settings |
+| `AIService__BaseUrl` | External AI/RAG service URL |
+
+Do not commit production secrets into `appsettings.json`.

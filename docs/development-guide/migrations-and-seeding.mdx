@@ -1,0 +1,25 @@
+---
+title: "Migrations and Seeding"
+description: "Database migration and development seed data notes."
+icon: "seedling"
+---
+
+EF Core migrations live in:
+
+```text
+Cortexa.Infrastructure/Migrations
+```
+
+Seeders live in:
+
+```text
+Cortexa.Infrastructure/Persistence/Seeding
+```
+
+In Development, `Program.cs` runs:
+
+```text
+DatabaseSeeder.SeedAsync(app.Services)
+```
+
+Use migrations when changing the persistence model. Keep seed data deterministic so local environments are repeatable.

@@ -1,0 +1,23 @@
+---
+title: "Clinical Data"
+description: "Clinical documentation and observation modules."
+icon: "notes-medical"
+---
+
+Clinical data is organized around an admission.
+
+Main route patterns:
+
+```text
+api/admissions/{admissionId}/vitals
+api/admissions/{admissionId}/case-history
+api/admissions/{admissionId}/physical-examination
+api/admissions/{admissionId}/nursing-notes
+api/admissions/{admissionId}/medications
+api/admissions/{admissionId}/fluid-balance
+api/admissions/{admissionId}/intervention-procedures
+```
+
+Most clinical modules support create, read, update, and delete operations.
+
+Vital signs also participate in NEWS score calculation and alert creation.

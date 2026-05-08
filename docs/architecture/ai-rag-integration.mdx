@@ -1,0 +1,49 @@
+---
+title: "AI and RAG Integration"
+description: "How Cortexia integrates with the external smart assistant service."
+icon: "brain"
+---
+
+Cortexia includes a Smart Assistant module backed by an external AI/RAG service.
+
+Key backend pieces:
+
+- `SmartAssistantController`
+- `IAIService`
+- `PythonRAGService`
+- `AIHttpClient`
+- `RAGQuery`
+- `KnowledgeSource`
+
+## Responsibilities
+
+The API accepts smart assistant requests, while Infrastructure handles communication with the external AI service.
+
+The database stores RAG queries and knowledge source metadata so assistant interactions can be associated with patient context.
+
+```mermaid
+flowchart TB
+  User[Doctor or Nurse]
+  Controller[SmartAssistantController]
+  Command[AskRAGQueryCommand or Upload Command]
+  Handler[Application Handler]
+  AIService[IAIService]
+  PythonRAG[PythonRAGService]
+  Http[AIHttpClient]
+  External[External AI/RAG Service]
+  Repo[RagRepository or AIRepository]
+  Db[(SQL Server)]
+
+  User -->|Ask or upload| Controller
+  Controller --> Command
+  Command --> Handler
+  Handler --> AIService
+  AIService --> PythonRAG
+  PythonRAG --> Http
+  Http --> External
+  External --> Http
+  Handler --> Repo
+  Repo --> Db
+  Handler --> Controller
+  Controller --> User
+```

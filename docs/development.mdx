@@ -1,0 +1,25 @@
+---
+title: "Docs Development"
+description: "Preview and maintain the Cortexia documentation site."
+icon: "terminal"
+---
+
+The Cortexia documentation site uses Mintlify.
+
+## Preview Locally
+
+```bash
+cd docs
+npm i -g mint
+mint dev
+```
+
+## Validate Links
+
+```bash
+mint broken-links
+```
+
+## Content Rule
+
+Keep pages focused on Cortexia behavior. Avoid generic framework documentation unless it explains a Cortexia-specific decision.

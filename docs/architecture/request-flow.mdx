@@ -1,0 +1,102 @@
+---
+title: "Request Flow"
+description: "How an HTTP request moves through Cortexia."
+icon: "route"
+---
+
+Most API requests follow this path:
+
+```text
+Client
+-> ASP.NET Core middleware
+-> Controller
+-> MediatR command/query
+-> Application handler
+-> Repository or UnitOfWork
+-> CortexaDbContext
+-> SQL Server
+-> Response
+```
+
+```mermaid
+sequenceDiagram
+  actor Client
+  participant Middleware as API Middleware
+  participant Controller
+  participant MediatR
+  participant Handler as Application Handler
+  participant UoW as UnitOfWork/Repository
+  participant Db as CortexaDbContext
+  participant Sql as SQL Server
+
+  Client->>Middleware: HTTP request
+  Middleware->>Middleware: Exception, CORS, auth
+  Middleware->>Controller: Routed request
+  Controller->>MediatR: Send command/query
+  MediatR->>MediatR: Run validation pipeline
+  MediatR->>Handler: Dispatch to handler
+  Handler->>UoW: Read/write data
+  UoW->>Db: EF Core query/change tracking
+  Db->>Sql: SQL commands
+  Sql-->>Db: Result
+  Db-->>UoW: Entities
+  UoW-->>Handler: Domain data
+  Handler-->>Controller: DTO/result
+  Controller-->>Client: HTTP response
+```
+
+## Pipeline
+
+The request pipeline is configured in `Cortexa.Api/Program.cs`.
+
+Key runtime steps:
+
+1. `ExceptionMiddleware`
+2. CORS
+3. Authentication
+4. Authorization
+5. Controllers
+6. SignalR hubs
+
+## Example: Record Vital Signs
+
+Endpoint:
+
+```http
+POST /api/admissions/{admissionId}/vitals
+```
+
+Flow:
+
+1. `VitalSignsController` receives the request.
+2. The controller sends `RecordVitalsCommand` through MediatR.
+3. The handler creates a `VitalSigns` entity.
+4. The NEWS score is calculated by the domain service.
+5. Risky readings can create alerts.
+6. A SignalR notification can be sent.
+7. The Unit of Work persists the changes.
+8. The controller returns the HTTP response.
+
+```mermaid
+flowchart LR
+  Request[POST vitals request]
+  Controller[VitalSignsController]
+  Command[RecordVitalsCommand]
+  Handler[RecordVitalsCommandHandler]
+  News[NewsCalculator]
+  Vitals[VitalSigns]
+  Alert[Alert]
+  Notification[SignalR notification]
+  Save[UnitOfWork.SaveChangesAsync]
+  Db[(SQL Server)]
+
+  Request --> Controller
+  Controller --> Command
+  Command --> Handler
+  Handler --> Vitals
+  Handler --> News
+  News -->|Medium or high risk| Alert
+  Alert --> Notification
+  Handler --> Save
+  Save --> Db
+```

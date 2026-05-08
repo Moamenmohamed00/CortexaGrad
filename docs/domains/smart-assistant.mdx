@@ -1,0 +1,24 @@
+---
+title: "Smart Assistant"
+description: "AI assistant, RAG, and alert module overview."
+icon: "robot"
+---
+
+The Smart Assistant module supports AI-backed question answering, knowledge upload, RAG history, active alerts, and alert overrides.
+
+Main API area:
+
+```text
+api/SmartAssistant
+```
+
+Important routes:
+
+```text
+POST api/SmartAssistant/rag/ask
+GET  api/SmartAssistant/rag/chats/patient/{patientId}
+POST api/SmartAssistant/rag/upload
+GET  api/SmartAssistant/rag/info
+GET  api/SmartAssistant/alerts/active
+POST api/SmartAssistant/alerts/{id}/override
+```

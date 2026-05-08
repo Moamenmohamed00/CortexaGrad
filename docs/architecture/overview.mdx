@@ -1,0 +1,57 @@
+---
+title: "Architecture Overview"
+description: "High-level Cortexia backend architecture."
+icon: "diagram-project"
+---
+
+Cortexia follows a layered, Clean Architecture-style backend structure.
+
+```text
+Cortexa.Api
+  -> Cortexa.Application
+    -> Cortexa.Domain
+  -> Cortexa.Infrastructure
+```
+
+The dependency direction keeps business logic away from HTTP and persistence details.
+
+## Layer Responsibilities
+
+| Layer | Responsibility |
+| --- | --- |
+| API | Controllers, middleware, filters, Swagger, SignalR hubs |
+| Application | Commands, queries, handlers, DTOs, validation, mapping |
+| Domain | Entities, enums, value objects, domain services, domain exceptions |
+| Infrastructure | EF Core, repositories, Identity, JWT, external services |
+
+## System Design
+
+```mermaid
+flowchart TB
+  Client[Frontend or API Consumer]
+  Api[Cortexa.Api]
+  App[Cortexa.Application]
+  Domain[Cortexa.Domain]
+  Infra[Cortexa.Infrastructure]
+  Db[(SQL Server)]
+  SignalR[SignalR Clients]
+  AI[External AI/RAG Service]
+  Email[Email Provider]
+
+  Client -->|HTTP REST| Api
+  Client <-->|Realtime updates| SignalR
+  Api -->|Commands and Queries| App
+  App -->|Business rules| Domain
+  App -->|Interfaces| Infra
+  Infra -->|EF Core| Db
+  Infra -->|JWT and Identity storage| Db
+  Infra -->|HTTP| AI
+  Infra -->|SMTP or provider API| Email
+  Api -->|Hub messages| SignalR
+```
+
+## Main Pattern
+
+Controllers stay thin. They receive HTTP input, create commands or queries, and send them through MediatR.
+
+Application handlers perform use-case logic and call interfaces implemented by Infrastructure.

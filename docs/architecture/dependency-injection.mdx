@@ -1,0 +1,37 @@
+---
+title: "Dependency Injection"
+description: "How Cortexia registers services."
+icon: "plug"
+---
+
+Service registration is split by project.
+
+## API
+
+`Cortexa.Api/Extensions/ServiceCollectionExtensions.cs` registers:
+
+- Controllers and filters
+- Swagger/OpenAPI
+- SignalR
+- SignalR-backed notifications
+
+## Application
+
+`Cortexa.Application/DependencyInjection.cs` registers:
+
+- MediatR handlers
+- AutoMapper profiles
+- FluentValidation validators
+- Validation pipeline behavior
+
+## Infrastructure
+
+`Cortexa.Infrastructure/DependencyInjection.cs` registers:
+
+- `CortexaDbContext`
+- ASP.NET Identity
+- Repositories
+- Unit of Work
+- JWT authentication
+- Email and current-user services
+- External AI/RAG HTTP client

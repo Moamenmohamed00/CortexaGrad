@@ -1,0 +1,26 @@
+---
+title: "Configuration"
+description: "Required Cortexia configuration values."
+icon: "gear"
+---
+
+Configuration is loaded through ASP.NET Core configuration, primarily from `appsettings.json`, `appsettings.Development.json`, environment variables, or deployment settings.
+
+## Required Areas
+
+| Area | Purpose |
+| --- | --- |
+| `ConnectionStrings:DefaultConnection` | SQL Server database connection |
+| `JwtSettings` | JWT issuer, audience, signing key, and token settings |
+| `EmailSettings` | Password reset and notification email delivery |
+| `AIService:BaseUrl` | External RAG/AI service base URL |
+
+## Default AI Base URL
+
+If `AIService:BaseUrl` is not configured, Infrastructure falls back to:
+
+```text
+https://m0amenmohamed-rag.hf.space
+```
+
+For production deployments, configure this explicitly instead of relying on the fallback.

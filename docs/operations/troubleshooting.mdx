@@ -1,0 +1,32 @@
+---
+title: "Troubleshooting"
+description: "Common Cortexia runtime issues."
+icon: "wrench"
+---
+
+## Database Connection Fails
+
+Check `ConnectionStrings:DefaultConnection`, SQL Server availability, and whether migrations have been applied.
+
+## Unauthorized Requests
+
+Confirm the client sends:
+
+```http
+Authorization: Bearer <token>
+```
+
+Also verify the user's role matches the endpoint authorization requirement.
+
+## AI Requests Timeout
+
+The external AI client has a longer timeout because hosted spaces can cold-start. Check `AIService:BaseUrl` and the health of the external service.
+
+## Missing Realtime Updates
+
+Confirm the client connects to the correct SignalR hub:
+
+```text
+/hubs/alerts
+/hubs/monitoring
+```

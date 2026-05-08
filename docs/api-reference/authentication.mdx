@@ -1,0 +1,20 @@
+---
+title: "API Authentication"
+description: "Authenticate Cortexia API requests."
+icon: "key"
+---
+
+Most API endpoints require JWT Bearer authentication.
+
+Send the token in the `Authorization` header:
+
+```http
+Authorization: Bearer <token>
+```
+
+The token is issued by the Auth module after successful login.
+
+Role-protected endpoints require claims for roles such as:
+
+- `Doctor`
+- `Nurse`
