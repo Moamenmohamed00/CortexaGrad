@@ -13,9 +13,13 @@ namespace Cortexa.Api.Controllers
     public class PatientsController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
-        /// Creates a new patient record.
+        /// Registers a new patient.
         /// </summary>
+        /// <response code="201">Patient created successfully.</response>
+        /// <response code="400">Invalid patient data.</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create(CreatePatientCommand command)
         {
             var patient = await Sender.Send(command);
@@ -38,10 +42,13 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Gets a patient by ID.
+        /// Gets detailed information for a specific patient.
         /// </summary>
+        /// <param name="id">The patient's unique identifier.</param>
         [HttpGet("{id}")]
-        [Authorize(Roles ="Doctor,Nurse")]
+        [Authorize(Roles = "Doctor,Nurse")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(string id)
         {
             var result = await Sender.Send(new GetPatientByIdQuery(id));
@@ -67,10 +74,12 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Gets all patients with pagination support.
+        /// Retrieves a paginated list of all patients.
         /// </summary>
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
+        [Authorize(Roles = "Doctor,Nurse")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetAll()
         {
             var result = await Sender.Send(new GetAllPatientsQuery());

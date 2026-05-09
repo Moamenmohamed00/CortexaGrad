@@ -8,5 +8,7 @@ namespace Cortexa.Application.Interfaces.Repositories
     {
         Task<IReadOnlyList<Admission>> GetActiveAdmissionsAsync();
         Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId);
+
+        Task<string> GetPatientNameByAdmissionIdAsync(string admissionId);
     }
 }

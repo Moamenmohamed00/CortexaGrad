@@ -30,5 +30,16 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<string> GetPatientNameByAdmissionIdAsync(string admissionId)
+        {
+            var admission = await _context.Admissions
+                .Where(a => a.Id == admissionId)
+                .Include(a => a.Patient)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return admission?.Patient?.Name ?? "Unknown Patient";
+        }
     }
 }

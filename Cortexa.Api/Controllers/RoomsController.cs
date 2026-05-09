@@ -10,6 +10,10 @@ namespace Cortexa.Api.Controllers
     [Route("api/Rooms")]
     public class RoomsController(ISender sender) : ApiControllerBase(sender)
     {
+        /// <summary>
+        /// Returns all rooms in the system. Only accessible by users with the roles "Doctor" or "Nurse".
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the list of rooms if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
 
         [HttpGet]
         [Authorize(Roles ="Doctor,Nurse")]

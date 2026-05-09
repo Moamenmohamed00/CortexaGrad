@@ -1,6 +1,6 @@
+using Cortexa.Domain.Entities.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Cortexa.Domain.Entities.Diagnostics;
 
 namespace Cortexa.Application.Interfaces.Repositories
 {

@@ -6,8 +6,6 @@ namespace Cortexa.Application.Interfaces.Repositories
 {
     public interface IAIRepository : IGenericRepository<Alert>
     {
-        Task<IReadOnlyList<Alert>> GetAlertsByPatientIdAsync(string patientId);
-        Task<IReadOnlyList<Alert>> GetAlertsByAdmissionIdAsync(string admissionId);
-        Task<IReadOnlyList<Alert>> GetAllActiveAlertsAsync();
+        IQueryable<Alert> GetAlertsQuery();
     }
 }

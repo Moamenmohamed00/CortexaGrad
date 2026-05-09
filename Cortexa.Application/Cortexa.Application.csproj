@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Cortexa.Domain\Cortexa.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Admin\Commands\" />
+  </ItemGroup>
+
 </Project>
