@@ -110,6 +110,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
 
         public IRagRepository Rags => _serviceProvider.GetRequiredService<IRagRepository>();
 
+        public IAuditLogRepository AuditLogs => _serviceProvider.GetRequiredService<IAuditLogRepository>();
 
 
         // ── Persistence ────────────────────────────────────────────────

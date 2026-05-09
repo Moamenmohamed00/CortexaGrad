@@ -4,6 +4,8 @@ using Cortexa.Api.Services;
 using Cortexa.Application.Interfaces.Services;
 using Microsoft.OpenApi;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Cortexa.Api.Extensions
 {
@@ -16,6 +18,8 @@ namespace Cortexa.Api.Extensions
             {
                 options.Filters.Add<PerformanceLoggingFilter>();
             });
+                    
+          
             services.AddEndpointsApiExplorer();
 
             // ── Swagger ────────────────────────────────────────────────

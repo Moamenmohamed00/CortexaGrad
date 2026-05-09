@@ -8,5 +8,6 @@ namespace Cortexa.Application.Dtos.Clinical
         DateTime NoteDateTime,
         string AdmissionId,
         string NurseId
+        ,string NurseName
     );
 }

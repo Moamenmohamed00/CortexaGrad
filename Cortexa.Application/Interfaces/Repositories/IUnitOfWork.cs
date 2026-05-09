@@ -32,6 +32,8 @@ namespace Cortexa.Application.Interfaces.Repositories
 
         IRagRepository Rags { get; }
 
+        IAuditLogRepository AuditLogs { get; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         // managment all transaction on this tables to be synchronized
     }
