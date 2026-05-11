@@ -23,11 +23,23 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId)
         {
             return await _context.Admissions
-                .Where(a => a.PatientId == patientId)
+                .Where(a => a.PatientId == patientId && a.Status == AdmissionStatus.Active)
                 .Include(a => a.Doctor)
+                .Include(a=>a.Patient)
                 .OrderByDescending(a => a.AdmissionDate)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<string> GetPatientNameByAdmissionIdAsync(string admissionId)
+        {
+            var admission = await _context.Admissions
+                .Where(a => a.Id == admissionId)
+                .Include(a => a.Patient)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return admission?.Patient?.Name ?? "Unknown Patient";
         }
     }
 }

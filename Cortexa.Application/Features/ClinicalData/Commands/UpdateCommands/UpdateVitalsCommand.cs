@@ -1,4 +1,4 @@
-﻿using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
 using Cortexa.Domain.Entities.AI;
 using Cortexa.Domain.Enums;
@@ -8,19 +8,29 @@ using System.Threading;
 
 namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 {
-    public class UpdateVitalsCommand : IRequest<bool>
+    public class UpdateVitalsCommand : IRequest<bool> // ✅ رجع ID أو Error handling
     {
-        public string AdmissionId { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
+        public string AdmissionId { get; set; } = string.Empty;
+
+        public DateTime RecordedAt { get; set; }
+
         public float Temperature { get; set; }
-        public int BP_Systolic { get; set; }
-        public int BP_Diastolic { get; set; }
         public int HeartRate { get; set; }
         public int RespRate { get; set; }
+
+        public int BpSystolic { get; set; }
+        public int BpDiastolic { get; set; }
+
         public int PulseOxy { get; set; }
+        public int Cvp { get; set; }
+        public decimal InsulinGiven { get; set; }
+        public int GcsEye { get; set; }
+        public int GcsVerbal { get; set; }
+        public int GcsMotor { get; set; }
+
         public bool SupplementalOxygen { get; set; }
         public ConsciousnessLevel ConsciousnessLevel { get; set; }
-        public DateTime RecordedAt { get; set; }
     }
 
     public class UpdateVitalsCommandHandler : IRequestHandler<UpdateVitalsCommand, bool>
@@ -43,8 +53,8 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
             if (entity.AdmissionId != admission.Id) return false;
 
             entity.Temperature = request.Temperature;
-            entity.BpSystolic = request.BP_Systolic;
-            entity.BpDiastolic = request.BP_Diastolic;
+            entity.BpSystolic = request.BpSystolic;
+            entity.BpDiastolic = request.BpDiastolic;
             entity.HeartRate = request.HeartRate;
             entity.RespRate = request.RespRate;
             entity.PulseOxy = request.PulseOxy;
@@ -68,7 +78,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 
                 var alert = new Alert
                 {
-                    AdmissionId = request.Id,
+                    AdmissionId = request.AdmissionId,
                     AlertMessage = $"NEWS Score: {newsScore} — {riskLevel} clinical risk. " +
                                    $"Immediate assessment required.",
                     Severity = severity,
@@ -80,7 +90,7 @@ namespace Cortexa.Application.Features.ClinicalData.Commands.UpdateCommands
 
                 // ── Send real-time SignalR notification ───────────────
                 await _notificationService.SendRealTimeAlertAsync(
-                    request.Id,
+                    request.AdmissionId,
                     $"NEWS-{riskLevel}",
                     alert.AlertMessage,
                     cancellationToken);

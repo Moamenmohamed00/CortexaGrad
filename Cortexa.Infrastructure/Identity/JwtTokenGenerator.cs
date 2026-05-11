@@ -40,7 +40,7 @@ namespace Cortexa.Infrastructure.Identity
                 new(ClaimTypes.NameIdentifier, userId),
                 new(ClaimTypes.Name, userName),
             };
-
+            //a7a
             // Add role claims
             foreach (var role in roles)
             {
@@ -50,7 +50,7 @@ namespace Cortexa.Infrastructure.Identity
             var securityToken = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
+                expires: DateTime.UtcNow.AddDays(_jwtSettings.DurationInDays),
                 claims: claims,
                 signingCredentials: signingCredentials);
 

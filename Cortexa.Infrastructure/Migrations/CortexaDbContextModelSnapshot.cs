@@ -902,13 +902,10 @@ namespace Cortexa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("BP_Diastolic")
+                    b.Property<int>("BpDiastolic")
                         .HasColumnType("int");
 
-                    b.Property<int>("BP_Systolic")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CVP")
+                    b.Property<int>("BpSystolic")
                         .HasColumnType("int");
 
                     b.Property<int>("ConsciousnessLevel")
@@ -921,6 +918,9 @@ namespace Cortexa.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("Cvp")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
@@ -930,13 +930,13 @@ namespace Cortexa.Infrastructure.Migrations
                     b.Property<string>("DoctorId")
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("GCS_Eye")
+                    b.Property<int>("GcsEye")
                         .HasColumnType("int");
 
-                    b.Property<int>("GCS_Motor")
+                    b.Property<int>("GcsMotor")
                         .HasColumnType("int");
 
-                    b.Property<int>("GCS_Verbal")
+                    b.Property<int>("GcsVerbal")
                         .HasColumnType("int");
 
                     b.Property<int>("HeartRate")
@@ -964,7 +964,6 @@ namespace Cortexa.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("NurseId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("PulseOxy")
@@ -1184,6 +1183,58 @@ namespace Cortexa.Infrastructure.Migrations
                     b.HasIndex("DoctorId");
 
                     b.ToTable("Imagings");
+                });
+
+            modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.ImagingFile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagingId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImagingId");
+
+                    b.ToTable("ImagingFile");
                 });
 
             modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.LabOrder", b =>
@@ -1921,8 +1972,7 @@ namespace Cortexa.Infrastructure.Migrations
                     b.HasOne("Cortexa.Domain.Entities.Actors.Nurse", "Nurse")
                         .WithMany("RecordedVitalSigns")
                         .HasForeignKey("NurseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Admission");
 
@@ -2001,6 +2051,17 @@ namespace Cortexa.Infrastructure.Migrations
                     b.Navigation("Admission");
 
                     b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.ImagingFile", b =>
+                {
+                    b.HasOne("Cortexa.Domain.Entities.Diagnostics.Imaging", "Imaging")
+                        .WithMany("Files")
+                        .HasForeignKey("ImagingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Imaging");
                 });
 
             modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.LabOrder", b =>
@@ -2187,6 +2248,11 @@ namespace Cortexa.Infrastructure.Migrations
                     b.Navigation("PhysicalExaminations");
 
                     b.Navigation("VitalSigns");
+                });
+
+            modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.Imaging", b =>
+                {
+                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("Cortexa.Domain.Entities.Diagnostics.LabOrder", b =>

@@ -4,6 +4,7 @@ using Cortexa.Infrastructure.Persistence.Seeding;
 using Cortexa.Api.Extensions;
 using Cortexa.Api.Hubs;
 using Cortexa.Api.Middlewares;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +24,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSwaggerGen();
-
-
 var app = builder.Build();
 
 // ── Database Seeding (Development) ─────────────────────────────────
@@ -41,6 +39,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("Cortexa API")
+            .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
+    }
+    );
 }
 
 //app.UseHttpsRedirection();

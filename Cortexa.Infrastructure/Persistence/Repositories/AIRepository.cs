@@ -1,5 +1,6 @@
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Domain.Entities.AI;
+using Cortexa.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cortexa.Infrastructure.Persistence.Repositories
@@ -8,20 +9,14 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
     {
         public AIRepository(CortexaDbContext context) : base(context) { }
 
-        public async Task<IReadOnlyList<Alert>> GetAlertsByPatientIdAsync(string patientId)
+        public IQueryable<Alert> GetAlertsQuery()
         {
-            return await _context.Alerts
-                .Where(a => _context.Admissions.Any(adm => adm.PatientId == patientId && adm.Id == a.AdmissionId))
-                .OrderByDescending(a => a.GeneratedAt)
-                .ToListAsync();
+            return _context.Alerts
+                .AsNoTracking()
+                .Include(a => a.Admission)
+                .ThenInclude(a => a.Patient);
         }
 
-        public async Task<IReadOnlyList<Alert>> GetAlertsByAdmissionIdAsync(string admissionId)
-        {
-            return await _context.Alerts
-                .Where(a => a.AdmissionId == admissionId)
-                .OrderByDescending(a => a.GeneratedAt)
-                .ToListAsync();
-        }
     }
+    
 }

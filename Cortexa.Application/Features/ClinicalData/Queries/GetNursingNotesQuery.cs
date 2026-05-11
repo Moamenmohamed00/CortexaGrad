@@ -31,6 +31,8 @@ namespace Cortexa.Application.Features.ClinicalData.Queries
             CancellationToken ct)
         {
             var data = await _unitofwork.NursingNotes.GetByAdmissionIdAsync(request.AdmissionId);
+
+            
             return _mapper.Map<List<NursingNotesDto>>(data);
         }
     }

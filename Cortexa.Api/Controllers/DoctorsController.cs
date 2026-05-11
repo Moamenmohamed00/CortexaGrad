@@ -9,8 +9,10 @@ namespace Cortexa.Api.Controllers
     {
 
         /// <summary>
-        /// Gets detailed Doctor.
+        /// Gets detailed Doctor by email.
         /// </summary>
+        /// <param name="email">The email of the doctor to retrieve details for. Cannot be null or empty.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the doctor's details if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
         [HttpGet("{email}/details")]
         public async Task<IActionResult> GetDetails(string email)
         {
@@ -21,8 +23,10 @@ namespace Cortexa.Api.Controllers
                 : NotFound();
         }
         /// <summary>
-        /// Gets detailed Doctor.
+        /// Gets detailed Doctor by specialization.
         /// </summary>
+        /// <param name="specialization">The specialization of the doctors to retrieve details for. Cannot be null or empty.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the doctors' details if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
         [HttpGet("{specialization}/specialization/details")]
         public async Task<IActionResult> GetDetailsBySpecialization(string specialization)
         {
@@ -36,11 +40,12 @@ namespace Cortexa.Api.Controllers
         /// <summary>
         /// Gets all Doctors.
         /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the list of all doctors if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var result = await Sender.Send(new GetAllDoctorsQuery());
-            return Ok(result);
+            return result is not null ? Ok(result) : NotFound();
         }
 
     }

@@ -75,6 +75,8 @@ namespace Cortexa.Infrastructure
             services.AddScoped<IBedRepository, BedRepository>();
             services.AddScoped<IRoomRepository, RoomRepository>();  
             services.AddScoped<IAIRepository, AIRepository>();
+            services.AddScoped<IRagRepository, RagRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -127,10 +129,11 @@ namespace Cortexa.Infrastructure
             // ── External HTTP Clients ──────────────────────────────────
             services.AddHttpClient<AIHttpClient>(client =>
             {
-                var aiBaseUrl = configuration["AIService:BaseUrl"] ?? "http://localhost:8000";
+                var aiBaseUrl = configuration["AIService:BaseUrl"]
+                    ?? "https://m0amenmohamed-rag.hf.space";
                 client.BaseAddress = new Uri(aiBaseUrl);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                client.Timeout = TimeSpan.FromSeconds(30);
+                client.Timeout = TimeSpan.FromSeconds(60); // HF Space may cold-start
             });
 
             // ── ASP.NET Core Infrastructure ────────────────────────────

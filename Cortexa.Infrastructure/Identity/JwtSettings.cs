@@ -11,6 +11,6 @@ namespace Cortexa.Infrastructure.Identity
         public string Key { get; set; } = string.Empty;
         public string Issuer { get; set; } = "Cortexa";
         public string Audience { get; set; } = "CortexaUsers";
-        public int DurationInMinutes { get; set; } = 60;
+        public int DurationInDays { get; set; } = 1;
     }
 }
