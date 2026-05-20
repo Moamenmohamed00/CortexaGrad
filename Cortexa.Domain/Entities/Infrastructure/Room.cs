@@ -10,6 +10,10 @@ namespace Cortexa.Domain.Entities.Infrastructure
         public RoomType Type { get; set; }
         public int Floor { get; set; }
 
+        public int Capacity { get; set; }
+
+        public bool IsAvailable { get; set; }
+
         public ICollection<Bed> Beds { get; set; } = new List<Bed>();
     }
 }

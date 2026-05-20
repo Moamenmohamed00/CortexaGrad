@@ -71,7 +71,7 @@ public class AdmitPatientCommandHandler : IRequestHandler<AdmitPatientCommand, P
         if (patient != null)
         {
             // 3. Validation: Check if existing patient is already admitted BEFORE updating anything
-            var activeAdmission = await _unitOfWork.Admissions.GetAdmissionsByPatientIdAsync(patient.Id);
+            var activeAdmission = await _unitOfWork.Admissions.GetActiveAdmissionsByPatientIdAsync(patient.Id);
             if (activeAdmission != null)
             {
                 throw new PatientAlreadyAdmittedException(patient.Id, patient.Name);

@@ -1,6 +1,8 @@
 ﻿using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
+using Cortexa.Domain.Exceptions;
 using Cortexa.Domain.Services;
 
 using MediatR;
@@ -27,8 +29,14 @@ namespace Cortexa.Application.Features.Admission.Commands
 
         public async Task<string> Handle(CreateAdmissionCommand request, CancellationToken cancellationToken)
         {
-            var patientExists = await _unitOfWork.Patients.GetByIdAsync(request.PatientId) != null;
-            if (!patientExists) throw new Exception("Patient not found.");
+            var patient = await _unitOfWork.Patients.GetByIdAsync(request.PatientId);
+            if (patient == null) throw new Exception("Patient not found.");
+
+            var activeAdmission = await _unitOfWork.Admissions.GetActiveAdmissionsByPatientIdAsync(patient.Id);
+            if (activeAdmission != null)
+            {
+                throw new PatientAlreadyAdmittedException(patient.Id, patient.Name);
+            }
 
             var doctorExists = await _unitOfWork.Doctors.GetByIdAsync(request.DoctorId) != null;
             if (!doctorExists) throw new Exception("Doctor not found.");
@@ -43,6 +51,8 @@ namespace Cortexa.Application.Features.Admission.Commands
                     throw new Exception("Bed is already occupied.");
             }
 
+            
+            
             var admission = new Cortexa.Domain.Entities.Core.Admission 
             {
                 PatientId = request.PatientId,

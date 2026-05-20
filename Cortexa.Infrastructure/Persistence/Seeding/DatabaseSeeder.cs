@@ -1,3 +1,5 @@
+using Cortexa.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +11,7 @@ namespace Cortexa.Infrastructure.Persistence.Seeding
     /// </summary>
     public static class DatabaseSeeder
     {
+
         public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
@@ -35,6 +38,12 @@ namespace Cortexa.Infrastructure.Persistence.Seeding
                     context,
                     services.GetRequiredService<ILogger<DefaultUsersSeeder>>());
                 await usersSeeder.SeedAsync();
+
+                // 3. Admin user
+                var identitySeeder = new IdentityDataSeeder(
+                    services.GetRequiredService<UserManager<ApplicationUser>>(),
+                    services.GetRequiredService<RoleManager<IdentityRole>>());
+                await identitySeeder.SeedAdminUserAsync();
 
                 logger.LogInformation("Database seeding completed successfully.");
             }

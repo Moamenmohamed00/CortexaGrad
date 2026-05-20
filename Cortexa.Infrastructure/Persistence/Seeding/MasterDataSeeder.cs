@@ -1,5 +1,7 @@
 using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
+using Cortexa.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -84,6 +86,54 @@ namespace Cortexa.Infrastructure.Persistence.Seeding
             }
 
             return room;
+        }
+
+
+        
+    }
+
+    public class IdentityDataSeeder
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public IdentityDataSeeder(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+        public async Task SeedAdminUserAsync()
+        {
+            // 1. Create Admin Role if it doesn't exist
+            if (!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            // 2. Check if Admin User already exists
+            var adminEmail = "AbdElghaniAdmin@system.com";
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+
+            if (adminUser == null)
+            {
+                var newAdmin = new ApplicationUser
+                {
+                    UserName = "AbdElghani_admin",
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+                // 3. Create the Admin with a secure password
+                var result = await _userManager.CreateAsync(newAdmin, "P@ssword123!");
+
+                if (result.Succeeded)
+                {
+                    // 4. Assign Admin Role
+                    await _userManager.AddToRoleAsync(newAdmin, "Admin");
+                }
+            }
         }
     }
 }

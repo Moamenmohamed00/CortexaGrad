@@ -84,6 +84,7 @@ namespace Cortexa.Infrastructure
             // ── Services ───────────────────────────────────────────────
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IAdminService, AdminService>();
             services.Configure<EmailSettings>(
                 configuration.GetSection(EmailSettings.SectionName));
             services.AddTransient<IEmailService, EmailService>();

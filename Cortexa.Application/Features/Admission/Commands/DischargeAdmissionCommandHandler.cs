@@ -9,7 +9,6 @@ namespace Cortexa.Application.Features.Admission.Commands
 {
     public record DischargeAdmissionCommand(
        string AdmissionId,
-       DateTime DischargeDate,
        string DischargeSummary,
        DischargeDisposition Disposition
    ) : IRequest<bool>;
@@ -33,11 +32,9 @@ namespace Cortexa.Application.Features.Admission.Commands
             if (admission == null)
                 return false;
 
-            admission.DischargeDate = request.DischargeDate;
-            admission.DischargeSummary = request.DischargeSummary;
-            admission.DischargeDisposition = request.Disposition;
-            admission.Status = AdmissionStatus.Discharged;
+            admission.Discharge(request.DischargeSummary, request.Disposition);
 
+          
             await _context.SaveChangesAsync(cancellationToken);
 
             return true;

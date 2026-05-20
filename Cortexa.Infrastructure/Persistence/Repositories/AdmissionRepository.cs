@@ -12,7 +12,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsAsync()
         {
             return await _context.Admissions
-                .Where(a => a.Status == AdmissionStatus.Active)
+                .Where(a => a.IsActive())
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
                 .Include(a => a.Bed)
@@ -20,10 +20,22 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsByPatientIdAsync(string patientId)
+        {
+            return await _context.Admissions
+                .Where(a=> a.PatientId == patientId && a.IsActive())
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Include(a => a.Bed)
+                .AsNoTracking()
+                .ToListAsync();
+
+        }
+
         public async Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId)
         {
             return await _context.Admissions
-                .Where(a => a.PatientId == patientId && a.Status == AdmissionStatus.Active)
+                .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor)
                 .Include(a=>a.Patient)
                 .OrderByDescending(a => a.AdmissionDate)

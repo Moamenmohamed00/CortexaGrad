@@ -55,5 +55,12 @@ namespace Cortexa.Domain.Entities.Core
         {
             return Status == AdmissionStatus.Active;
         }
+        public void Discharge(string summary,DischargeDisposition disposition)
+        {
+            Status = AdmissionStatus.Discharged;
+            DischargeDate = DateTime.UtcNow;
+            DischargeSummary = summary;
+            DischargeDisposition = disposition;
+        }
     }
 }
