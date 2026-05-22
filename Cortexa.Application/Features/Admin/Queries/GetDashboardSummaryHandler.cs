@@ -21,9 +21,9 @@ namespace Cortexa.Application.Features.Admin.Queries
 
 
     // Cortexa.Application/Features/Admin/Queries/GetDashboardSummaryQuery.cs
-    public record GetDashboardSummaryQuery : IRequest<DashboardSummaryDto>;
+    public record GetDashboardSummaryQuery : IRequest<ResultDto< DashboardSummaryDto>>;
 
-    public class GetDashboardSummaryHandler : IRequestHandler<GetDashboardSummaryQuery, DashboardSummaryDto>
+    public class GetDashboardSummaryHandler : IRequestHandler<GetDashboardSummaryQuery,ResultDto< DashboardSummaryDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDateTime _dateTime; // الـ Service اللي عندك للوقت
@@ -34,7 +34,7 @@ namespace Cortexa.Application.Features.Admin.Queries
             _dateTime = dateTime;
         }
 
-        public async Task<DashboardSummaryDto> Handle(GetDashboardSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<ResultDto<DashboardSummaryDto>> Handle(GetDashboardSummaryQuery request, CancellationToken cancellationToken)
         {
             // 1. حساب نسبة إشغال الأسرة
             var totalBeds = await _unitOfWork.Beds.GetAllAsync();
@@ -51,19 +51,22 @@ namespace Cortexa.Application.Features.Admin.Queries
             var recentLogs = await _unitOfWork.AuditLogs
                 .GetPagedAsync(1, 20, l => true, q => q.OrderByDescending(l => l.Timestamp));
 
-            return new DashboardSummaryDto
+            return new ResultDto<DashboardSummaryDto>
             {
-                TotalActivePatients = activeAdmissions.Count(),
-                BedOccupancyPercentage = totalBeds.Count() > 0 ? (double)activeAdmissions.Count() / totalBeds.Count() * 100 : 0,
-                HighRiskAlertsCount = highRiskAlerts.Count(),
-                TotalRAGQueriesToday = ragQueriesToday.Count(),
-                RecentSystemActivities = recentLogs.Items.Select(l => new RecentActivityDto
+                Data = new DashboardSummaryDto
                 {
-                    Action = l.Type.ToString(),
-                    UserId = l.UserId, 
-                    Timestamp = l.Timestamp,
-                    EntityName = l.EntityName
-                }).ToList()
+                    TotalActivePatients = activeAdmissions.Count(),
+                    BedOccupancyPercentage = totalBeds.Count() > 0 ? (double)activeAdmissions.Count() / totalBeds.Count() * 100 : 0,
+                    HighRiskAlertsCount = highRiskAlerts.Count(),
+                    TotalRAGQueriesToday = ragQueriesToday.Count(),
+                    RecentSystemActivities = recentLogs.Items.Select(l => new RecentActivityDto
+                    {
+                        Action = l.Type.ToString(),
+                        UserId = l.UserId,
+                        Timestamp = l.Timestamp,
+                        EntityName = l.EntityName
+                    }).ToList()
+                }, Success = true , Message = "Dashboard summary retrieved successfully"
             };
         }
     }

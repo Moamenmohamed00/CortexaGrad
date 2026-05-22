@@ -179,7 +179,10 @@ namespace Cortexa.Infrastructure.Identity
             {
                 UserName = request.Email,
                 Email = request.Email,
-                FullName = request.FullName
+                FullName = request.FullName,
+                PhoneNumber = request.PhoneNumber,
+                NationalId = request.NationalId
+                
             };
 
             var identityResult = await _userManager.CreateAsync(user, request.Password);

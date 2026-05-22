@@ -1,4 +1,5 @@
-﻿using Cortexa.Application.Dtos.Admin;
+﻿using Cortexa.Api.Extensions;
+using Cortexa.Application.Dtos.Admin;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Dtos.AuditLog;
 using Cortexa.Application.Dtos.Core;
@@ -8,6 +9,7 @@ using Cortexa.Application.Features.Rooms.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Cortexa.Api.Controllers
 {
@@ -164,7 +166,7 @@ namespace Cortexa.Api.Controllers
         /// <param name="command">The command containing the user identifier and the desired status change. Cannot be null.</param>
         /// <returns>An IActionResult indicating the outcome of the operation. Returns 200 OK with the result if successful;
         /// otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("toggle-user-status")]
+        [HttpPut("toggle-user-status")]
         public async Task<IActionResult> ToggleUserStatus([FromBody] ToggleUserStatusCommand command)
         {
             var result = await Sender.Send(command);
@@ -209,7 +211,7 @@ namespace Cortexa.Api.Controllers
         /// Cannot be null.</param>
         /// <returns>An IActionResult indicating the result of the update operation. Returns 200 OK with the result if the update
         /// is successful; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("update-room")]
+        [HttpPut("update-room")]
         public async Task<IActionResult> UpdateRoom([FromBody] UpdateRoomCommand command)
         {
             var result = await Sender.Send(command);
@@ -240,7 +242,7 @@ namespace Cortexa.Api.Controllers
         /// <param name="command">An object containing the information required to update the bed. Must not be null.</param>
         /// <returns>An IActionResult indicating the result of the update operation. Returns 200 OK with the result if
         /// successful; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("update-bed")]
+        [HttpPut("update-bed")]
         public async Task<IActionResult> UpdateBed([FromBody] UpdateBedCommand command)
         {
             var result = await Sender.Send(command);
@@ -274,6 +276,23 @@ namespace Cortexa.Api.Controllers
         public async Task<IActionResult> ToggleRoomAvailability([FromBody] ToggleRoomAvailabilityCommand command)
         {
             var result = await Sender.Send(command);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPost("UploadPhoto")]
+        public async Task<IActionResult> UploadPhoto([FromForm] UploadPhotoRequest request)
+        {
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest("File is empty.");
+            }
+
+            using var ms = new MemoryStream();
+            await request.File.CopyToAsync(ms);
+
+            var result = await Sender.Send(new UploadImageCommand(ms.ToArray(), request.File.FileName));
+
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }

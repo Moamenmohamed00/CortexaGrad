@@ -9,13 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cortexa.Application.Interfaces.Services
+namespace Cortexa.Infrastructure.Services
 {
     public interface IImageService
     {
-        //Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file);
-        Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file);
-
+        Task<(string Url, string PublicId)> UploadImageAsync(Stream stream, string fileName);
         Task<bool> DeleteImageAsync(string publicId);
     }
 
@@ -33,14 +31,13 @@ namespace Cortexa.Application.Interfaces.Services
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file)
+        public async Task<(string Url, string PublicId)> UploadImageAsync(Stream stream, string fileName)
         {
-            if (file.Length > 0)
+            if (stream != null && stream.Length > 0)
             {
-                using var stream = file.OpenReadStream();
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription(file.FileName, stream),
+                    File = new FileDescription(fileName, stream),
                     Folder = "Medical/Imaging",
                     Transformation = new Transformation().Quality("auto"),
                     UseFilename = true,

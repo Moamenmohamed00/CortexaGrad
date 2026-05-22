@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
 namespace Cortexa.Application.Features.Admin.Commands
 {
 
@@ -24,7 +25,25 @@ namespace Cortexa.Application.Features.Admin.Commands
         }
     }
 
-    
+    public record UploadImageCommand(byte[] Content, string FileName) : IRequest<ResultDto<string>>;
+
+    public class UploadImageCommandHandler : IRequestHandler<UploadImageCommand, ResultDto<string>>
+    {
+        private readonly IAdminService _adminService;
+
+        public UploadImageCommandHandler(IAdminService adminService)
+        {
+            _adminService = adminService;
+        }
+
+        public async Task<ResultDto<string>> Handle(UploadImageCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _adminService.UploadPhotoAsync(request.Content, request.FileName);
+            return result;
+        }
+    }
+
+
 
 
 }

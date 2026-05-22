@@ -1,8 +1,8 @@
-using System.Text;
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Repositories.Clinical;
 using Cortexa.Application.Interfaces.Services;
+using Cortexa.Application.Settings;
 using Cortexa.Infrastructure.External;
 using Cortexa.Infrastructure.Identity;
 using Cortexa.Infrastructure.Persistence;
@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Cortexa.Infrastructure
 {
@@ -24,6 +25,11 @@ namespace Cortexa.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
+
+            // cloudinary settings
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+
+
             // ── Database ───────────────────────────────────────────────
             services.AddDbContext<CortexaDbContext>(options =>
                 options.UseSqlServer(
@@ -82,6 +88,7 @@ namespace Cortexa.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // ── Services ───────────────────────────────────────────────
+            services.AddScoped<IImageService, ImageService>();
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAdminService, AdminService>();

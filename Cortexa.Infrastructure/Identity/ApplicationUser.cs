@@ -13,5 +13,9 @@ namespace Cortexa.Infrastructure.Identity
         /// Full display name of the user.
         /// </summary>
         public string FullName { get; set; } = string.Empty;
+
+        public string NationalId { get; set; } = string.Empty;
+
+
     }
 }

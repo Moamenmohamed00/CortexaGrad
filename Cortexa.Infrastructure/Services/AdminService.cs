@@ -10,17 +10,21 @@ using System.Text;
 using Cortexa.Application.Dtos.Admin;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Http;
+
 namespace Cortexa.Infrastructure.Services
 {
     internal class AdminService : IAdminService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IImageService _imageService;
 
-        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IImageService imageService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _imageService = imageService;
         }
 
         public async Task<ResultDto<bool>> AssignRoleToUser(string UserId, string RoleName)
@@ -128,7 +132,7 @@ namespace Cortexa.Infrastructure.Services
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                userRoles.Add(new UserRoleDto (user.Id, user.UserName, roles.ToList())
+                userRoles.Add(new UserRoleDto(user.Id, user.UserName, roles.ToList())
                 );
             }
             return new ResultDto<List<UserRoleDto>> { Data = userRoles, Success = true, Message = "Users with roles retrieved successfully." };
@@ -148,7 +152,7 @@ namespace Cortexa.Infrastructure.Services
             user.LockoutEnabled = !user.LockoutEnabled;
 
             var result = await _userManager.UpdateAsync(user);
-                        if (!result.Succeeded) return new ResultDto<bool> { Data = false, Success = false, Message = "Failed to toggle user status." };
+            if (!result.Succeeded) return new ResultDto<bool> { Data = false, Success = false, Message = "Failed to toggle user status." };
 
             return new ResultDto<bool> { Data = true, Success = true, Message = "User status toggled successfully." };
         }
@@ -163,6 +167,29 @@ namespace Cortexa.Infrastructure.Services
             if (!result.Succeeded) return new ResultDto<bool> { Data = false, Success = false, Message = "Failed to reset password." };
 
             return new ResultDto<bool> { Data = true, Success = true, Message = "Password reset successfully." };
+        }
+
+        public async Task<ResultDto<string>> UploadPhotoAsync(byte[] photo, string fileName)
+        {
+            using var ms = new MemoryStream(photo);
+            var result = await _imageService.UploadImageAsync(ms, fileName);
+
+            if (string.IsNullOrEmpty(result.Url) || string.IsNullOrEmpty(result.PublicId))
+            {
+                return new ResultDto<string>
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "Failed to upload image."
+                };
+            }
+
+            return new ResultDto<string>
+            {
+                Data = result.Url,
+                Success = true,
+                Message = "Image uploaded successfully."
+            };
         }
     }
 }

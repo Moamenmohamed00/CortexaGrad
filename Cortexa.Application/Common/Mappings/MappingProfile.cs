@@ -56,6 +56,7 @@ namespace Cortexa.Application.Common.Mappings
             // Diagnostics
             CreateMap<LabOrder, LabOrderDto>();
             CreateMap<Imaging, ImagingDto>();
+            CreateMap<ImagingFile, ImagingFileDto>();
             CreateMap<Culture, CultureDto>();
 
             // AI

@@ -9,6 +9,14 @@ namespace Cortexa.Application.Dtos.Diagnostics
         string? Findings,
         DateTime Date,
         string AdmissionId,
-        string DoctorId
+        string DoctorId,
+    List<ImagingFileDto> Files
     );
+    public record ImagingFileDto(
+    string Id,
+    string Url,
+    string PublicId,
+    string FileName,
+    long? Size
+);
 }
