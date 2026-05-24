@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Dtos.Diagnostics;
 
 namespace Cortexa.Application.Interfaces.Services
@@ -7,7 +8,7 @@ namespace Cortexa.Application.Interfaces.Services
     {
         Task<LabOrderDto> OrderLabTestAsync(string admissionId, LabOrderDto order);
         Task<LabResultDto> AddLabResultAsync(string orderId, LabResultDto result);
-        Task<ImagingDto> UploadImagingResultAsync(string admissionId, ImagingDto imaging);
+        Task<ResultDto<bool>> UploadImagingResultAsync(UploadImagingDto uploadImagingDto);
         Task<CultureDto> AddCultureResultAsync(string admissionId, CultureDto culture);
     }
 }

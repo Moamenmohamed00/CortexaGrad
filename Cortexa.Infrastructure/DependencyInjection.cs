@@ -89,6 +89,7 @@ namespace Cortexa.Infrastructure
 
             // ── Services ───────────────────────────────────────────────
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IDiagnosticService, DiagnosticService>();
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAdminService, AdminService>();

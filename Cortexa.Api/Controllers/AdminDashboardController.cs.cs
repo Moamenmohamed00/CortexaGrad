@@ -15,7 +15,7 @@ namespace Cortexa.Api.Controllers
 {
 
     // Cortexa.Api/Controllers/AdminDashboardController.cs
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)
@@ -280,22 +280,6 @@ namespace Cortexa.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost("UploadPhoto")]
-        public async Task<IActionResult> UploadPhoto([FromForm] UploadPhotoRequest request)
-        {
-            if (request.File == null || request.File.Length == 0)
-            {
-                return BadRequest("File is empty.");
-            }
-
-            using var ms = new MemoryStream();
-            await request.File.CopyToAsync(ms);
-
-            var result = await Sender.Send(new UploadImageCommand(ms.ToArray(), request.File.FileName));
-
-            if (!result.Success) return BadRequest(result);
-            return Ok(result);
-        }
         //[HttpGet("ai-insights")]
         //public async Task<ActionResult<List<RagQueryDto>>> GetAIInsights()
         //{

@@ -28,8 +28,5 @@ namespace Cortexa.Application.Interfaces.Services
 
         Task <ResultDto<bool>> ForceResetPassword(string UserId, string NewPassword);
 
-
-        Task<ResultDto<string>> UploadPhotoAsync(byte[] photo, string fileName);
-
     }
 }

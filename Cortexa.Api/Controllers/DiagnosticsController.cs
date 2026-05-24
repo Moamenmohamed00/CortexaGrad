@@ -1,8 +1,9 @@
+using Cortexa.Api.Extensions;
 using Cortexa.Application.Features.Diagnostics.Commands;
 using Cortexa.Application.Features.Diagnostics.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
@@ -35,10 +36,20 @@ namespace Cortexa.Api.Controllers
         /// Uploads an imaging study for an admission.
         /// </summary>
         [HttpPost("imaging")]
-        public async Task<IActionResult> UploadImaging([FromBody] UploadImagingCommand command)
+        public async Task<IActionResult> UploadImaging([FromForm] UploadPhotoRequest request, [FromBody] UploadImagingCommand command)
         {
-            var id = await Sender.Send(command);
-            return CreatedAtAction(nameof(GetImagingStudies), new { admissionId = command.AdmissionId }, new { id });
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest("File is empty.");
+            }
+
+            using var ms = new MemoryStream();
+            await request.File.CopyToAsync(ms);
+
+            var result = await Sender.Send(command);
+
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>

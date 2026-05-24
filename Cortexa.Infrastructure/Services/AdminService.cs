@@ -18,13 +18,10 @@ namespace Cortexa.Infrastructure.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IImageService _imageService;
-
-        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IImageService imageService)
+        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _imageService = imageService;
         }
 
         public async Task<ResultDto<bool>> AssignRoleToUser(string UserId, string RoleName)
@@ -169,27 +166,5 @@ namespace Cortexa.Infrastructure.Services
             return new ResultDto<bool> { Data = true, Success = true, Message = "Password reset successfully." };
         }
 
-        public async Task<ResultDto<string>> UploadPhotoAsync(byte[] photo, string fileName)
-        {
-            using var ms = new MemoryStream(photo);
-            var result = await _imageService.UploadImageAsync(ms, fileName);
-
-            if (string.IsNullOrEmpty(result.Url) || string.IsNullOrEmpty(result.PublicId))
-            {
-                return new ResultDto<string>
-                {
-                    Data = null,
-                    Success = false,
-                    Message = "Failed to upload image."
-                };
-            }
-
-            return new ResultDto<string>
-            {
-                Data = result.Url,
-                Success = true,
-                Message = "Image uploaded successfully."
-            };
-        }
     }
 }
