@@ -12,6 +12,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         {
             return await _context.Imagings
                 .Where(i => i.AdmissionId == admissionId)
+                .Include(i=>i.Files)
                 .ToListAsync();
         }
 
@@ -19,6 +20,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
         {
             return await _context.Imagings
                 .Where(i => _context.Admissions.Any(a => a.PatientId == patientId && a.Id == i.AdmissionId))
+                .Include(i => i.Files)
                 .ToListAsync();
         }
 
