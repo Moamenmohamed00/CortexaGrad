@@ -4,7 +4,7 @@ namespace Cortexa.Api.Extensions
 {
     public class UploadImagingRequest
     {
-        public IFormFile File { get; set; }
+        public List<IFormFile> Files { get; set; } = new();
         public string AdmissionId { get; set; } = string.Empty;
         public ImagingType Type { get; set; }
         public string? Findings { get; set; }

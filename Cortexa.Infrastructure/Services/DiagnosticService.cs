@@ -36,49 +36,22 @@ namespace Cortexa.Infrastructure.Services
 
         public async Task<ResultDto<bool>> UploadImagingResultAsync(UploadImagingDto uploadImagingDto)
         {
-            if (uploadImagingDto.Content == null || uploadImagingDto.Content.Length == 0)
+            if (uploadImagingDto.Files == null || uploadImagingDto.Files.Count == 0)
             {
-                return new ResultDto<bool>
-                {
-                    Data = false,
-                    Success = false,
-                    Message = "No image content provided."
-                };
+                return new ResultDto<bool> { Data = false, Success = false, Message = "No files provided." };
             }
 
             var admissionExists = await _unitOfWork.Admissions.GetByIdAsync(uploadImagingDto.AdmissionId);
             if (admissionExists == null)
             {
-                return new ResultDto<bool>
-                {
-                    Data = false,
-                    Success = false,
-                    Message = "Admission not found."
-                };
+                return new ResultDto<bool> { Data = false, Success = false, Message = "Admission not found." };
             }
 
-            var extension = Path.GetExtension(uploadImagingDto.FileName);
-            var filename = $"{uploadImagingDto.AdmissionId}_{uploadImagingDto.Type}_{DateTime.UtcNow.Ticks}{extension}";
-
-            var uploadResult = await UploadPhotoAsync(uploadImagingDto.Content, filename);
-
-            if (uploadResult == (null, null))
+            var doctorExists = await _unitOfWork.Doctors.GetByIdAsync(uploadImagingDto.DoctorId);
+            if (doctorExists == null)
             {
-                return new ResultDto<bool>
-                {
-                    Data = false,
-                    Success = false,
-                    Message = "Failed to upload image to the cloud service."
-                };
+                return new ResultDto<bool> { Data = false, Success = false, Message = "Doctor not found." };
             }
-
-            var imagingFile = new ImagingFile
-            {
-                FileName = uploadImagingDto.FileName,
-                Url = uploadResult.Item1,
-                PublicId = uploadResult.Item2,
-                Size = uploadImagingDto.Content.Length
-            };
 
             var imaging = new Imaging
             {
@@ -87,18 +60,39 @@ namespace Cortexa.Infrastructure.Services
                 Findings = uploadImagingDto.Findings,
                 Date = uploadImagingDto.Date,
                 DoctorId = uploadImagingDto.DoctorId,
-                Files = new List<ImagingFile> { imagingFile }
+                Files = new List<ImagingFile>()
             };
+
+            foreach (var fileDto in uploadImagingDto.Files)
+            {
+                var extension = Path.GetExtension(fileDto.FileName);
+
+                // Expert Tip: Use Guid instead of Ticks inside fast loops to avoid filename collisions
+                var filename = $"{uploadImagingDto.AdmissionId}_{uploadImagingDto.Type}_{Guid.NewGuid()}{extension}";
+
+                var uploadResult = await UploadPhotoAsync(fileDto.Content, filename);
+
+                if (uploadResult != (null, null))
+                {
+                    imaging.Files.Add(new ImagingFile
+                    {
+                        FileName = fileDto.FileName,
+                        Url = uploadResult.Item1,
+                        PublicId = uploadResult.Item2,
+                        Size = fileDto.Content.Length
+                    });
+                }
+            }
+
+            if (imaging.Files.Count == 0)
+            {
+                return new ResultDto<bool> { Data = false, Success = false, Message = "Failed to upload any image to the cloud service." };
+            }
 
             await _unitOfWork.Imaging.AddAsync(imaging);
             await _unitOfWork.SaveChangesAsync();
 
-            return new ResultDto<bool>
-            {
-                Data = true,
-                Success = true,
-                Message = "Imaging result uploaded successfully."
-            };
+            return new ResultDto<bool> { Data = true, Success = true, Message = $"{imaging.Files.Count} imaging files uploaded successfully." };
         }
 
         private async Task<(string,string)> UploadPhotoAsync(byte[] photo, string fileName)

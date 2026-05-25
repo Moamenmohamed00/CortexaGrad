@@ -37,26 +37,37 @@ namespace Cortexa.Api.Controllers
         /// </summary>
         [HttpPost("imaging")]
         [Consumes("multipart/form-data")]
+        [RequestSizeLimit(20 * 1024 * 1024)] // 20 MB
         public async Task<IActionResult> UploadImaging([FromForm] UploadImagingRequest request)
         {
-            if (request.File == null || request.File.Length == 0)
+            if (request.Files == null || request.Files.Count == 0)
             {
-                return BadRequest("File is empty or not provided.");
+                return BadRequest("No files were uploaded.");
             }
-
-            using var ms = new MemoryStream();
-            await request.File.CopyToAsync(ms);
 
             var command = new UploadImagingCommand
             {
-                Content = ms.ToArray(),
-                FileName = request.File.FileName,
                 AdmissionId = request.AdmissionId,
                 Type = request.Type,
                 Findings = request.Findings,
                 Date = request.Date,
                 DoctorId = request.DoctorId
             };
+
+            foreach (var file in request.Files)
+            {
+                if (file.Length > 0)
+                {
+                    using var ms = new MemoryStream();
+                    await file.CopyToAsync(ms);
+
+                    command.Files.Add(new UploadImagingFileCommand
+                    {
+                        Content = ms.ToArray(),
+                        FileName = file.FileName
+                    });
+                }
+            }
 
             var result = await Sender.Send(command);
 
