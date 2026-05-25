@@ -36,8 +36,18 @@ namespace Cortexa.Infrastructure.Services
 
         public async Task<ResultDto<bool>> UploadImagingResultAsync(UploadImagingDto uploadImagingDto)
         {
-            var AdmissionExists = await _unitOfWork.Admissions.GetByIdAsync(uploadImagingDto.AdmissionId);        
-            if (AdmissionExists == null)
+            if (uploadImagingDto.Content == null || uploadImagingDto.Content.Length == 0)
+            {
+                return new ResultDto<bool>
+                {
+                    Data = false,
+                    Success = false,
+                    Message = "No image content provided."
+                };
+            }
+
+            var admissionExists = await _unitOfWork.Admissions.GetByIdAsync(uploadImagingDto.AdmissionId);
+            if (admissionExists == null)
             {
                 return new ResultDto<bool>
                 {
@@ -46,7 +56,9 @@ namespace Cortexa.Infrastructure.Services
                     Message = "Admission not found."
                 };
             }
-            var filename = $"{uploadImagingDto.AdmissionId}_{uploadImagingDto.Type}_{DateTime.UtcNow.Ticks}";
+
+            var extension = Path.GetExtension(uploadImagingDto.FileName);
+            var filename = $"{uploadImagingDto.AdmissionId}_{uploadImagingDto.Type}_{DateTime.UtcNow.Ticks}{extension}";
 
             var uploadResult = await UploadPhotoAsync(uploadImagingDto.Content, filename);
 
@@ -56,7 +68,7 @@ namespace Cortexa.Infrastructure.Services
                 {
                     Data = false,
                     Success = false,
-                    Message = "Failed to upload image."
+                    Message = "Failed to upload image to the cloud service."
                 };
             }
 
@@ -64,10 +76,10 @@ namespace Cortexa.Infrastructure.Services
             {
                 FileName = uploadImagingDto.FileName,
                 Url = uploadResult.Item1,
-                PublicId = uploadResult.Item2
-                ,Size = uploadImagingDto.Content?.Length
-                
+                PublicId = uploadResult.Item2,
+                Size = uploadImagingDto.Content.Length
             };
+
             var imaging = new Imaging
             {
                 AdmissionId = uploadImagingDto.AdmissionId,
@@ -87,7 +99,6 @@ namespace Cortexa.Infrastructure.Services
                 Success = true,
                 Message = "Imaging result uploaded successfully."
             };
-
         }
 
         private async Task<(string,string)> UploadPhotoAsync(byte[] photo, string fileName)

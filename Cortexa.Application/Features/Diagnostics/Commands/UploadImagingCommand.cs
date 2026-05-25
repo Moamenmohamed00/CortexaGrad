@@ -21,7 +21,6 @@ namespace Cortexa.Application.Features.Diagnostics.Commands
         public DateTime Date { get; set; }
         public string DoctorId { get; set; } = string.Empty;
 
-
     }
 
     public class UploadImagingCommandHandler : IRequestHandler<UploadImagingCommand, ResultDto<bool>>

@@ -36,22 +36,33 @@ namespace Cortexa.Api.Controllers
         /// Uploads an imaging study for an admission.
         /// </summary>
         [HttpPost("imaging")]
-        public async Task<IActionResult> UploadImaging([FromForm] UploadPhotoRequest request, [FromBody] UploadImagingCommand command)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadImaging([FromForm] UploadImagingRequest request)
         {
             if (request.File == null || request.File.Length == 0)
             {
-                return BadRequest("File is empty.");
+                return BadRequest("File is empty or not provided.");
             }
 
             using var ms = new MemoryStream();
             await request.File.CopyToAsync(ms);
+
+            var command = new UploadImagingCommand
+            {
+                Content = ms.ToArray(),
+                FileName = request.File.FileName,
+                AdmissionId = request.AdmissionId,
+                Type = request.Type,
+                Findings = request.Findings,
+                Date = request.Date,
+                DoctorId = request.DoctorId
+            };
 
             var result = await Sender.Send(command);
 
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
-
         /// <summary>
         /// Gets all lab orders for an admission.
         /// </summary>
