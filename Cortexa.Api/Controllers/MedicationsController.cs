@@ -5,11 +5,11 @@ using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Cortexa.Domain.Constants;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
     [Route("api/admissions/{admissionId}/medications")]
     public class MedicationsController(ISender sender) : ApiControllerBase(sender)
     {
@@ -30,7 +30,6 @@ namespace Cortexa.Api.Controllers
 
         /// <summary>Retrieves all prescribed medications for an admission.</summary>
         [HttpGet]
-        [Authorize(Roles = "Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

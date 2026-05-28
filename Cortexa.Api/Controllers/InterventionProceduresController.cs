@@ -5,12 +5,12 @@ using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Cortexa.Domain.Constants;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/admissions/{admissionId}/intervention-procedures")]
-    [Authorize]
+    [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
     public class InterventionProceduresController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
@@ -38,7 +38,6 @@ namespace Cortexa.Api.Controllers
         /// <param name="admissionId">The unique identifier of the admission for which to retrieve intervention procedure details. Cannot be null.</param>
         /// <returns>An IActionResult containing the intervention procedure details if found; otherwise, a NotFound result.</returns>
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

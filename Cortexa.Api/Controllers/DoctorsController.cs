@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cortexa.Api.Controllers
 {
+    [ApiController]
+    [Route("api/Doctors")]
+   
     public class DoctorsController(ISender sender) : ApiControllerBase(sender)
     {
 

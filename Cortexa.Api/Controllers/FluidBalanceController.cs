@@ -5,11 +5,13 @@ using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Cortexa.Domain.Constants;
 
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/admissions/{admissionId}/fluid-balance")]
+    [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
     [Authorize]
     public class FluidBalanceController(ISender sender) : ApiControllerBase(sender)
     {
@@ -40,7 +42,6 @@ namespace Cortexa.Api.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the fluid balance information if found; otherwise, a NotFound
         /// result.</returns>
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

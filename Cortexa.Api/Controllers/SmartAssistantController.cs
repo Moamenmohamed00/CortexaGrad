@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortexa.Domain.Constants;
 
 namespace Cortexa.Api.Controllers
 {
@@ -17,7 +18,7 @@ namespace Cortexa.Api.Controllers
     /// Endpoints for the AI Smart Assistant features (alerts, RAG queries).
     /// </summary>
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
     [Route("api/[controller]")]
     public class SmartAssistantController : ApiControllerBase
     {

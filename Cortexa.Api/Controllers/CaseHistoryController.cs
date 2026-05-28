@@ -5,11 +5,11 @@ using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Cortexa.Domain.Constants;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Admin}")]
     [Route("api/admissions/{admissionId}/case-history")]
     public class CaseHistoryController(ISender sender) : ApiControllerBase(sender)
     {
@@ -29,7 +29,7 @@ namespace Cortexa.Api.Controllers
 
         /// <summary>Retrieves case history for a specific admission.</summary>
         [HttpGet]
-        [Authorize(Roles = "Doctor,Nurse")]
+        [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string admissionId)

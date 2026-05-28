@@ -7,13 +7,17 @@ using Cortexa.Domain.Enums;
 using Cortexa.Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Cortexa.Domain.Constants;
 
 namespace Cortexa.Infrastructure.Identity
 {
+
+
     /// <summary>
     /// Identity service backed by ASP.NET Identity (UserManager / SignInManager).
     /// Also creates domain entities (Doctor / Nurse) during registration.
     /// </summary>
+    /// 
     public class IdentityService :
         Application.Common.Interfaces.IIdentityService,
         Application.Interfaces.Services.IIdentityService
@@ -58,80 +62,62 @@ namespace Cortexa.Infrastructure.Identity
             if (user == null)
             {
                 _logger.LogWarning("Authentication failed: No user with {Email}", email);
-
-                return ResultDto<AuthResponseDto>.Failure(
-                    "Invalid email or password.");
+                return ResultDto<AuthResponseDto>.Failure("Invalid email or password.");
             }
 
-            var result = await _signInManager
-                .CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
 
             if (result.IsLockedOut)
             {
-                return ResultDto<AuthResponseDto>.Failure(
-                    "Account is temporarily locked due to multiple failed login attempts.");
+                return ResultDto<AuthResponseDto>.Failure("Account is temporarily locked due to multiple failed login attempts.");
             }
 
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Authentication failed for {Email}", email);
-
-                return ResultDto<AuthResponseDto>.Failure(
-                    "Invalid email or password.");
+                return ResultDto<AuthResponseDto>.Failure("Invalid email or password.");
             }
 
-            
             var roles = (await _userManager.GetRolesAsync(user)).ToList();
-
-            if (!roles.Any())
-            {
-                _logger.LogWarning(
-                    "Authentication warning: User {UserId} ({Email}) has no roles assigned",
-                    user.Id, email);
-            }
+            string? userIdInSystem = null;
 
             if (roles.Any())
             {
-                if (roles.Contains("Doctor") && !_dbContext.Doctors.Any(d => d.Email == email))
+                // Unified validation and retrieval to eliminate duplicate DB hits
+                if (roles.Contains(AppRoles.Doctor))
                 {
-                    _logger.LogError(
-                        "Data inconsistency: User {UserId} ({Email}) is in 'Doctor' role but no Doctor entity found",
-                        user.Id, email);
-                    return ResultDto<AuthResponseDto>.Failure(
-                        "Account data is corrupted. Please contact support.");
+                    var doctor = await _doctorRepository.GetByEmailAsync(email);
+                    if (doctor == null)
+                    {
+                        _logger.LogError("Data inconsistency: User {UserId} ({Email}) is in 'Doctor' role but no Doctor entity found", user.Id, email);
+                        return ResultDto<AuthResponseDto>.Failure("Account data is corrupted. Please contact support.");
+                    }
+                    userIdInSystem = doctor.Id.ToString();
                 }
-                else if (roles.Contains("Nurse") && !_dbContext.Nurses.Any(n => n.Email == email))
+                else if (roles.Contains(AppRoles.Nurse))
                 {
-                    _logger.LogError(
-                        "Data inconsistency: User {UserId} ({Email}) is in 'Nurse' role but no Nurse entity found",
-                        user.Id, email);
-                    return ResultDto<AuthResponseDto>.Failure(
-                        "Account data is corrupted. Please contact support.");
+                    var nurse = await _nurseRepository.GetByEmailAsync(email);
+                    if (nurse == null)
+                    {
+                        _logger.LogError("Data inconsistency: User {UserId} ({Email}) is in 'Nurse' role but no Nurse entity found", user.Id, email);
+                        return ResultDto<AuthResponseDto>.Failure("Account data is corrupted. Please contact support.");
+                    }
+                    userIdInSystem = nurse.Id.ToString();
                 }
-                else if (!roles.Contains("Doctor") && !roles.Contains("Nurse"))
+                else if (roles.Contains(AppRoles.Admin))
                 {
-                    _logger.LogError(
-                        "Data inconsistency: User {UserId} ({Email}) has invalid role(s): {Roles}",
-                        user.Id, email, string.Join(", ", roles));
-                    return ResultDto<AuthResponseDto>.Failure(
-                        "Account data is corrupted. Please contact support.");
+                    userIdInSystem = user.Id;
                 }
-
+                else
+                {
+                    _logger.LogError("Data inconsistency: User {UserId} ({Email}) has invalid role(s): {Roles}", user.Id, email, string.Join(", ", roles));
+                    return ResultDto<AuthResponseDto>.Failure("Account data is corrupted. Please contact support.");
+                }
             }
-
-            string? _UserIdInSystem = null;
-
-            if (roles?.Contains("Doctor") == true)
+            else
             {
-                var doctor = await _doctorRepository.GetByEmailAsync(email);
-                _UserIdInSystem = doctor?.Id.ToString();
+                _logger.LogWarning("Authentication warning: User {UserId} ({Email}) has no roles assigned", user.Id, email);
             }
-            else if (roles?.Contains("Nurse") == true)
-            {
-                var nurse = await _nurseRepository.GetByEmailAsync(email);
-                _UserIdInSystem = nurse?.Id.ToString();
-            }
-
 
             var token = _jwtTokenGenerator.GenerateToken(
                 user.Id,
@@ -145,17 +131,12 @@ namespace Cortexa.Infrastructure.Identity
                 Email = user.Email!,
                 UserId = user.Id,
                 Roles = roles,
-                UserIdInSystem = _UserIdInSystem
-
+                UserIdInSystem = userIdInSystem
             };
 
-            _logger.LogInformation(
-                "User {UserId} ({Email}) authenticated successfully",
-                user.Id, email);
+            _logger.LogInformation("User {UserId} ({Email}) authenticated successfully", user.Id, email);
 
-            return ResultDto<AuthResponseDto>.SuccessResult(
-                response,
-                "Login successful.");
+            return ResultDto<AuthResponseDto>.SuccessResult(response, "Login successful.");
         }
 
         // ── Register ───────────────────────────────────────────────────

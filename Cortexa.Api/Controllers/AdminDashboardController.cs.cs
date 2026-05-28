@@ -9,13 +9,14 @@ using Cortexa.Application.Features.Rooms.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Cortexa.Domain.Constants;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Cortexa.Api.Controllers
 {
 
     // Cortexa.Api/Controllers/AdminDashboardController.cs
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = $"{AppRoles.Admin}")]
     [ApiController]
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)

@@ -5,11 +5,11 @@ using Cortexa.Application.Features.ClinicalData.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Cortexa.Domain.Constants;
 namespace Cortexa.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = $"{AppRoles.Doctor}")]
     [Route("api/admissions/{admissionId}/physical-examination")]
     public class PhysicalExaminationController(ISender sender) : ApiControllerBase(sender)
     {
@@ -37,7 +37,7 @@ namespace Cortexa.Api.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the physical examination records if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
 
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
+        [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
         public async Task<IActionResult> Get(string admissionId)
         {
             var result = await Sender.Send(

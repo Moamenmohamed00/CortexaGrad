@@ -2,6 +2,8 @@ using Cortexa.Application.Features.Rooms.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Cortexa.Domain.Constants;
+
 
 namespace Cortexa.Api.Controllers
 {
@@ -16,7 +18,7 @@ namespace Cortexa.Api.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the list of rooms if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
 
         [HttpGet]
-        [Authorize(Roles ="Doctor,Nurse")]
+        [Authorize(Roles = $"{AppRoles.Doctor},{AppRoles.Nurse},{AppRoles.Admin}")]
         public async Task<IActionResult> GetAllRooms()
         {
             var result = await Sender.Send(new GetRoomsQuery());
