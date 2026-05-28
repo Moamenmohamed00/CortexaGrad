@@ -140,7 +140,7 @@ namespace Cortexa.Infrastructure.Identity
         }
 
         // ── Register ───────────────────────────────────────────────────
-        public async Task<ResultDto<string>> RegisterAsync(RegisterRequestDto request)
+        public async Task<ResultDto<string>> AddUserAsync(AddUserRequestDto request)
         {
             // 1️⃣ Validate Role
             var role = request.Role?.Trim();

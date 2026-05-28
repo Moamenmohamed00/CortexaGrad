@@ -17,7 +17,7 @@ namespace Cortexa.Application.Interfaces.Services
         /// <summary>
         /// Registers a new user with role-specific data and returns the created user ID.
         /// </summary>
-        Task<ResultDto<string>> RegisterAsync(RegisterRequestDto request);
+        Task<ResultDto<string>> AddUserAsync(AddUserRequestDto request);
 
         /// <summary>
         /// Sends a password-reset OTP to the specified email address.

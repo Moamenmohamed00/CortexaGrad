@@ -1,5 +1,6 @@
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Features.Auth;
+using Cortexa.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +12,20 @@ namespace Cortexa.Api.Controllers
     public class AuthController(ISender sender) : ApiControllerBase(sender)
     {
         /// <summary>
-        /// Registers a new user (Doctor/Nurse) in the system.
+        /// Adds a new user to the system using the specified user details.
         /// </summary>
-        /// <param name="command">The registration details.</param>
-        /// <response code="200">User registered successfully.</response>
-        /// <response code="400">If validation fails or user already exists.</response>
-        [HttpPost("register")]
+        /// <remarks>This action requires the caller to have the Admin role.</remarks>
+        /// <param name="command">An object containing the information required to create the new user. Cannot be null.</param>
+        /// <returns>An <see cref="IActionResult"/> that represents the result of the operation. Returns status code 200 (OK) if
+        /// the user is added successfully; otherwise, returns status code 400 (Bad Request) if the input is invalid.</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto command)
+        [Authorize(Roles = $"{AppRoles.Admin}")]
+        [HttpPost("add-user")]
+
+        public async Task<IActionResult> AddUser([FromBody] AddUserRequestDto command)
         {
-            var result = await Sender.Send(new RegisterCommand(command));
+            var result = await Sender.Send(new AddUserCommand(command));
             return Ok(result);
         }
 

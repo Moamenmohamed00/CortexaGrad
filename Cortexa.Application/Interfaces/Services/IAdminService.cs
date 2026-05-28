@@ -1,4 +1,5 @@
-﻿using Cortexa.Application.Dtos.Admin;
+﻿using Cortexa.Application.Dtos.Actors;
+using Cortexa.Application.Dtos.Admin;
 using Cortexa.Application.Dtos.Core;
 using System;
 using System.Collections.Generic;

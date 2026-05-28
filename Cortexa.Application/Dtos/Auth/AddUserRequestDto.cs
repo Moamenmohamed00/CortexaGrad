@@ -6,7 +6,7 @@ namespace Cortexa.Application.Dtos.Auth
     /// Registration request. The Role field ("Doctor" or "Nurse") determines
     /// which role-specific fields are required.
     /// </summary>
-    public class RegisterRequestDto
+    public class AddUserRequestDto
     {
         // ── Auth Credentials ───────────────────────────────────────────
         [Required, EmailAddress]
