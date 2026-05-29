@@ -1,9 +1,12 @@
-﻿using Cortexa.Api.Extensions;
+﻿using CloudinaryDotNet.Actions;
+using Cortexa.Api.Extensions;
 using Cortexa.Application.Dtos.Admin;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Dtos.AuditLog;
 using Cortexa.Application.Dtos.Auth;
+using Cortexa.Application.Dtos.Beds;
 using Cortexa.Application.Dtos.Core;
+using Cortexa.Application.Dtos.Rooms;
 using Cortexa.Application.Features.Admin.Commands;
 using Cortexa.Application.Features.Admin.Queries;
 using Cortexa.Application.Features.Auth;
@@ -12,8 +15,7 @@ using Cortexa.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Cortexa.Application.Dtos.Beds;
-using Cortexa.Application.Dtos.Rooms;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Cortexa.Api.Controllers
@@ -54,7 +56,7 @@ namespace Cortexa.Api.Controllers
         /// the user is added successfully; otherwise, returns status code 400 (Bad Request) if the input is invalid.</returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost("add-user")]
+        [HttpPost("users")]
 
         public async Task<IActionResult> AddUser([FromBody] AddUserRequestDto command)
         {
@@ -163,6 +165,40 @@ namespace Cortexa.Api.Controllers
             var roles = await Sender.Send(new GetRolesQuery());
             return Ok(roles);
         }
+
+        /// <summary>
+        /// Creates a new role based on the specified command.
+        /// </summary>
+        /// <remarks>This endpoint is typically used by administrators to add new roles to the system. The
+        /// response includes information about the success or failure of the operation.</remarks>
+        /// <param name="command">The command containing the details required to create the role. Cannot be null.</param>
+        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
+        /// otherwise, returns 400 Bad Request with error details.</returns>
+        [HttpPost("roles")]
+        public async Task<IActionResult> CreateRole([FromBody] CreateRoleCommand command)
+        { 
+            var result = await Sender.Send(command);
+            if (!result.Success) return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Deletes the role with the specified identifier.
+        /// </summary>
+        /// <param name="roleId">The unique identifier of the role to delete. Cannot be null or empty.</param>
+        /// <returns>An IActionResult indicating the result of the delete operation. Returns 200 OK if the role was deleted
+        /// successfully; otherwise, returns 400 Bad Request with error details.</returns>
+
+        [HttpDelete("roles/{roleId}")]
+        public async Task<IActionResult> DeleteRole([FromRoute] string roleId)
+        {
+            var result = await Sender.Send(new DeleteRoleCommand(roleId));
+            if (!result.Success) return BadRequest(result);
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// Assigns a role to a user.
         /// </summary>
