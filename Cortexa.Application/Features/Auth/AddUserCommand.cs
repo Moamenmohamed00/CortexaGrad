@@ -1,3 +1,4 @@
+using Cortexa.Application.Dtos.Actors;
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Interfaces.Services;

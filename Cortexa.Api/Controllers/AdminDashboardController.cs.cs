@@ -2,14 +2,16 @@
 using Cortexa.Application.Dtos.Admin;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Dtos.AuditLog;
+using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Features.Admin.Commands;
 using Cortexa.Application.Features.Admin.Queries;
+using Cortexa.Application.Features.Auth;
 using Cortexa.Application.Features.Rooms.Queries;
+using Cortexa.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Cortexa.Domain.Constants;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Cortexa.Api.Controllers
@@ -21,6 +23,55 @@ namespace Cortexa.Api.Controllers
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)
     {
+
+
+
+        /// <summary>
+        /// Adds a new user to the system using the specified user details.
+        /// rules for adding user: Doctor or Nurse Only
+        /// </summary>
+        /// <remarks>This action requires the caller to have the Admin role.</remarks>
+        /// <param name="command">An object containing the information required to create the new user. Cannot be null.</param>
+        /// <returns>An <see cref="IActionResult"/> that represents the result of the operation. Returns status code 200 (OK) if
+        /// the user is added successfully; otherwise, returns status code 400 (Bad Request) if the input is invalid.</returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost("add-user")]
+
+        public async Task<IActionResult> AddUser([FromBody] AddUserRequestDto command)
+        {
+            var result = await Sender.Send(new AddUserCommand(command));
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        /// Updates the details of an existing doctor user.
+        /// </summary>
+        /// <param name="command">An object containing the updated information for the doctor user.</param>
+        /// <returns>An <see cref="IActionResult"/> that represents the result of the operation.</returns>
+        [HttpPost("update-doctor-user")]
+        public async Task<IActionResult> UpdateDoctorUser([FromBody] UpdateDoctorUserRequestDto command)
+        {
+            var result = await Sender.Send(new UpdateDoctorUserCommand(command));
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates the details of a nurse user based on the provided request data.
+        /// </summary>
+        /// <remarks>This method processes an update request for a nurse user. The request body must
+        /// include all required fields for the update. Returns a success response with the result of the
+        /// operation.</remarks>
+        /// <param name="command">The request data containing the updated information for the nurse user. Cannot be null.</param>
+        /// <returns>An IActionResult containing the result of the update operation.</returns>
+        [HttpPost("update-nurse-user")]
+        public async Task<IActionResult> UpdateNurseUser([FromBody] UpdateNurseUserRequestDto command)
+        {
+            var result = await Sender.Send(new UpdateNurseUserCommand(command));
+            return Ok(result);
+        }
+
 
         /// <summary>
         /// Retrieves a summary of dashboard metrics and statistics for the current user.
@@ -280,6 +331,8 @@ namespace Cortexa.Api.Controllers
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
+
+
 
         //[HttpGet("ai-insights")]
         //public async Task<ActionResult<List<RagQueryDto>>> GetAIInsights()

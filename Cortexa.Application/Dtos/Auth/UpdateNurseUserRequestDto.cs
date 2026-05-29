@@ -3,27 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cortexa.Application.Dtos.Auth
 {
-    /// <summary>
-    /// Registration request. The Role field ("Doctor" or "Nurse") determines
-    /// which role-specific fields are required.
-    /// </summary>
-    public class AddUserRequestDto
+    public class UpdateNurseUserRequestDto
     {
-        // ── Auth Credentials ───────────────────────────────────────────
-        [Required, EmailAddress]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
-
-        [Required, MinLength(6)]
-        public string Password { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Must be "Doctor" or "Nurse".
-        /// </summary>
-        [Required]
-        public string Role { get; set; } = string.Empty;
-
-        // ── Common AppUser Fields ──────────────────────────────────────
-        [Required]
         public string FullName { get; set; } = string.Empty;
 
         public string PhoneNumber { get; set; } = string.Empty;
@@ -35,7 +18,6 @@ namespace Cortexa.Application.Dtos.Auth
         /// </summary>
         public Gender Gender { get; set; }
 
-        [Required(ErrorMessage = "الرقم القومي مطلوب")]
         [StringLength(14, MinimumLength = 14,
           ErrorMessage = "الرقم القومي يجب أن يكون 14 رقمًا")]
         [RegularExpression(@"^\d{14}$",
@@ -57,20 +39,10 @@ namespace Cortexa.Application.Dtos.Auth
 
         public string Department { get; set; } = string.Empty;
 
-        // ── Doctor-Only Fields ─────────────────────────────────────────
-        public string? Specialty { get; set; }
-
-        /// <summary>
-        /// 0 = Specialist, 1 = Consultant, 2 = Intern  (maps to DoctorRole enum)
-        /// </summary>
-        public DoctorRole? DoctorRole { get; set; }
-
-        public int? ExperienceYears { get; set; }
-
         // ── Nurse-Only Fields ──────────────────────────────────────────
         /// <summary>
         /// 0 = Staff, 1 = HeadNurse  (maps to NurseRole enum)
         /// </summary>
-        public NurseRole? NurseRole { get; set; }
+        public NurseRole Role { get; set; }
     }
 }

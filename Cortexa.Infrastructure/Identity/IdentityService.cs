@@ -8,6 +8,7 @@ using Cortexa.Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Cortexa.Domain.Constants;
+using Cortexa.Application.Dtos.Actors;
 
 namespace Cortexa.Infrastructure.Identity
 {
@@ -27,10 +28,8 @@ namespace Cortexa.Infrastructure.Identity
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IEmailService _emailService;
-        private readonly IApplicationDbContext _dbContext;
         private readonly ILogger<IdentityService> _logger;
-        private readonly IDoctorRepository _doctorRepository;
-        private readonly INurseRepository _nurseRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public IdentityService(
             UserManager<ApplicationUser> userManager,
@@ -38,20 +37,16 @@ namespace Cortexa.Infrastructure.Identity
             RoleManager<IdentityRole> roleManager,
             IJwtTokenGenerator jwtTokenGenerator,
             IEmailService emailService,
-            IApplicationDbContext dbContext,
             ILogger<IdentityService> logger,
-            IDoctorRepository doctorRepository,
-            INurseRepository nurseRepository)
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _jwtTokenGenerator = jwtTokenGenerator;
             _emailService = emailService;
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
             _logger = logger;
-            _doctorRepository = doctorRepository;
-            _nurseRepository = nurseRepository;
         }
 
         // ── Login ──────────────────────────────────────────────────────
@@ -86,7 +81,7 @@ namespace Cortexa.Infrastructure.Identity
                 // Unified validation and retrieval to eliminate duplicate DB hits
                 if (roles.Contains(AppRoles.Doctor))
                 {
-                    var doctor = await _doctorRepository.GetByEmailAsync(email);
+                    var doctor = await _unitOfWork.Doctors.GetByEmailAsync(email);
                     if (doctor == null)
                     {
                         _logger.LogError("Data inconsistency: User {UserId} ({Email}) is in 'Doctor' role but no Doctor entity found", user.Id, email);
@@ -96,7 +91,7 @@ namespace Cortexa.Infrastructure.Identity
                 }
                 else if (roles.Contains(AppRoles.Nurse))
                 {
-                    var nurse = await _nurseRepository.GetByEmailAsync(email);
+                    var nurse = await _unitOfWork.Nurses.GetByEmailAsync(email);
                     if (nurse == null)
                     {
                         _logger.LogError("Data inconsistency: User {UserId} ({Email}) is in 'Nurse' role but no Nurse entity found", user.Id, email);
@@ -202,17 +197,17 @@ namespace Cortexa.Infrastructure.Identity
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     DateOfBirth = request.DateOfBirth,
-                    Gender = (Gender)request.Gender,
+                    Gender = request.Gender,
                     Address = address,
                     Specialty = request.Specialty ?? string.Empty,
-                    Shift = (ShiftType)request.Shift,
-                    Role = (DoctorRole)(request.DoctorRole ?? 0),
+                    Shift = request.Shift,
+                    Role = request.DoctorRole ?? 0,
                     Department = request.Department,
                     ExperienceYears = request.ExperienceYears ?? 0,
                     NationalId = request.NationalId
                 };
 
-                _dbContext.Doctors.Add(doctor);
+                await _unitOfWork.Doctors.AddAsync(doctor);
             }
             else
             {
@@ -222,18 +217,18 @@ namespace Cortexa.Infrastructure.Identity
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     DateOfBirth = request.DateOfBirth,
-                    Gender = (Gender)request.Gender,
+                    Gender = request.Gender,
                     Address = address,
-                    Shift = (ShiftType)request.Shift,
-                    Role = (NurseRole)(request.NurseRole ?? 0),
+                    Shift = request.Shift,
+                    Role = (request.NurseRole ?? 0),
                     Department = request.Department,
                     NationalId = request.NationalId
                 };
 
-                _dbContext.Nurses.Add(nurse);
+                await _unitOfWork.Nurses.AddAsync(nurse);
             }
 
-            await _dbContext.SaveChangesAsync(CancellationToken.None);
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             _logger.LogInformation(
                 "{Role} {UserId} ({Email}) registered successfully",
@@ -331,6 +326,172 @@ If you did not request a password reset, please ignore this email.";
             return ResultDto<bool>.SuccessResult(
                 true,
                 "Password has been reset successfully.");
+        }
+
+        public async Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(UpdateDoctorUserRequestDto request)
+        {
+            var doctor = await _unitOfWork.Doctors.GetByEmailAsync(request.Email);
+            if (doctor == null)
+            {
+                return ResultDto<DoctorDto>.Failure("Doctor not found.");
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return ResultDto<DoctorDto>.Failure("Associated user account not found.");
+            }
+
+            var address = new Address(
+                request.Street ?? doctor.Address.Street,
+                request.City ?? doctor.Address.City,
+                request.State ?? doctor.Address.State,
+                request.ZipCode ?? doctor.Address.ZipCode ?? string.Empty,
+                "Egypt"
+                );
+
+            // Update doctor properties
+            doctor.Name = request.FullName ?? doctor.Name;
+            doctor.PhoneNumber = request.PhoneNumber ?? doctor.PhoneNumber;
+            doctor.DateOfBirth = request.DateOfBirth;
+            doctor.Gender = request.Gender;
+            doctor.NationalId = request.NationalId ?? doctor.NationalId;
+            doctor.Address = address;
+            doctor.Shift = request.Shift;
+            doctor.Department = request.Department ?? doctor.Department;
+            doctor.Specialty = request.Specialty ?? doctor.Specialty;
+            doctor.Role = request.DoctorRole;
+            doctor.ExperienceYears = request.ExperienceYears;
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+
+            // Update Identity user properties if needed
+
+                user.FullName = request.FullName ?? user.FullName;
+                user.PhoneNumber = request.PhoneNumber ?? user.PhoneNumber;
+                user.NationalId = request.NationalId ?? user.NationalId;
+    
+                var identityResult = await _userManager.UpdateAsync(user);
+    
+                if (!identityResult.Succeeded)
+                {
+                    var errors = string.Join("; ",
+                        identityResult.Errors.Select(e => e.Description));
+    
+                    _logger.LogWarning(
+                        "Failed to update Identity user for doctor {Email}: {Errors}",
+                        request.Email, errors);
+    
+                    return ResultDto<DoctorDto>.Failure("Failed to update associated user account: " + errors);
+                }
+    
+                _logger.LogInformation("Doctor data updated successfully for {Email}", request.Email);
+
+
+
+            return ResultDto<DoctorDto>.SuccessResult(
+                new DoctorDto
+                (
+                    Id : doctor.Id,
+                    Name : doctor.Name,
+                    Email : doctor.Email,
+                    PhoneNumber : doctor.PhoneNumber,
+                    DateOfBirth : doctor.DateOfBirth,
+                    Gender : doctor.Gender,
+                    NationalId : doctor.NationalId,
+                    Address : new AddressDto
+                    (
+                       Street : doctor.Address.Street,
+                       City : doctor.Address.City,
+                       State : doctor.Address.State,
+                       ZipCode : doctor.Address.ZipCode               
+                    ),
+                    Shift : doctor.Shift,
+                    Department : doctor.Department,
+                    Specialty : doctor.Specialty,
+                    Role : doctor.Role,
+                    ExperienceYears : doctor.ExperienceYears
+                ),
+                "Doctor data updated successfully.");
+        }
+
+        public async Task<ResultDto<NurseDto>> UpdateNurseDataAsync(UpdateNurseUserRequestDto request)
+        {
+            var nurse = await _unitOfWork.Nurses.GetByEmailAsync(request.Email);
+            if (nurse == null)
+            {
+                return ResultDto<NurseDto>.Failure("Nurse not found.");
+            }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) { 
+                return ResultDto<NurseDto>.Failure("Associated user account not found.");
+            }
+
+            var address = new Address(
+                request.Street ?? nurse.Address.Street,
+                request.City ?? nurse.Address.City,
+                request.State ?? nurse.Address.State,
+                request.ZipCode ?? nurse.Address.ZipCode ?? string.Empty,
+                "Egypt"
+                );
+
+            // Update nurse properties
+
+            nurse.Name = request.FullName ?? nurse.Name;
+            nurse.PhoneNumber = request.PhoneNumber ?? nurse.PhoneNumber;
+            nurse.DateOfBirth = request.DateOfBirth;
+            nurse.Gender = request.Gender;
+            nurse.NationalId = request.NationalId ?? nurse.NationalId;
+            nurse.Address = address;
+            nurse.Shift = request.Shift;
+            nurse.Department = request.Department ?? nurse.Department;
+            nurse.Role = request.Role;
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+
+            // Update Identity user properties if needed
+
+                user.FullName = request.FullName ?? user.FullName;
+                user.PhoneNumber = request.PhoneNumber ?? user.PhoneNumber;
+                user.NationalId = request.NationalId ?? user.NationalId;
+    
+                var identityResult = await _userManager.UpdateAsync(user);
+    
+                if (!identityResult.Succeeded)
+                {
+                    var errors = string.Join("; ",
+                        identityResult.Errors.Select(e => e.Description));
+    
+                    _logger.LogWarning(
+                        "Failed to update Identity user for nurse {Email}: {Errors}",
+                        request.Email, errors);
+    
+                    return ResultDto<NurseDto>.Failure("Failed to update associated user account: " + errors);
+                }
+    
+                _logger.LogInformation("Nurse data updated successfully for {Email}", request.Email);
+
+
+
+            return ResultDto<NurseDto>.SuccessResult(
+                new NurseDto
+                (
+                    Id : nurse.Id,
+                    Name : nurse.Name,
+                    Email : nurse.Email,
+                    PhoneNumber : nurse.PhoneNumber,
+                    DateOfBirth : nurse.DateOfBirth,
+                    Gender : nurse.Gender,
+                    NationalId : nurse.NationalId,
+                    Address : new AddressDto
+                    (
+                       Street : nurse.Address.Street,
+                       City : nurse.Address.City,
+                       State : nurse.Address.State,
+                       ZipCode : nurse.Address.ZipCode               
+                    ),
+                    Shift : nurse.Shift,
+                    Department : nurse.Department,
+                    Role : nurse.Role
+                ),
+                "Nurse data updated successfully.");
         }
     }
 }

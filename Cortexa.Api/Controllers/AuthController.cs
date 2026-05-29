@@ -11,23 +11,6 @@ namespace Cortexa.Api.Controllers
     [Route("api/Auth")]
     public class AuthController(ISender sender) : ApiControllerBase(sender)
     {
-        /// <summary>
-        /// Adds a new user to the system using the specified user details.
-        /// </summary>
-        /// <remarks>This action requires the caller to have the Admin role.</remarks>
-        /// <param name="command">An object containing the information required to create the new user. Cannot be null.</param>
-        /// <returns>An <see cref="IActionResult"/> that represents the result of the operation. Returns status code 200 (OK) if
-        /// the user is added successfully; otherwise, returns status code 400 (Bad Request) if the input is invalid.</returns>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = $"{AppRoles.Admin}")]
-        [HttpPost("add-user")]
-
-        public async Task<IActionResult> AddUser([FromBody] AddUserRequestDto command)
-        {
-            var result = await Sender.Send(new AddUserCommand(command));
-            return Ok(result);
-        }
 
         /// <summary>
         /// Authenticates a user and returns a JWT token.

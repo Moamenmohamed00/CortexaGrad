@@ -1,3 +1,4 @@
+using Cortexa.Application.Dtos.Actors;
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Core;
 
@@ -28,5 +29,9 @@ namespace Cortexa.Application.Interfaces.Services
         /// Resets a user's password using the provided OTP.
         /// </summary>
         Task<ResultDto<bool>> ResetPasswordWithOtpAsync(string email, string otp, string newPassword);
+
+        Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(UpdateDoctorUserRequestDto request);  
+
+        Task<ResultDto<NurseDto>> UpdateNurseDataAsync(UpdateNurseUserRequestDto request);
     }
 }

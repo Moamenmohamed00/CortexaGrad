@@ -8,6 +8,7 @@ namespace Cortexa.Application.Dtos.Actors
     public record DoctorDto(
         string Id,
         string Name,
+        string NationalId,
         string Email,
         string PhoneNumber,
         DateTime DateOfBirth,
@@ -19,4 +20,5 @@ namespace Cortexa.Application.Dtos.Actors
         string Department,
         int ExperienceYears
     );
+
 }

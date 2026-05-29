@@ -7,9 +7,20 @@ namespace Cortexa.Api.Controllers
 {
     [ApiController]
     [Route("api/Doctors")]
-   
+
     public class DoctorsController(ISender sender) : ApiControllerBase(sender)
     {
+
+        /// <summary>
+        /// Gets all Doctors.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the list of all doctors if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await Sender.Send(new GetAllDoctorsQuery());
+            return result is not null ? Ok(result) : NotFound();
+        }
 
         /// <summary>
         /// Gets detailed Doctor by email.
@@ -40,17 +51,5 @@ namespace Cortexa.Api.Controllers
                 : NotFound();
         }
 
-        /// <summary>
-        /// Gets all Doctors.
-        /// </summary>
-        /// <returns>An <see cref="IActionResult"/> containing the list of all doctors if found; otherwise, a <see cref="NotFoundResult"/>.</returns>
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await Sender.Send(new GetAllDoctorsQuery());
-            return result is not null ? Ok(result) : NotFound();
-        }
-
     }
-
 }

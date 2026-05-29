@@ -8,6 +8,7 @@ namespace Cortexa.Application.Dtos.Actors
     public record NurseDto(
         string Id,
         string Name,
+        string NationalId,
         string Email,
         string PhoneNumber,
         DateTime DateOfBirth,

@@ -13,9 +13,14 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
             return await _context.Nurses.ToListAsync();
         }
 
-        public Task<Nurse?> GetByEmailAsync(string email)
+        public async Task<IReadOnlyList<Nurse>> GetByDepartmentAsync(string department)
         {
-            return _context.Nurses.FirstOrDefaultAsync(n => n.Email == email);
+            return await _context.Nurses.Where(n => n.Department == department).ToListAsync();
+        }
+
+        public async Task<Nurse?> GetByEmailAsync(string email)
+        {
+            return await _context.Nurses.FirstOrDefaultAsync(n => n.Email == email);
         }
     }
 }

@@ -129,11 +129,10 @@ namespace Cortexa.Infrastructure.Services
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                userRoles.Add(new UserRoleDto(user.Id, user.UserName, roles.ToList())
+                userRoles.Add(new UserRoleDto(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, roles.ToList())
                 );
             }
             return new ResultDto<List<UserRoleDto>> { Data = userRoles, Success = true, Message = "Users with roles retrieved successfully." };
-
         }
 
         public Task<ResultDto<bool>> DeleteUser(string UserId)
