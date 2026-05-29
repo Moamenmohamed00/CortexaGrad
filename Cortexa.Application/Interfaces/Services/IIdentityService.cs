@@ -30,8 +30,8 @@ namespace Cortexa.Application.Interfaces.Services
         /// </summary>
         Task<ResultDto<bool>> ResetPasswordWithOtpAsync(string email, string otp, string newPassword);
 
-        Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(UpdateDoctorUserRequestDto request);  
+        Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(string email, UpdateDoctorUserRequestDto request);  
 
-        Task<ResultDto<NurseDto>> UpdateNurseDataAsync(UpdateNurseUserRequestDto request);
+        Task<ResultDto<NurseDto>> UpdateNurseDataAsync(string email, UpdateNurseUserRequestDto request);
     }
 }

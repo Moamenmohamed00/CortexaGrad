@@ -9,7 +9,7 @@ using System.Text;
 namespace Cortexa.Application.Features.Admin.Commands
 {
 
-    public record AssignRoleToUserCommand(string UserId, string RoleName) : IRequest<ResultDto<bool>>;
+    public record AssignRoleToUserCommand(string UserId, string roleName) : IRequest<ResultDto<bool>>;
 
     public class AssignRoleToUserHandler : IRequestHandler<AssignRoleToUserCommand, ResultDto<bool>>
     {
@@ -20,7 +20,7 @@ namespace Cortexa.Application.Features.Admin.Commands
         }
         public async Task<ResultDto<bool>> Handle(AssignRoleToUserCommand request, CancellationToken cancellationToken)
         {
-            var result = await _adminService.AssignRoleToUser(request.UserId, request.RoleName);
+            var result = await _adminService.AssignRoleToUser(request.UserId, request.roleName);
             return result;
         }
     }

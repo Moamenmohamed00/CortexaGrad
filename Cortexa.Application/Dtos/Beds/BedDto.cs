@@ -14,5 +14,12 @@ namespace Cortexa.Application.Dtos.Beds
         BedStatus Status ,
         string? CurrentAdmissionId 
     );
-    
+
+    public record UpdateBedDto
+    (
+        string RoomId,
+        string BedNumber,
+        BedStatus Status
+    );
+
 }

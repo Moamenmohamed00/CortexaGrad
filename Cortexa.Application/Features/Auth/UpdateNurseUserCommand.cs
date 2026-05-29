@@ -6,7 +6,7 @@ using Cortexa.Application.Interfaces.Services;
 
 namespace Cortexa.Application.Features.Auth
 {
-    public record UpdateNurseUserCommand(UpdateNurseUserRequestDto Request) : IRequest<ResultDto<NurseDto>>;
+    public record UpdateNurseUserCommand(string email, UpdateNurseUserRequestDto Request) : IRequest<ResultDto<NurseDto>>;
 
     public class UpdateNurseUserCommandHandler : IRequestHandler<UpdateNurseUserCommand, ResultDto<NurseDto>>
     {
@@ -19,7 +19,7 @@ namespace Cortexa.Application.Features.Auth
 
         public async Task<ResultDto<NurseDto>> Handle(UpdateNurseUserCommand request, CancellationToken cancellationToken)
         {
-            return await _identityService.UpdateNurseDataAsync(request.Request);
+            return await _identityService.UpdateNurseDataAsync(request.email, request.Request);
         }
     }
 }

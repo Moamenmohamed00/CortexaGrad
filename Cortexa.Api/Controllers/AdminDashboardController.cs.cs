@@ -12,6 +12,8 @@ using Cortexa.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Cortexa.Application.Dtos.Beds;
+using Cortexa.Application.Dtos.Rooms;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Cortexa.Api.Controllers
@@ -23,6 +25,22 @@ namespace Cortexa.Api.Controllers
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)
     {
+
+        /// <summary>
+        /// Creates a new administrator account using the specified command.
+        /// </summary>
+        /// <param name="command">The command containing the details required to create the administrator account. Cannot be null.</param>
+        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
+        /// otherwise, returns 400 Bad Request with error details.</returns>
+        [HttpPost("create-admin")]
+
+        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminCommand command)
+        {
+            var result = await Sender.Send(command);
+            if (!result.Success) return BadRequest(result);
+
+            return Ok(result);
+        }
 
 
 
@@ -44,31 +62,59 @@ namespace Cortexa.Api.Controllers
             return Ok(result);
         }
 
-
         /// <summary>
         /// Updates the details of an existing doctor user.
         /// </summary>
-        /// <param name="command">An object containing the updated information for the doctor user.</param>
+        /// <param name="email">The email of the doctor to update.</param>
+        /// <param name="request">An object containing the updated information for the doctor user.</param>
         /// <returns>An <see cref="IActionResult"/> that represents the result of the operation.</returns>
-        [HttpPost("update-doctor-user")]
-        public async Task<IActionResult> UpdateDoctorUser([FromBody] UpdateDoctorUserRequestDto command)
+        [HttpPut("doctor-user/{email}")]
+        public async Task<IActionResult> UpdateDoctorUser([FromRoute] string email, [FromBody] UpdateDoctorUserRequestDto request)
         {
-            var result = await Sender.Send(new UpdateDoctorUserCommand(command));
+            var result = await Sender.Send(new UpdateDoctorUserCommand(email, request));
             return Ok(result);
         }
 
         /// <summary>
-        /// Updates the details of a nurse user based on the provided request data.
+        /// Updates the details of an existing nurse user.
         /// </summary>
-        /// <remarks>This method processes an update request for a nurse user. The request body must
-        /// include all required fields for the update. Returns a success response with the result of the
-        /// operation.</remarks>
-        /// <param name="command">The request data containing the updated information for the nurse user. Cannot be null.</param>
-        /// <returns>An IActionResult containing the result of the update operation.</returns>
-        [HttpPost("update-nurse-user")]
-        public async Task<IActionResult> UpdateNurseUser([FromBody] UpdateNurseUserRequestDto command)
+        /// <param name="email">The email of the nurse to update.</param>
+        /// <param name="request">An object containing the updated information for the nurse user.</param>
+        /// <returns>An <see cref="IActionResult"/> that represents the result of the operation.</returns>
+        [HttpPut("nurse-user/{email}")]
+        public async Task<IActionResult> UpdateNurseUser([FromRoute] string email, [FromBody] UpdateNurseUserRequestDto request)
         {
-            var result = await Sender.Send(new UpdateNurseUserCommand(command));
+            var result = await Sender.Send(new UpdateNurseUserCommand(email, request));
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Toggles the status of a user.
+        /// </summary>
+        /// <param name="id">The ID of the user whose status is to be toggled.</param>
+        /// <returns>An IActionResult indicating the outcome of the operation.</returns>
+        [HttpPost("users/{id}/toggle-status")]
+        public async Task<IActionResult> ToggleUserStatus([FromRoute] string id)
+        {
+            var result = await Sender.Send(new ToggleUserStatusCommand(id));
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Forces a password reset for a specific user.
+        /// </summary>
+        /// <param name="id">The ID of the user whose password needs to be reset.</param>
+        /// <param name="newpassword">The new password to set for the user.</param>
+        /// <returns>An IActionResult indicating the outcome of the operation.</returns>
+        [HttpPost("users/{id}/force-password-reset")]
+        public async Task<IActionResult> ForceResetPassword([FromRoute] string id, [FromBody] string newpassword)
+        {
+            // بناء الـ Command داخل الـ Controller لحماية المعمارية وفصل الطبقات
+            var result = await Sender.Send(new ForceResetPasswordCommand(id, newpassword));
+
+            if (!result.Success) return BadRequest(result);
+
             return Ok(result);
         }
 
@@ -104,22 +150,6 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Creates a new administrator account using the specified command.
-        /// </summary>
-        /// <param name="command">The command containing the details required to create the administrator account. Cannot be null.</param>
-        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
-        /// otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("create-admin")]
-
-        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminCommand command)
-        {
-            var result = await Sender.Send(command);
-            if (!result.Success) return BadRequest(result);
-
-            return Ok(result);
-        }
-
-        /// <summary>
         /// Handles HTTP GET requests to retrieve the list of available roles.
         /// </summary>
         /// <remarks>Use this endpoint to obtain all roles defined in the system. The response format and
@@ -134,70 +164,36 @@ namespace Cortexa.Api.Controllers
             return Ok(roles);
         }
         /// <summary>
-        /// Creates a new role based on the specified command.
+        /// Assigns a role to a user.
         /// </summary>
-        /// <remarks>This endpoint is typically used by administrators to add new roles to the system. The
-        /// response includes information about the success or failure of the operation.</remarks>
-        /// <param name="command">The command containing the details required to create the role. Cannot be null.</param>
-        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
-        /// otherwise, returns 400 Bad Request with error details.</returns>
-
-        [HttpPost("create-role")]
-        public async Task<IActionResult> CreateRole([FromBody] CreateRoleCommand command)
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="roleName">The name of the role to assign.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        [HttpPost("users/{userId}/roles/{roleName}")]
+        public async Task<IActionResult> AssignRole([FromRoute] string userId, [FromRoute] string roleName)
         {
-            var result = await Sender.Send(command);
+            var result = await Sender.Send(new AssignRoleToUserCommand(userId, roleName));
             if (!result.Success) return BadRequest(result);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Deletes the role with the specified identifier.
+        /// Removes a specified role from a user.
         /// </summary>
-        /// <param name="roleId">The unique identifier of the role to delete. Cannot be null or empty.</param>
-        /// <returns>An IActionResult indicating the result of the delete operation. Returns 200 OK if the role was deleted
-        /// successfully; otherwise, returns 400 Bad Request with error details.</returns>
-
-        [HttpDelete("delete-role/{roleId}")]
-        public async Task<IActionResult> DeleteRole([FromRoute] string roleId)
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="roleName">The name of the role to remove.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        [HttpDelete("users/{userId}/roles/{roleName}")]
+        public async Task<IActionResult> RemoveRole([FromRoute] string userId, [FromRoute] string roleName)
         {
-            var result = await Sender.Send(new DeleteRoleCommand(roleId));
+            var result = await Sender.Send(new RemoveRoleFromUserCommand(userId, roleName));
             if (!result.Success) return BadRequest(result);
 
             return Ok(result);
         }
 
-        /// <summary>
-        /// Assigns a role to a user based on the specified command.
-        /// </summary>
-        /// <param name="command">An object containing the details required to assign a role to a user. Cannot be null.</param>
-        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK if the role was assigned
-        /// successfully; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("assign-role")]
-        public async Task<IActionResult> AssignRole([FromBody] AssignRoleToUserCommand command)
-        {
-            var result = await Sender.Send(command);
-            if (!result.Success) return BadRequest(result);
-
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Removes a specified role from a user based on the provided command.
-        /// </summary>
-        /// <param name="command">The command containing the user and role information required to remove the role. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an IActionResult indicating the
-        /// outcome of the operation: 200 OK if the role was removed successfully; otherwise, 400 Bad Request with error
-        /// details.</returns>
-        [HttpPost("remove-role")]
-        public async Task<IActionResult> RemoveRole([FromBody] RemoveRoleFromUserCommand command)
-        {
-            var result = await Sender.Send(command);
-            if (!result.Success) return BadRequest(result);
-
-            return Ok(result);
-        }
-
+       
         /// <summary>
         /// Retrieves a list of users along with their associated roles.
         /// </summary>
@@ -212,35 +208,6 @@ namespace Cortexa.Api.Controllers
             return Ok(result);
         }
 
-        /// <summary>
-        /// Toggles the status of a user based on the provided command.
-        /// </summary>
-        /// <param name="command">The command containing the user identifier and the desired status change. Cannot be null.</param>
-        /// <returns>An IActionResult indicating the outcome of the operation. Returns 200 OK with the result if successful;
-        /// otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPut("toggle-user-status")]
-        public async Task<IActionResult> ToggleUserStatus([FromBody] ToggleUserStatusCommand command)
-        {
-            var result = await Sender.Send(command);
-            if (!result.Success) return BadRequest(result);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Forces a password reset for a user based on the specified command.
-        /// </summary>
-        /// <remarks>This endpoint is typically used by administrators to require a user to reset their
-        /// password. The operation may fail if the command is invalid or if the user cannot be found.</remarks>
-        /// <param name="command">The command containing the details required to perform the password reset. Cannot be null.</param>
-        /// <returns>An IActionResult indicating the outcome of the password reset operation. Returns a success response if the
-        /// reset is completed; otherwise, returns a bad request with error details.</returns>
-        [HttpPost("force-reset-password")]
-        public async Task<IActionResult> ForceResetPassword([FromBody] ForceResetPasswordCommand command)
-        {
-            var result = await Sender.Send(command);
-            if (!result.Success) return BadRequest(result);
-            return Ok(result);
-        }
 
         /// <summary>
         /// Creates a new room based on the specified command and returns the result of the operation.
@@ -259,14 +226,22 @@ namespace Cortexa.Api.Controllers
         /// <summary>
         /// Updates the details of an existing room based on the specified command.
         /// </summary>
-        /// <param name="command">An object containing the updated room information and the criteria for identifying the room to update.
+        /// <param name="roomId">The ID of the room to update.</param>
+        /// <param name="request">An object containing the updated room information and the criteria for identifying the room to update.    
         /// Cannot be null.</param>
         /// <returns>An IActionResult indicating the result of the update operation. Returns 200 OK with the result if the update
         /// is successful; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPut("update-room")]
-        public async Task<IActionResult> UpdateRoom([FromBody] UpdateRoomCommand command)
+        [HttpPut("rooms/{roomId}")]
+        public async Task<IActionResult> UpdateRoom([FromRoute] string roomId, [FromBody] UpdateRoomDto request)
         {
-            var result = await Sender.Send(command);
+            var result = await Sender.Send(new UpdateRoomCommand(
+                roomId,
+                request.RoomNumber,
+                request.RoomType,
+                request.Capacity,
+                request.IsAvailable
+            ));
+
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
@@ -278,7 +253,7 @@ namespace Cortexa.Api.Controllers
         /// <returns>An IActionResult that represents the result of the create operation. Returns 200 OK with the result if
         /// successful; otherwise, returns 400 Bad Request with error details.</returns>
 
-        [HttpPost("create-bed")]
+        [HttpPost("beds")]
         public async Task<IActionResult> CreateBed([FromBody] CreateBedCommand command)
         {
             var result = await Sender.Send(command);
@@ -287,17 +262,21 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Updates the details of a bed using the specified update command.
+        /// Updates the details of a bed.
         /// </summary>
-        /// <remarks>This endpoint is typically used to modify bed information in the system. The request
-        /// body must contain a valid UpdateBedCommand object.</remarks>
-        /// <param name="command">An object containing the information required to update the bed. Must not be null.</param>
-        /// <returns>An IActionResult indicating the result of the update operation. Returns 200 OK with the result if
-        /// successful; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPut("update-bed")]
-        public async Task<IActionResult> UpdateBed([FromBody] UpdateBedCommand command)
+        /// <param name="bedId">The unique identifier of the bed to update.</param>
+        /// <param name="request">An object containing the information required to update the bed.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        [HttpPut("beds/{bedId}")]
+        public async Task<IActionResult> UpdateBed([FromRoute] string bedId, [FromBody] UpdateBedDto request)
         {
-            var result = await Sender.Send(command);
+            var result = await Sender.Send(new UpdateBedCommand(
+                bedId,
+                request.RoomId,
+                request.BedNumber,
+                request.Status
+            ));
+
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
@@ -308,7 +287,7 @@ namespace Cortexa.Api.Controllers
         /// <param name="bedId">The unique identifier of the bed to delete. Cannot be null or empty.</param>
         /// <returns>An IActionResult indicating the result of the delete operation. Returns 200 OK if the bed was deleted
         /// successfully; otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpDelete("delete-bed/{bedId}")]
+        [HttpDelete("bed/{bedId}")]
         public async Task<IActionResult> DeleteBed([FromRoute] string bedId)
         {
             var result = await Sender.Send(new DeleteBedCommand(bedId));
@@ -319,15 +298,14 @@ namespace Cortexa.Api.Controllers
         /// <summary>
         /// Toggles the availability status of a room based on the specified command.
         /// </summary>
-        /// <param name="command">An object containing the details required to identify the room and the desired availability state. Cannot be
-        /// null.</param>
+        /// <param name="roomId">The unique identifier of the room to toggle availability. Cannot be null or empty.</param>
         /// <returns>An IActionResult indicating the outcome of the operation. Returns 200 OK with the result if successful;
         /// otherwise, returns 400 Bad Request with error details.</returns>
 
-        [HttpPut("toggle-room-availability")]
-        public async Task<IActionResult> ToggleRoomAvailability([FromBody] ToggleRoomAvailabilityCommand command)
+        [HttpPost("room/{roomId}/toggle-availability")]
+        public async Task<IActionResult> ToggleRoomAvailability([FromRoute] string roomId)
         {
-            var result = await Sender.Send(command);
+            var result = await Sender.Send(new ToggleRoomAvailabilityCommand(roomId));
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }

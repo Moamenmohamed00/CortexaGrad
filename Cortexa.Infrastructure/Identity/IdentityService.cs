@@ -328,14 +328,14 @@ If you did not request a password reset, please ignore this email.";
                 "Password has been reset successfully.");
         }
 
-        public async Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(UpdateDoctorUserRequestDto request)
+        public async Task<ResultDto<DoctorDto>> UpdateDoctorDataAsync(string email, UpdateDoctorUserRequestDto request)
         {
-            var doctor = await _unitOfWork.Doctors.GetByEmailAsync(request.Email);
+            var doctor = await _unitOfWork.Doctors.GetByEmailAsync(email);
             if (doctor == null)
             {
                 return ResultDto<DoctorDto>.Failure("Doctor not found.");
             }
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 return ResultDto<DoctorDto>.Failure("Associated user account not found.");
@@ -378,12 +378,12 @@ If you did not request a password reset, please ignore this email.";
     
                     _logger.LogWarning(
                         "Failed to update Identity user for doctor {Email}: {Errors}",
-                        request.Email, errors);
+                        email, errors);
     
                     return ResultDto<DoctorDto>.Failure("Failed to update associated user account: " + errors);
                 }
     
-                _logger.LogInformation("Doctor data updated successfully for {Email}", request.Email);
+                _logger.LogInformation("Doctor data updated successfully for {Email}", email);
 
 
 
@@ -413,14 +413,14 @@ If you did not request a password reset, please ignore this email.";
                 "Doctor data updated successfully.");
         }
 
-        public async Task<ResultDto<NurseDto>> UpdateNurseDataAsync(UpdateNurseUserRequestDto request)
+        public async Task<ResultDto<NurseDto>> UpdateNurseDataAsync(string email, UpdateNurseUserRequestDto request)
         {
-            var nurse = await _unitOfWork.Nurses.GetByEmailAsync(request.Email);
+            var nurse = await _unitOfWork.Nurses.GetByEmailAsync(email);
             if (nurse == null)
             {
                 return ResultDto<NurseDto>.Failure("Nurse not found.");
             }
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null) { 
                 return ResultDto<NurseDto>.Failure("Associated user account not found.");
             }
@@ -461,12 +461,12 @@ If you did not request a password reset, please ignore this email.";
     
                     _logger.LogWarning(
                         "Failed to update Identity user for nurse {Email}: {Errors}",
-                        request.Email, errors);
+                        email, errors);
     
                     return ResultDto<NurseDto>.Failure("Failed to update associated user account: " + errors);
                 }
     
-                _logger.LogInformation("Nurse data updated successfully for {Email}", request.Email);
+                _logger.LogInformation("Nurse data updated successfully for {Email}", email);
 
 
 

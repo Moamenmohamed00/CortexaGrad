@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Cortexa.Application.Features.Admin.Commands
 {
-    public record ToggleUserStatusCommand(string Id) : IRequest<ResultDto<bool>>;
+    public record ToggleUserStatusCommand(string id) : IRequest<ResultDto<bool>>;
 
     public class ToggleUserStatusHandler : IRequestHandler<ToggleUserStatusCommand, ResultDto<bool>>
     {
@@ -15,8 +15,7 @@ namespace Cortexa.Application.Features.Admin.Commands
         }
         public async Task<ResultDto<bool>> Handle(ToggleUserStatusCommand request, CancellationToken cancellationToken)
         {
-            var result = await _adminService.ToggleUserStatus(request.Id);
-            return result;
+            return await _adminService.ToggleUserStatus(request.id);
         }
     }
 

@@ -14,4 +14,9 @@ namespace Cortexa.Application.Dtos.Rooms
    int Floor,
    IReadOnlyList<BedDto> Beds
 );
+
+    public record UpdateRoomDto
+        (
+        string RoomNumber, RoomType RoomType, int Capacity, bool IsAvailable
+        );
 }

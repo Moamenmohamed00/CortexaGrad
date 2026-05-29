@@ -2,11 +2,13 @@ using Cortexa.Application.Dtos.Actors;
 using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Interfaces.Services;
+using Cortexa.Domain.Enums;
 using MediatR;
+using System.ComponentModel.DataAnnotations;
 
 namespace Cortexa.Application.Features.Auth
 {
-    public record UpdateDoctorUserCommand(UpdateDoctorUserRequestDto Request) : IRequest<ResultDto<DoctorDto>>;
+    public record UpdateDoctorUserCommand(string Email, UpdateDoctorUserRequestDto Request) : IRequest<ResultDto<DoctorDto>>;
 
     public class UpdateDoctorUserCommandHandler : IRequestHandler<UpdateDoctorUserCommand, ResultDto<DoctorDto>>
     {
@@ -19,7 +21,8 @@ namespace Cortexa.Application.Features.Auth
 
         public async Task<ResultDto<DoctorDto>> Handle(UpdateDoctorUserCommand request, CancellationToken cancellationToken)
         {
-            return await _identityService.UpdateDoctorDataAsync(request.Request);
+            return await _identityService.UpdateDoctorDataAsync(request.Email, request.Request);
         }
     }
 }
+ 
