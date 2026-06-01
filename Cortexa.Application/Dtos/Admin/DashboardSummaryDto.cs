@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Cortexa.Application.Models.Dashboard;
 namespace Cortexa.Application.Dtos.Admin
 {
 
@@ -13,6 +13,8 @@ namespace Cortexa.Application.Dtos.Admin
         public int HighRiskAlertsCount { get; set; }
         public int TotalRAGQueriesToday { get; set; }
         public List<RecentActivityDto> RecentSystemActivities { get; set; }
+
+        public HospitalOperationsModel HospitalStats { get; set; }
         //public List<BedStatusDto> ICUSectionStatus { get; set; }
     }
 

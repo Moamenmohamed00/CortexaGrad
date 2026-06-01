@@ -20,7 +20,7 @@ namespace Cortexa.Application.Features.Patients.Queries
 
         public async Task<IReadOnlyList<AdmissionDto>> Handle(GetPatientAdmissionsQuery request, CancellationToken cancellationToken)
         {
-            var admissions = await _admissionRepository.GetAdmissionsByPatientIdAsync(request.PatientId);
+            var admissions = await _admissionRepository.GetAdmissionsByPatientIdAsync(request.PatientId, cancellationToken);
             return _mapper.Map<IReadOnlyList<AdmissionDto>>(admissions);
         }
     }

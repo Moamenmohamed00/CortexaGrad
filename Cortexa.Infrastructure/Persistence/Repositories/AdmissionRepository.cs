@@ -9,49 +9,93 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
     {
         public AdmissionRepository(CortexaDbContext context) : base(context) { }
 
-        public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsAsync()
+        public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsAsync(CancellationToken cancellationToken)
         {
             return await _context.Admissions
-                .Where(a => a.IsActive())
+                .Where(a => a.Status == AdmissionStatus.Active)
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
                 .Include(a => a.Bed)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsByPatientIdAsync(string patientId)
+        public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsByPatientIdAsync(string patientId, CancellationToken cancellationToken)
         {
             return await _context.Admissions
-                .Where(a=> a.PatientId == patientId && a.IsActive())
+                .Where(a => a.PatientId == patientId && a.Status == AdmissionStatus.Active)
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
                 .Include(a => a.Bed)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
         }
 
-        public async Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId)
+        public async Task<IReadOnlyList<Admission>> GetAdmissionsByPatientIdAsync(string patientId, CancellationToken cancellationToken)
         {
             return await _context.Admissions
                 .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor)
-                .Include(a=>a.Patient)
+                .Include(a => a.Patient)
                 .OrderByDescending(a => a.AdmissionDate)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<string> GetPatientNameByAdmissionIdAsync(string admissionId)
+        public async Task<Admission?> GetByIdWithPatientDataAsync(string admissionId, CancellationToken cancellationToken, bool includeDetails = false)
         {
-            var admission = await _context.Admissions
-                .Where(a => a.Id == admissionId)
-                .Include(a => a.Patient)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            IQueryable<Admission> query = _context.Admissions;
 
-            return admission?.Patient?.Name ?? "Unknown Patient";
+            if (includeDetails)
+            {
+                query = query
+                    .Include(a => a.Patient)
+                    .Include(a => a.Doctor)
+                    .Include(a => a.Bed);
+            }
+
+            return await query
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == admissionId, cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<Admission>> GetAdmissionsByDateAsync(DateTime date, CancellationToken cancellationToken, bool includeDetails = false)
+        {
+            IQueryable<Admission> query = _context.Admissions;
+
+            if (includeDetails)
+            {
+                query = query
+                    .Include(a => a.Patient)
+                    .Include(a => a.Doctor)
+                    .Include(a => a.Bed);
+            }
+
+            return await query
+                .Where(a => a.AdmissionDate >= date.Date &&
+                            a.AdmissionDate < date.Date.AddDays(1))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
+
+
+        public async Task<IReadOnlyList<Admission>> GetDischargesByDateAsync(DateTime date, CancellationToken cancellationToken, bool includeDetails = false)
+        {
+            IQueryable<Admission> query = _context.Admissions;
+            if (includeDetails)
+            {
+                query = query
+                    .Include(a => a.Patient)
+                    .Include(a => a.Doctor)
+                    .Include(a => a.Bed);
+            }
+            return await query
+                .Where(a => a.DischargeDate.HasValue &&
+                            a.DischargeDate.Value >= date.Date &&
+                            a.DischargeDate.Value < date.Date.AddDays(1))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
         }
     }
 }

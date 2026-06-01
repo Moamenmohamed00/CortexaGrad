@@ -1,6 +1,6 @@
+using Cortexa.Domain.Entities.Actors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Cortexa.Domain.Entities.Actors;
 
 namespace Cortexa.Infrastructure.Persistence.Configurations
 {
@@ -27,6 +27,18 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
             builder.Property(d => d.PhoneNumber)
                 .HasColumnType("nvarchar(max)")
              ;
+
+            // Store Enum as string in the database for better readability
+            builder.Property(d => d.AvailabilityStatus)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .IsRequired();
+
+            // Relationship: One Doctor has many Schedules
+            builder.HasMany(d => d.Schedules)
+                .WithOne(s => s.Doctor)
+                .HasForeignKey(s => s.DoctorId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.OwnsOne(d => d.Address, address =>
             {

@@ -9,6 +9,7 @@ using Cortexa.Domain.Entities.Core;
 using Cortexa.Domain.Entities.Infrastructure;
 using Cortexa.Domain.Enums;
 using MediatR;
+using Cortexa.Application.Interfaces.Services;
 using Cortexa.Application.Dtos.AuditLog;
 using AutoMapper;
 using System;
@@ -26,11 +27,13 @@ namespace Cortexa.Application.Features.Admin.Queries
     public class GetDashboardSummaryHandler : IRequestHandler<GetDashboardSummaryQuery,ResultDto< DashboardSummaryDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAdmissionService _admissionService; // الـ Service اللي عندك لحساب إحصائيات الإشغال
         private readonly IDateTime _dateTime; // الـ Service اللي عندك للوقت
 
-        public GetDashboardSummaryHandler(IUnitOfWork unitOfWork, IDateTime dateTime)
+        public GetDashboardSummaryHandler(IUnitOfWork unitOfWork, IAdmissionService admissionService, IDateTime dateTime)
         {
             _unitOfWork = unitOfWork;
+            _admissionService = admissionService;
             _dateTime = dateTime;
         }
 
@@ -51,6 +54,26 @@ namespace Cortexa.Application.Features.Admin.Queries
             var recentLogs = await _unitOfWork.AuditLogs
                 .GetPagedAsync(1, 20, l => true, q => q.OrderByDescending(l => l.Timestamp));
 
+            var hospitalStats = await _admissionService.GetHospitalOperationsAsync(CancellationToken.None);
+
+            //return new ResultDto<DashboardSummaryDto>
+            //{
+            //    Data = new DashboardSummaryDto
+            //    {
+            //        TotalActivePatients = activeAdmissions.Count(),
+            //        BedOccupancyPercentage = totalBeds.Count() > 0 ? (double)activeAdmissions.Count() / totalBeds.Count() * 100 : 0,
+            //        HighRiskAlertsCount = highRiskAlerts.Count(),
+            //        TotalRAGQueriesToday = ragQueriesToday.Count(),
+            //        RecentSystemActivities = recentLogs.Items.Select(l => new RecentActivityDto
+            //        {
+            //            Action = l.Type.ToString(),
+            //            UserId = l.UserId,
+            //            Timestamp = l.Timestamp,
+            //            EntityName = l.EntityName
+            //        }).ToList()
+            //    }, Success = true , Message = "Dashboard summary retrieved successfully"
+            //};
+
             return new ResultDto<DashboardSummaryDto>
             {
                 Data = new DashboardSummaryDto
@@ -65,8 +88,11 @@ namespace Cortexa.Application.Features.Admin.Queries
                         UserId = l.UserId,
                         Timestamp = l.Timestamp,
                         EntityName = l.EntityName
-                    }).ToList()
-                }, Success = true , Message = "Dashboard summary retrieved successfully"
+                    }).ToList(),
+                    HospitalStats = hospitalStats
+                },
+                Success = true,
+                Message = "Dashboard summary retrieved successfully"
             };
         }
     }

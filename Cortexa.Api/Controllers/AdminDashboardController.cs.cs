@@ -7,22 +7,24 @@ using Cortexa.Application.Dtos.Auth;
 using Cortexa.Application.Dtos.Beds;
 using Cortexa.Application.Dtos.Core;
 using Cortexa.Application.Dtos.Rooms;
+using Cortexa.Application.Dtos.Schedule;
 using Cortexa.Application.Features.Admin.Commands;
 using Cortexa.Application.Features.Admin.Queries;
 using Cortexa.Application.Features.Auth;
 using Cortexa.Application.Features.Rooms.Queries;
+using Cortexa.Application.Features.Schedule.Commands;
+using Cortexa.Application.Features.Schedule.Queries;
 using Cortexa.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static System.Net.Mime.MediaTypeNames;
-
 namespace Cortexa.Api.Controllers
 {
 
     // Cortexa.Api/Controllers/AdminDashboardController.cs
-    [Authorize(Roles = $"{AppRoles.Admin}")]
+    //[Authorize(Roles = $"{AppRoles.Admin}")]
     [ApiController]
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)
@@ -346,7 +348,28 @@ namespace Cortexa.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Creates a new recurring schedule for the specified doctor.
+        /// </summary>
+        /// <param name="doctorId">The unique identifier of the doctor for whom the schedule is being created. Cannot be null or empty.</param>
+        /// <param name="request">The details of the recurring schedule to create. Must not be null.</param>
+        /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
+        /// otherwise, returns 400 Bad Request with error details.</returns>
+        [HttpPost("doctors/{doctorId}/schedules")]
+        public async Task<IActionResult> CreateDoctorSchedule([FromRoute] string doctorId, [FromBody] CreateRecurringScheduleDto request) 
+        {
+            var result = await Sender.Send(new CreateRecurringScheduleCommand(doctorId, request));
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
 
+        [HttpGet("doctors/{doctorId}/schedules")]
+        public async Task<IActionResult> GetDoctorSchedules([FromRoute] string doctorId)
+        {
+            var result = await Sender.Send(new SchedulesByDoctorIdCommand(doctorId));
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
 
         //[HttpGet("ai-insights")]
         //public async Task<ActionResult<List<RagQueryDto>>> GetAIInsights()

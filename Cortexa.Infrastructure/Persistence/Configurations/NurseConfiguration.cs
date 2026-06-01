@@ -1,6 +1,6 @@
+using Cortexa.Domain.Entities.Actors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Cortexa.Domain.Entities.Actors;
 
 namespace Cortexa.Infrastructure.Persistence.Configurations
 {
@@ -43,6 +43,16 @@ namespace Cortexa.Infrastructure.Persistence.Configurations
             builder.Property(n => n.Department)
                 .HasMaxLength(200);
 
+            builder.Property(n => n.AvailabilityStatus)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .IsRequired();
+
+            // Relationship: One Nurse has many Schedules
+            builder.HasMany(n => n.Schedules)
+                .WithOne(s => s.Nurse)
+                .HasForeignKey(s => s.NurseId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

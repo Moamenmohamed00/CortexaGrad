@@ -1,27 +1,31 @@
 ﻿using Azure.Core;
+using Cortexa.Application.Dtos.Admin;
 using Cortexa.Application.Dtos.Core;
+using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
+using Cortexa.Domain.Enums;
 using Cortexa.Infrastructure.Identity;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Cortexa.Application.Dtos.Admin;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
-using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace Cortexa.Infrastructure.Services
 {
-    internal class AdminService : IAdminService
+    public class AdminService : IAdminService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly IBedRepository _bedRepository;
+        public AdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IBedRepository bedRepository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _bedRepository = bedRepository;
         }
 
         public async Task<ResultDto<bool>> AssignRoleToUser(string UserId, string RoleName)
@@ -164,6 +168,7 @@ namespace Cortexa.Infrastructure.Services
 
             return new ResultDto<bool> { Data = true, Success = true, Message = "Password reset successfully." };
         }
+
 
     }
 }

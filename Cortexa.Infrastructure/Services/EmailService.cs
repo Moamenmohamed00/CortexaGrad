@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using Cortexa.Application.Common.Interfaces;
+using Cortexa.Infrastructure.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

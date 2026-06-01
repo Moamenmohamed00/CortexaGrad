@@ -24,7 +24,7 @@ namespace Cortexa.Application.Features.Admission.Queries
 
         public async Task<List<PatientAdmissionDto>> Handle(GetActiveAdmissionsQuery request, CancellationToken cancellationToken)
         {
-            var admissions = await _admissionRepository.GetActiveAdmissionsAsync();
+            var admissions = await _admissionRepository.GetActiveAdmissionsAsync(cancellationToken);
             return _mapper.Map<List<PatientAdmissionDto>>(admissions);
         }
     }

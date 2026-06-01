@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Cortexa.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Cortexa.Infrastructure.Services
 {

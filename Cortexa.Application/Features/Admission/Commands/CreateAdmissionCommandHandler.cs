@@ -32,7 +32,7 @@ namespace Cortexa.Application.Features.Admission.Commands
             var patient = await _unitOfWork.Patients.GetByIdAsync(request.PatientId);
             if (patient == null) throw new Exception("Patient not found.");
 
-            var activeAdmission = await _unitOfWork.Admissions.GetActiveAdmissionsByPatientIdAsync(patient.Id);
+            var activeAdmission = await _unitOfWork.Admissions.GetActiveAdmissionsByPatientIdAsync(patient.Id, cancellationToken);
             if (activeAdmission != null)
             {
                 throw new PatientAlreadyAdmittedException(patient.Id, patient.Name);

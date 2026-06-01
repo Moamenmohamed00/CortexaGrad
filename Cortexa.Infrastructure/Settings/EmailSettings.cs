@@ -1,4 +1,4 @@
-namespace Cortexa.Infrastructure.Services
+namespace Cortexa.Infrastructure.Settings
 {
     /// <summary>
     /// Strongly-typed email configuration settings.

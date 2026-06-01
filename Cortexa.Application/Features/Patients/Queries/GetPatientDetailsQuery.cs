@@ -47,7 +47,7 @@ namespace Cortexa.Application.Features.Patients.Queries
             if (patient == null)
                 throw new KeyNotFoundException($"Patient with ID '{request.PatientId}' was not found.");
 
-            var admissions = await _admissionRepository.GetAdmissionsByPatientIdAsync(request.PatientId);
+            var admissions = await _admissionRepository.GetAdmissionsByPatientIdAsync(request.PatientId, cancellationToken);
 
             var dto = new PatientDetailsDto
             {

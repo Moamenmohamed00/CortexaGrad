@@ -60,6 +60,10 @@ namespace Cortexa.Domain.Common
                 { "Doctor", "DOC" },
                 { "Nurse", "NUR" },
                 
+                // Staff Schedule
+                { "DoctorSchedule", "DCS" },
+                { "NurseSchedule", "NCS" },
+
                 // Core
                 { "Admission", "ADM" },
                 

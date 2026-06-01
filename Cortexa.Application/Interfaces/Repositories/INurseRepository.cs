@@ -9,5 +9,7 @@ namespace Cortexa.Application.Interfaces.Repositories
         Task<IReadOnlyList<Nurse>> GetByDepartmentAsync(string department);
         Task<IReadOnlyList<Nurse>> GetAvailableNursesAsync();
         Task<Nurse?> GetByEmailAsync(string email);
+
+        Task<int> CountActiveNursesTodayAsync(DateTime date, CancellationToken cancellationToken);
     }
 }

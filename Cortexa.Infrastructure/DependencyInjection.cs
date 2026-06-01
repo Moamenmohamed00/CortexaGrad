@@ -9,6 +9,7 @@ using Cortexa.Infrastructure.Persistence;
 using Cortexa.Infrastructure.Persistence.Repositories;
 using Cortexa.Infrastructure.Persistence.Repositories.Clinical;
 using Cortexa.Infrastructure.Services;
+using Cortexa.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,8 @@ namespace Cortexa.Infrastructure
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IAdmissionService, AdmissionService>();
+            services.AddScoped<IScheduleApplicationService, ScheduleApplicationService>();
             services.Configure<EmailSettings>(
                 configuration.GetSection(EmailSettings.SectionName));
             services.AddTransient<IEmailService, EmailService>();

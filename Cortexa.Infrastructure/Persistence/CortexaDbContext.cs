@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
+using Cortexa.Domain.Entities.StaffSchedule;
 
 namespace Cortexa.Infrastructure.Persistence
 {
@@ -34,6 +35,11 @@ namespace Cortexa.Infrastructure.Persistence
         public DbSet<Patient> Patients => Set<Patient>();
         public DbSet<Doctor> Doctors => Set<Doctor>();
         public DbSet<Nurse> Nurses => Set<Nurse>();
+
+        // Staff Schedule
+        public DbSet<DoctorSchedule> DoctorSchedules => Set<DoctorSchedule>();
+
+        public DbSet<NurseSchedule> NurseSchedules => Set<NurseSchedule>();
 
         // Core
         public DbSet<Admission> Admissions => Set<Admission>();

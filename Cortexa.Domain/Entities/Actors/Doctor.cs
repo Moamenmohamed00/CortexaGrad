@@ -1,10 +1,11 @@
-using System.Collections.Generic;
 using Cortexa.Domain.Common;
-using Cortexa.Domain.Entities.Core;
-using Cortexa.Domain.Entities.Clinical;
-using Cortexa.Domain.Entities.Diagnostics;
 using Cortexa.Domain.Entities.AI;
+using Cortexa.Domain.Entities.Clinical;
+using Cortexa.Domain.Entities.Core;
+using Cortexa.Domain.Entities.Diagnostics;
+using Cortexa.Domain.Entities.StaffSchedule;
 using Cortexa.Domain.Enums;
+using System.Collections.Generic;
 
 namespace Cortexa.Domain.Entities.Actors
 {
@@ -17,7 +18,12 @@ namespace Cortexa.Domain.Entities.Actors
         public string Department { get; set; } = string.Empty;
         public int ExperienceYears { get; set; }
 
+        // Live availability status managed by the system (e.g., Available, InSurgery, Offline)
+        public DoctorAvailabilityStatus AvailabilityStatus { get; set; }
+
+
         // Navigation Properties
+        public ICollection<DoctorSchedule> Schedules { get; set; } = new List<DoctorSchedule>();
         public ICollection<Admission> Admissions { get; set; } = new List<Admission>();
         public ICollection<VitalSigns> VerifiedVitalSigns { get; set; } = new List<VitalSigns>();
         public ICollection<LabOrder> LabOrders { get; set; } = new List<LabOrder>();
@@ -31,5 +37,25 @@ namespace Cortexa.Domain.Entities.Actors
         public ICollection<KnowledgeSource> KnowledgeSources { get; set; } = new List<KnowledgeSource>();
 
         public Doctor() { }
+
+        // Core Domain Rule: Checks if the doctor is dynamically scheduled and present right now
+        public bool IsCurrentlyOnDuty(DateTime currentDateTime)
+        {
+            // If the doctor manually set their status to offline/busy, they are not available
+            if (AvailabilityStatus == DoctorAvailabilityStatus.Offline ||
+                AvailabilityStatus == DoctorAvailabilityStatus.InSurgery)
+            {
+                return false;
+            }
+
+            // Check if there is an active schedule for this specific date and time
+            return Schedules.Any(s =>
+                s.ShiftStart <= currentDateTime &&
+                s.ShiftEnd >= currentDateTime &&
+                s.Status == ScheduleStatus.Present);
+        }
     }
+
+   
+    
 }
