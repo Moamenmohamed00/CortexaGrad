@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Cortexa.Application.Dtos.Schedule
 {
-    public record CreateRecurringScheduleDto(
+    public record CreateStaffScheduleDto(
         DateTime StartDate,
         DateTime EndDate,
         List<DayOfWeek> DaysOfWeek,

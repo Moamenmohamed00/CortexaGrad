@@ -1,8 +1,8 @@
 ﻿namespace Cortexa.Application.Dtos.Schedule
 {
-    public record RecurringScheduleDto(
+    public record StaffScheduleDto(
     string Id,
-    string DoctorId,
+    string StaffId,
     DateTime StartDate,
     DateTime EndDate,
     List<DayOfWeek> DaysOfWeek,

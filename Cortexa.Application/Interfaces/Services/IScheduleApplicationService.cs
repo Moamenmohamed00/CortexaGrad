@@ -8,7 +8,7 @@ namespace Cortexa.Application.Interfaces.Services
 {
     public interface IScheduleApplicationService
     {
-        Task<ResultDto<bool>> GenerateRecurringSchedulesAsync(string doctorId, CreateRecurringScheduleDto command);
-        Task<ResultDto<IEnumerable<RecurringScheduleDto>>> GetSchedulesByDoctorIdAsync(string doctorId);
+        Task<ResultDto<bool>> GenerateStaffSchedulesAsync(string staffId, CreateStaffScheduleDto command);
+        Task<ResultDto<IEnumerable<StaffScheduleDto>>> GetSchedulesByStaffIdAsync(string staffId);
     }
 }

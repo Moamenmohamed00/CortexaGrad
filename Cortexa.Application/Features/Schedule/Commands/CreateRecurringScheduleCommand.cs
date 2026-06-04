@@ -8,18 +8,18 @@ using System.Text;
 
 namespace Cortexa.Application.Features.Schedule.Commands
 {
-    public record CreateRecurringScheduleCommand(string DoctorId, CreateRecurringScheduleDto Request) : IRequest<ResultDto<bool>>;
+    public record CreateStaffScheduleCommand(string StaffId, CreateStaffScheduleDto Request) : IRequest<ResultDto<bool>>;
 
-    public class CreateRecurringScheduleCommandHandler : IRequestHandler<CreateRecurringScheduleCommand, ResultDto<bool>>
+    public class CreateStaffScheduleCommandHandler : IRequestHandler<CreateStaffScheduleCommand, ResultDto<bool>>
     {
         private readonly IScheduleApplicationService _scheduleService;
-        public CreateRecurringScheduleCommandHandler(IScheduleApplicationService scheduleService)
+        public CreateStaffScheduleCommandHandler(IScheduleApplicationService scheduleService)
         {
             _scheduleService = scheduleService;
         }
-        public async Task<ResultDto<bool>> Handle(CreateRecurringScheduleCommand request, CancellationToken cancellationToken)
+        public async Task<ResultDto<bool>> Handle(CreateStaffScheduleCommand request, CancellationToken cancellationToken)
         {
-            return await _scheduleService.GenerateRecurringSchedulesAsync(request.DoctorId, request.Request);
+            return await _scheduleService.GenerateStaffSchedulesAsync(request.StaffId, request.Request);
         }
     }
 

@@ -43,12 +43,7 @@ namespace Cortexa.Api.Controllers
             [FromQuery] string admissionId,
             [FromBody] Cortexa.Application.Dtos.AI.RagSearchRequest request,
             CancellationToken ct)
-        {
-            if (string.IsNullOrWhiteSpace(projectId))
-                return BadRequest("projectId is required.");
-            if (string.IsNullOrWhiteSpace(admissionId))
-                return BadRequest("admissionId is required.");
-
+        { 
             var command = new AskRAGQueryCommand(
                 ProjectId: projectId,
                 AdmissionId: admissionId,

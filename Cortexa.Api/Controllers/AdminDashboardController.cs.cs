@@ -349,24 +349,31 @@ namespace Cortexa.Api.Controllers
         }
 
         /// <summary>
-        /// Creates a new recurring schedule for the specified doctor.
+        /// Creates a new recurring schedule for the specified staff member.
         /// </summary>
-        /// <param name="doctorId">The unique identifier of the doctor for whom the schedule is being created. Cannot be null or empty.</param>
+        /// <param name="staffId">The unique identifier of the staff member for whom the schedule is being created. Cannot be null or empty.</param>
         /// <param name="request">The details of the recurring schedule to create. Must not be null.</param>
         /// <returns>An IActionResult indicating the result of the operation. Returns 200 OK with the result if successful;
         /// otherwise, returns 400 Bad Request with error details.</returns>
-        [HttpPost("doctors/{doctorId}/schedules")]
-        public async Task<IActionResult> CreateDoctorSchedule([FromRoute] string doctorId, [FromBody] CreateRecurringScheduleDto request) 
+        [HttpPost("staff/{staffId}/schedules")]
+        public async Task<IActionResult> CreateStaffSchedule([FromRoute] string staffId, [FromBody] CreateStaffScheduleDto request) 
         {
-            var result = await Sender.Send(new CreateRecurringScheduleCommand(doctorId, request));
+            var result = await Sender.Send(new CreateStaffScheduleCommand(staffId, request));
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
 
-        [HttpGet("doctors/{doctorId}/schedules")]
-        public async Task<IActionResult> GetDoctorSchedules([FromRoute] string doctorId)
+
+        /// <summary>
+        /// Retrieves the schedules associated with a specific staff member.
+        /// </summary>
+        /// <param name="staffId">The unique identifier of the staff member whose schedules are being retrieved. Cannot be null or empty.</param>
+        /// <returns>An IActionResult containing the schedules of the specified staff member. Returns 200 OK with the schedules if successful;
+        /// otherwise, returns 400 Bad Request with error details.</returns>
+        [HttpGet("staff/{staffId}/schedules")]
+        public async Task<IActionResult> GetStaffSchedules([FromRoute] string staffId)
         {
-            var result = await Sender.Send(new SchedulesByDoctorIdCommand(doctorId));
+            var result = await Sender.Send(new SchedulesByStaffIdCommand(staffId));
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }

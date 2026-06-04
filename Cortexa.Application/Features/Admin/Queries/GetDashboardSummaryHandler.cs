@@ -39,9 +39,6 @@ namespace Cortexa.Application.Features.Admin.Queries
 
         public async Task<ResultDto<DashboardSummaryDto>> Handle(GetDashboardSummaryQuery request, CancellationToken cancellationToken)
         {
-            // 1. حساب نسبة إشغال الأسرة
-            var totalBeds = await _unitOfWork.Beds.GetAllAsync();
-            var activeAdmissions = await _unitOfWork.Admissions.FindAsync(a => a.Status == AdmissionStatus.Active);
             // 2. جلب التنبيهات الخطيرة غير المحلولة
             var highRiskAlerts = await _unitOfWork.AI.FindAsync(a => a.Status != AlertStatus.Resolved && a.Severity == AlertSeverity.High);
 
@@ -55,31 +52,10 @@ namespace Cortexa.Application.Features.Admin.Queries
                 .GetPagedAsync(1, 20, l => true, q => q.OrderByDescending(l => l.Timestamp));
 
             var hospitalStats = await _admissionService.GetHospitalOperationsAsync(CancellationToken.None);
-
-            //return new ResultDto<DashboardSummaryDto>
-            //{
-            //    Data = new DashboardSummaryDto
-            //    {
-            //        TotalActivePatients = activeAdmissions.Count(),
-            //        BedOccupancyPercentage = totalBeds.Count() > 0 ? (double)activeAdmissions.Count() / totalBeds.Count() * 100 : 0,
-            //        HighRiskAlertsCount = highRiskAlerts.Count(),
-            //        TotalRAGQueriesToday = ragQueriesToday.Count(),
-            //        RecentSystemActivities = recentLogs.Items.Select(l => new RecentActivityDto
-            //        {
-            //            Action = l.Type.ToString(),
-            //            UserId = l.UserId,
-            //            Timestamp = l.Timestamp,
-            //            EntityName = l.EntityName
-            //        }).ToList()
-            //    }, Success = true , Message = "Dashboard summary retrieved successfully"
-            //};
-
             return new ResultDto<DashboardSummaryDto>
             {
                 Data = new DashboardSummaryDto
                 {
-                    TotalActivePatients = activeAdmissions.Count(),
-                    BedOccupancyPercentage = totalBeds.Count() > 0 ? (double)activeAdmissions.Count() / totalBeds.Count() * 100 : 0,
                     HighRiskAlertsCount = highRiskAlerts.Count(),
                     TotalRAGQueriesToday = ragQueriesToday.Count(),
                     RecentSystemActivities = recentLogs.Items.Select(l => new RecentActivityDto
