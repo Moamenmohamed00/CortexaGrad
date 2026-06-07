@@ -1,4 +1,5 @@
 using Cortexa.Application.Interfaces.Repositories;
+using Cortexa.Domain.Entities.Actors;
 using Cortexa.Domain.Entities.Core;
 using Cortexa.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,17 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
     {
         public AdmissionRepository(CortexaDbContext context) : base(context) { }
 
+        public override async Task<Admission?> GetByIdAsync(string id)
+        {
+            return await _context.Admissions
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Include(a => a.Bed)
+                .Include(a => a.VitalSigns)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+        }
         public async Task<IReadOnlyList<Admission>> GetActiveAdmissionsAsync(CancellationToken cancellationToken)
         {
             return await _context.Admissions
@@ -40,6 +52,8 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor)
                 .Include(a => a.Patient)
+                .Include(a => a.Bed)
+                .Include(a => a.VitalSigns)
                 .OrderByDescending(a => a.AdmissionDate)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

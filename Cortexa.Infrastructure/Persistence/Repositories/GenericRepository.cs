@@ -15,7 +15,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<T?> GetByIdAsync(string id)
+        public virtual async Task<T?> GetByIdAsync(string id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
