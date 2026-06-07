@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Cortexa.Application.Features.Admission.Queries
 {
-    public record GetAdmissionsByPatientIdQuery(string PatientId) : IRequest<List<PatientAdmissionDto>>;
+    public record GetAdmissionsByPatientIdQuery(string PatientId) : IRequest<ResultDto<List<PatientAdmissionDto>>>;
 
-    public class GetAdmissionsByPatientIdQueryHandler : IRequestHandler<GetAdmissionsByPatientIdQuery, List<PatientAdmissionDto>>
+    public class GetAdmissionsByPatientIdQueryHandler : IRequestHandler<GetAdmissionsByPatientIdQuery, ResultDto<List<PatientAdmissionDto>>>
     {
         private readonly IAdmissionRepository _admissionRepository;
         private readonly IMapper _mapper;
@@ -22,10 +22,14 @@ namespace Cortexa.Application.Features.Admission.Queries
             _mapper = mapper;
         }
 
-        public async Task<List<PatientAdmissionDto>> Handle(GetAdmissionsByPatientIdQuery request, CancellationToken cancellationToken)
+        public async Task<ResultDto<List<PatientAdmissionDto>>> Handle(GetAdmissionsByPatientIdQuery request, CancellationToken cancellationToken)
         {
             var admissions = await _admissionRepository.GetAdmissionsByPatientIdAsync(request.PatientId, cancellationToken);
-            return _mapper.Map<List<PatientAdmissionDto>>(admissions);
+            if (admissions == null || admissions.Count == 0)
+            {
+                return ResultDto<List<PatientAdmissionDto>>.Failure("No admissions found for the specified patient.");
+            }
+            return ResultDto<List<PatientAdmissionDto>>.SuccessResult(_mapper.Map<List<PatientAdmissionDto>>(admissions), "Admissions retrieved successfully.");
         }
     }
 }

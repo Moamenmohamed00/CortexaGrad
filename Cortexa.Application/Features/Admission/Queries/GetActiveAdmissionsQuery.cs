@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Cortexa.Application.Features.Admission.Queries
 {
-    public record GetActiveAdmissionsQuery : IRequest<List<PatientAdmissionDto>>;
+    public record GetActiveAdmissionsQuery : IRequest<ResultDto<List<PatientAdmissionDto>>>;
 
-    public class GetActiveAdmissionsQueryHandler : IRequestHandler<GetActiveAdmissionsQuery, List<PatientAdmissionDto>>
+    public class GetActiveAdmissionsQueryHandler : IRequestHandler<GetActiveAdmissionsQuery, ResultDto<List<PatientAdmissionDto>>>
     {
         private readonly IAdmissionRepository _admissionRepository;
         private readonly IMapper _mapper;
@@ -22,10 +22,14 @@ namespace Cortexa.Application.Features.Admission.Queries
             _mapper = mapper;
         }
 
-        public async Task<List<PatientAdmissionDto>> Handle(GetActiveAdmissionsQuery request, CancellationToken cancellationToken)
+        public async Task<ResultDto<List<PatientAdmissionDto>>> Handle(GetActiveAdmissionsQuery request, CancellationToken cancellationToken)
         {
             var admissions = await _admissionRepository.GetActiveAdmissionsAsync(cancellationToken);
-            return _mapper.Map<List<PatientAdmissionDto>>(admissions);
+            if (admissions == null || admissions.Count == 0)
+            {
+                return ResultDto<List<PatientAdmissionDto>>.Failure("No active admissions found.");
+            }
+            return ResultDto<List<PatientAdmissionDto>>.SuccessResult(_mapper.Map<List<PatientAdmissionDto>>(admissions), "Active admissions retrieved successfully.");
         }
     }
 }

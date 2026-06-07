@@ -43,6 +43,7 @@ namespace Cortexa.Application.Common.Mappings
                 .ForMember(dest => dest.Admission, opt => opt.Ignore()) // Navigation properties should be ignored
                 .ForMember(dest => dest.Nurse, opt => opt.Ignore())
                 .ForMember(dest => dest.Doctor, opt => opt.Ignore());
+            CreateMap<VitalSigns, VitalSignsSummaryDto>();
             CreateMap<Medications, MedicationDto>();
             CreateMap<LabResult, LabResultDto>(); // Technically Diagnostic but referenced in Nurse
             CreateMap<NursingNotes, NursingNotesDto>();
@@ -89,15 +90,59 @@ namespace Cortexa.Application.Common.Mappings
             //    //.ForMember(d => d.Phone, o => o.Ignore())
             //    //.ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
             CreateMap<Admission, PatientAdmissionDto>()
-    .ForMember(d => d.AdmissionId, o => o.MapFrom(s => s.Id))
-    .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()))
-    .ForMember(d => d.PatientId, o => o.MapFrom(s => s.Patient.Id))
-    .ForMember(d => d.NationalId, o => o.MapFrom(s => s.Patient.NationalId))
-    .ForMember(d => d.Name, o => o.MapFrom(s => s.Patient.Name))
-    .ForMember(d => d.DateOfBirth, o => o.MapFrom(s => s.Patient.DateOfBirth))
-    .ForMember(d => d.Gender, o => o.MapFrom(s => s.Patient.Gender.ToString()))
-    .ForMember(d => d.Email, o => o.MapFrom(s => s.Patient.Email))
-    .ForMember(d => d.Phone, o => o.MapFrom(s => s.Patient.PhoneNumber));
+    .ForMember(d => d.AdmissionId,
+        o => o.MapFrom(s => s.Id))
+
+    .ForMember(d => d.PatientId,
+        o => o.MapFrom(s => s.Patient.Id))
+
+    .ForMember(d => d.NationalId,
+        o => o.MapFrom(s => s.Patient.NationalId))
+
+    .ForMember(d => d.FileNumber,
+        o => o.MapFrom(s => s.Patient.FileNumber))
+
+    .ForMember(d => d.Name,
+        o => o.MapFrom(s => s.Patient.Name))
+
+    .ForMember(d => d.DateOfBirth,
+        o => o.MapFrom(s => s.Patient.DateOfBirth))
+
+    .ForMember(d => d.Age,
+        o => o.MapFrom(s => s.Patient.Age))
+
+    .ForMember(d => d.Gender,
+        o => o.MapFrom(s => s.Patient.Gender))
+
+    .ForMember(d => d.BloodType,
+        o => o.MapFrom(s => s.Patient.BloodType))
+
+    .ForMember(d => d.Email,
+        o => o.MapFrom(s => s.Patient.Email))
+
+    .ForMember(d => d.Phone,
+        o => o.MapFrom(s => s.Patient.PhoneNumber))
+
+    .ForMember(d => d.AdmissionDate,
+        o => o.MapFrom(s => s.AdmissionDate))
+
+    .ForMember(d => d.InitialDiagnosis,
+        o => o.MapFrom(s => s.InitialDiagnosis))
+
+    .ForMember(d => d.Status,
+        o => o.MapFrom(s => s.Status.ToString()))
+
+    .ForMember(d => d.DiagnosisSummary,
+        o => o.MapFrom(s => s.Patient.DiagnosisSummary))
+
+    .ForMember(d => d.BedId,
+        o => o.MapFrom(s => s.BedId))
+
+    .ForMember(d => d.RoomId,
+        o => o.MapFrom(s => s.RoomId))
+
+    .ForMember(d => d.LatestVitalSigns,
+        o => o.MapFrom(s => s.VitalSigns.OrderByDescending(v => v.RecordedAt).FirstOrDefault()));
 
         }
     }

@@ -24,7 +24,7 @@ namespace Cortexa.Api.Controllers
 {
 
     // Cortexa.Api/Controllers/AdminDashboardController.cs
-    //[Authorize(Roles = $"{AppRoles.Admin}")]
+    [Authorize(Roles = $"{AppRoles.Admin}")]
     [ApiController]
     [Route("api/admin-dashboard")]
     public class AdminDashboardController(ISender sender) : ApiControllerBase(sender)

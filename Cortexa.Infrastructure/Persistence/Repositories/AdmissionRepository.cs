@@ -16,6 +16,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
                 .Include(a => a.Bed)
+                .Include(a=>a.VitalSigns)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
@@ -27,6 +28,7 @@ namespace Cortexa.Infrastructure.Persistence.Repositories
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
                 .Include(a => a.Bed)
+                .Include(a => a.VitalSigns)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
