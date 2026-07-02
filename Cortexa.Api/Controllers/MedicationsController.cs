@@ -66,5 +66,15 @@ namespace Cortexa.Api.Controllers
 
             return NoContent(); // 204 No Content
         }
+
+        /// <summary>Searches the Egyptian drug database.</summary>
+        [HttpGet("~/api/medications/search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchDrugs([FromQuery] string? term)
+        {
+            var result = await Sender.Send(new SearchEgyptianDrugsQuery(term));
+            
+            return Ok(result);
+        }
     }
 }

@@ -151,6 +151,8 @@ namespace Cortexa.Infrastructure
             // ── ASP.NET Core Infrastructure ────────────────────────────
             services.AddHttpContextAccessor();
 
+            // ── Egyptian Drugs ───────────────────────────────────────────
+            services.AddSingleton<IEgyptianDrugService, EgyptianDrugService>();
             return services;
         }
     }

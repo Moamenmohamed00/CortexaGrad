@@ -27,5 +27,9 @@
     <ProjectReference Include="..\Cortexa.Application\Cortexa.Application.csproj" />
     <ProjectReference Include="..\Cortexa.Domain\Cortexa.Domain.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+  <None Update="Data\cleaned_egyptian_drugs.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 </Project>
