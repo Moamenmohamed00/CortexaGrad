@@ -49,22 +49,17 @@ namespace Cortexa.Infrastructure.External
                 var raw = await response.Content.ReadAsStringAsync(ct);
                 _logger.LogDebug("RAG answer raw: {Raw}", raw);
 
-                // Parse flexibly — the API returns a dynamic object
-                using var doc = JsonDocument.Parse(raw);
-                var root = doc.RootElement;
+                // Deserialize the full FastAPI response — all fields including
+                // retrieved_sources (with page numbers) are mapped automatically
+                // via [JsonPropertyName] attributes on RagAnswerResponse / RagSourceDto.
+                var result = JsonSerializer.Deserialize<RagAnswerResponse>(raw, _jsonOpts);
 
-                var answer = root.TryGetProperty("answer", out var ans)
-                    ? ans.GetString()
-                    : root.TryGetProperty("result", out var res)
-                        ? res.GetString()
-                        : raw;
-
-                var sources = new List<string>();
-                if (root.TryGetProperty("sources", out var srcArr) && srcArr.ValueKind == JsonValueKind.Array)
-                    foreach (var s in srcArr.EnumerateArray())
-                        if (s.GetString() is { } src) sources.Add(src);
-
-                return new RagAnswerResponse { Answer = answer, Sources = sources };
+                return result ?? new RagAnswerResponse
+                {
+                    Answer = "No response obtained.",
+                    Sources = [],
+                    RetrievedSources = []
+                };
             }
             catch (Exception ex)
             {

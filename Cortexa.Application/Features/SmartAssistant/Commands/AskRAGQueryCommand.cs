@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Cortexa.Application.Common.Interfaces;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Repositories;
@@ -69,9 +69,18 @@ namespace Cortexa.Application.Features.SmartAssistant.Commands
             await _unitOfWork.Rags.AddAsync(ragEntity, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 4. Return the new DTO mapped, appending the sources so UI can see them
+            // 4. Return the mapped DTO enriched with all FastAPI fields.
+            //    RetrievedSources carries file name + page number so the
+            //    client can link directly to the exact page of the source book.
             var mapped = _mapper.Map<RagQueryDto>(ragEntity);
-            return mapped with { Sources = result.Sources ?? new List<string>() };
+            return mapped with
+            {
+                Sources            = result.Sources          ?? new List<string>(),
+                RetrievedSources   = result.RetrievedSources ?? new List<RagSourceDto>(),
+                ClinicalStatus     = result.ClinicalStatus,
+                EvidenceSynthesis  = result.EvidenceSynthesis,
+                MissingInvestigations = result.MissingInvestigations
+            };
         }
     }
 }

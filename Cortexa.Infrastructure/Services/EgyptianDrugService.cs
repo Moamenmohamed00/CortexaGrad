@@ -26,11 +26,11 @@ public class EgyptianDrugService : IEgyptianDrugService
     public IEnumerable<EgyptianDrugDto> SearchDrugs(string? searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
-            return _drugs.Take(20);
+            return _drugs.Take(10);
 
         return _drugs.Where(d => 
            // (!string.IsNullOrEmpty(d.ScientificName) && d.ScientificName.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
             (!string.IsNullOrEmpty(d.CommercialNameEn) && d.CommercialNameEn.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)))
-            .Take(20); //20 is the number of drugs to be returned
+            .Take(10); //10 is the number of drugs to be returned
     }
 }

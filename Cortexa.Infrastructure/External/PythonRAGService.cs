@@ -2,6 +2,7 @@ using System.Text;
 using Cortexa.Application.Dtos.AI;
 using Cortexa.Application.Interfaces.Repositories;
 using Cortexa.Application.Interfaces.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Cortexa.Infrastructure.External
@@ -17,12 +18,20 @@ namespace Cortexa.Infrastructure.External
         private readonly AIHttpClient _aiClient;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<PythonRAGService> _logger;
+        private readonly string _filesBaseUrl;
 
-        public PythonRAGService(AIHttpClient aiClient, IUnitOfWork unitOfWork, ILogger<PythonRAGService> logger)
+        public PythonRAGService(
+            AIHttpClient aiClient,
+            IUnitOfWork unitOfWork,
+            ILogger<PythonRAGService> logger,
+            IConfiguration configuration)
         {
             _aiClient = aiClient;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            // Falls back to HuggingFace space URL if not configured
+            _filesBaseUrl = configuration["AIService:FilesBaseUrl"]
+                ?? "https://huggingface.co/spaces/M0amenmohamed/rag/resolve/main";
         }
 
         // ── Ask Question (auto-fetches patient data) ───────────────────────
@@ -56,6 +65,27 @@ namespace Cortexa.Infrastructure.External
                     Answer = "AI assistant unavailable.",
                     Sources = []
                 };
+            }
+
+            // ── Compute page-level links for each retrieved source ─────────
+            // The FastAPI returns source_file_name in two formats:
+            //   a) Full Linux path: /app/src/assets/files/1/file.pdf  → strip "/app"
+            //   b) Bare filename:   file.pdf                           → prepend /src/assets/files/{projectId}/
+            foreach (var source in result.RetrievedSources)
+            {
+                var fileName = source.SourceFileName;
+                string relativePath;
+
+                if (fileName.StartsWith("/app/", StringComparison.OrdinalIgnoreCase))
+                    relativePath = fileName[4..];          // "/app" is 4 chars
+                else if (fileName.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+                    relativePath = fileName;               // already an absolute path without /app
+                else
+                    relativePath = $"/src/assets/files/{projectId}/{fileName}";
+
+                source.Link = source.PageNumber.HasValue
+                    ? $"{_filesBaseUrl}{relativePath}#page={source.PageNumber}"
+                    : $"{_filesBaseUrl}{relativePath}";
             }
 
             return result;
