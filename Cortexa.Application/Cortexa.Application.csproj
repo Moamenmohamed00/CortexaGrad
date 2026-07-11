@@ -7,14 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Mappers\" />
-    <Folder Include="Services\" />
+    <None Include="Features\ClinicalData\Commands\AddCommands\AddCaseHistoryCommand.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+  </ItemGroup>
+	
+  <ItemGroup>
     <ProjectReference Include="..\Cortexa.Domain\Cortexa.Domain.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Features\Admin\Commands\Doctor\" />
   </ItemGroup>
 
 </Project>
