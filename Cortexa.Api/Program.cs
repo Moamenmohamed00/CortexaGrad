@@ -1,3 +1,14 @@
+using Cortexa.Application;
+using Cortexa.Infrastructure;
+using Cortexa.Infrastructure.Persistence.Seeding;
+using Cortexa.Api.Extensions;
+using Cortexa.Api.Hubs;
+using Cortexa.Api.Middlewares;
+using Scalar.AspNetCore;
+
+// Load environment variables from .env file
+DotNetEnv.Env.TraversePath().Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
