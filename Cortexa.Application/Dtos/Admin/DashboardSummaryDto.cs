@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Cortexa.Application.Models.Dashboard;
+namespace Cortexa.Application.Dtos.Admin
+{
+
+    // Cortexa.Application/Dtos/Admin/DashboardSummaryDto.cs
+    public class DashboardSummaryDto
+    {
+        public int HighRiskAlertsCount { get; set; }
+        public int TotalRAGQueriesToday { get; set; }
+        public List<RecentActivityDto> RecentSystemActivities { get; set; }
+        public HospitalOperationsModel HospitalStats { get; set; }
+        //public List<BedStatusDto> ICUSectionStatus { get; set; }
+    }
+
+    public class RecentActivityDto
+    {
+        public string Action { get; set; }
+        public string? UserId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string EntityName { get; set; }
+    }
+}

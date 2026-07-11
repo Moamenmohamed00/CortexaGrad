@@ -1,6 +1,12 @@
-namespace Cortexa.Application.DTOs.AI
+using System;
+
+namespace Cortexa.Application.Dtos.AI
 {
-    public class KnowledgeSourceDto
-    {
-    }
+    public record KnowledgeSourceDto(
+        string Id,
+        string Title,
+        string Type,
+        string Url,
+        string DoctorId
+    );
 }
